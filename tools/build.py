@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Сборка сайта: проверка данных -> dist/site (для публикации) и dist/single (один файл) -> zip."""
-import json, os, re, shutil, sys, hashlib, zipfile
+import json, os, re, shutil, sys, hashlib, zipfile, datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from validate import validate, load_all, ROOT
 
@@ -71,7 +71,8 @@ def main():
     for d in (site, single): os.makedirs(d)
 
     # 1) сайт: данные отдельными файлами
-    html = template.replace('/*@@VARIETIES@@*/', LOADER).replace('/*@@START@@*/', START_LOADER)
+    version_label = datetime.date.today().strftime('%d.%m.%Y') + ' · ' + data_hash
+    html = template.replace('@@VERSION_LABEL@@', version_label).replace('/*@@VARIETIES@@*/', LOADER).replace('/*@@START@@*/', START_LOADER)
     open(os.path.join(site, 'index.html'), 'w', encoding='utf-8').write(html)
     shutil.copytree(os.path.join(ROOT, 'data'), os.path.join(site, 'data'))
     for fname in os.listdir(os.path.join(site, 'data')):
@@ -104,7 +105,7 @@ def main():
     else:
         for v in items_single:       # лёгкий предпросмотр в чате: без фото
             for k in ('image', 'imageCredit', 'imageSource', 'commons', 'gallery'): v.pop(k, None)
-    single_tpl = template
+    single_tpl = template.replace('@@VERSION_LABEL@@', 'тестовая сборка')
     if with_photos:
         for fname in os.listdir(os.path.join(ROOT, 'photos')):
             if fname.startswith('cat-'):
