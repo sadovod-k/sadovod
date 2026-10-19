@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-title" content="Сад">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F2F4F1">
+<title>Справочник садовода</title>
+<style>
+:root{
+  --bg:#F2F4F1; --surface:#FFFFFF; --ink:#1A1D1A; --muted:#586159; --line:#E4E8E2;
+  --apple:#B3262E; --pear:#A9B02E; --stone:#7A3E5C; --grape:#4B3B7A; --berry:#C2417A; --veg:#D9822B; --basics:#2C4A3E; --plan:#3E7C8C; --pest:#8C4A2F;
+  --on-tile:#FFFFFF; --font-sans: -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif; --font-serif: -apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font-sans);line-height:1.45}
+.serif{font-family:var(--font-serif)}
+#app{max-width:520px;margin:0 auto;min-height:100vh;padding:max(18px,env(safe-area-inset-top)) 16px max(28px,env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--basics);outline-offset:2px;border-radius:12px}
+
+/* iOS / Bento home */
+#app{max-width:560px;margin:0 auto;min-height:100vh;padding:max(18px,env(safe-area-inset-top)) 18px calc(112px + env(safe-area-inset-bottom))}
+.hero-home{position:relative;min-height:124px;border-radius:0;overflow:visible;margin:0 0 18px;color:var(--ink);display:flex;flex-direction:column;justify-content:center;padding:0;background:transparent}
+.hero-home::after{display:none}
+.hero-home h1,.hero-home p{position:relative;z-index:1}
+.hero-home h1{font-size:30px;line-height:1.08;font-weight:780;letter-spacing:-.045em;margin-bottom:7px}
+.hero-home p{font-size:14px;color:var(--muted);opacity:1}
+.search{position:relative;margin:0 0 12px}
+.search::before{content:'⌕';position:absolute;left:15px;top:7px;font-size:25px;line-height:1;color:#7C857D;pointer-events:none}
+.search input{width:100%;font:inherit;font-size:15px;padding:14px 15px 14px 43px;border-radius:17px;border:1px solid transparent;background:#E8ECE7;color:var(--ink);outline:none}
+.search input:focus{border-color:#A8B8AA;background:#fff}
+.home-diagnose{display:flex;align-items:center;gap:13px;width:100%;padding:15px 16px;margin:0 0 18px;border-radius:19px;background:#2C4A3E;color:#fff;box-shadow:0 6px 18px rgba(30,56,43,.12)}
+.home-diagnose .hd-icon{width:42px;height:42px;flex:none;display:grid;place-items:center;border-radius:14px;background:rgba(255,255,255,.14);font-size:23px}
+.home-diagnose .hd-copy{flex:1;min-width:0}
+.home-diagnose strong{display:block;font-size:15px;line-height:1.25}
+.home-diagnose small{display:block;font-size:12px;opacity:.78;margin-top:3px}
+.home-diagnose .hd-arrow{font-size:23px;opacity:.8}
+.bento{display:grid;grid-template-columns:1.12fr .88fr;gap:11px;margin-bottom:25px}
+.bento-card{min-width:0;min-height:148px;border-radius:21px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;box-shadow:0 4px 20px rgba(25,35,27,.045)}
+.bento-calendar{grid-column:1/-1;min-height:158px;background:#2C4A3E;color:#fff;position:relative;overflow:hidden}
+.bento-calendar::after{content:'✳';position:absolute;right:9px;top:-27px;font-size:125px;line-height:1;color:rgba(255,255,255,.07);transform:rotate(-15deg)}
+.bento-card .bc-top{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;opacity:.8}
+.bento-card .bc-icon{font-size:20px;flex:none}
+/* Keep each Bento heading and subtitle on separate, predictable lines. */
+.bento-card > span:last-child{display:block;width:100%;min-width:0;position:relative;z-index:1}
+.bento-card .bc-title{display:block;font-size:20px;line-height:1.16;font-weight:750;letter-spacing:-.035em;max-width:280px;white-space:normal;overflow-wrap:break-word;position:relative;z-index:1}
+.bento-card .bc-sub{display:block;font-size:12px;line-height:1.45;opacity:.78;margin-top:8px;white-space:normal;overflow-wrap:break-word;position:relative;z-index:1}
+.bento-garden{background:#E2E9DE;color:#243B2D}
+.bento-garden .bc-title{font-size:18px}
+.bento-tip{background:#F4E9D8;color:#5A4933}
+.bento-tip .bc-title{font-size:17px}
+.section-heading{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:0 0 12px}
+.section-heading h2{font-size:23px;line-height:1.1;letter-spacing:-.04em;font-weight:780}
+.section-heading button{font-size:13px;font-weight:650;color:#2C4A3E;white-space:nowrap}
+.catalog-chips{display:flex;gap:7px;overflow-x:auto;padding:0 0 13px;scrollbar-width:none}
+.catalog-chips::-webkit-scrollbar{display:none}
+.catalog-chip{flex:none;border-radius:999px;padding:8px 13px;background:#E8ECE7;color:#59635B;font-size:12px;font-weight:650}
+.catalog-chip.active{background:#2C4A3E;color:#fff}
+.catalog-chip:disabled{opacity:.5}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.tile{position:relative;min-height:172px;aspect-ratio:auto;border-radius:20px;overflow:hidden;color:var(--ink);display:flex;flex-direction:column;justify-content:flex-end;padding:14px;background:#fff;border:1px solid #E9ECE7;box-shadow:0 4px 20px rgba(25,35,27,.045)}
+.tile .emoji{position:absolute;top:14px;right:10px;font-size:58px;line-height:1;opacity:1;transform:none;filter:drop-shadow(0 7px 8px rgba(40,45,30,.08))}
+.tile::after{display:none}
+.tile .t,.tile .n{position:relative;z-index:1}
+.tile .t{font-size:17px;font-weight:750;line-height:1.15;letter-spacing:-.025em}
+.tile .n{font-size:12px;color:var(--muted);margin-top:5px;opacity:1}
+.tile.soon{filter:none;opacity:.68}
+.note{margin-top:20px;font-size:12px;color:var(--muted);padding:13px 14px;border-radius:16px;background:#E8ECE7;border:0;line-height:1.5}
+.pick{margin:0 0 22px}
+.pick-t{font-size:13px;color:var(--ink);letter-spacing:-.02em;text-transform:none;font-weight:750;margin:0 2px 10px}
+.bottom-nav{position:fixed;z-index:20;bottom:0;left:50%;transform:translateX(-50%);width:min(560px,100%);display:grid;grid-template-columns:repeat(4,1fr);gap:2px;padding:9px 12px calc(9px + env(safe-area-inset-bottom));background:rgba(250,251,249,.94);border-top:1px solid rgba(220,226,219,.85);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.tab-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:4px 2px;border-radius:12px;color:#858D85;text-align:center;font-size:10px;font-weight:650}
+.tab-item .tab-icon{font-size:21px;line-height:1.15}
+.tab-item.active{color:#2C4A3E}
+.tab-item.active .tab-icon{transform:translateY(-1px)}
+@media(min-width:520px){#app{padding-left:22px;padding-right:22px}.hero-home h1{font-size:34px}.tile{min-height:190px}}
+
+/* nav & list */
+.bar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.back{padding:9px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:15px}
+.bar h2{font-size:30px;font-weight:700;line-height:1.1}
+.bar h2.long{font-size:26px}
+.filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;margin:0 -16px;padding-left:16px;padding-right:16px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:14px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.row{display:flex;gap:14px;align-items:center;width:100%;padding:10px;border-radius:18px;background:var(--surface);border:1px solid var(--line);margin-bottom:10px}
+.thumb{position:relative;flex:none;width:72px;height:72px;border-radius:16px;background:var(--c);display:grid;place-items:center;font-size:38px;overflow:hidden}
+.thumb img{width:100%;height:100%;display:block;object-fit:cover;border-radius:inherit}
+.band img{width:100%;height:100%;display:block;object-fit:cover}
+.photo-credit{font-size:11px;color:var(--muted);margin:-12px 0 16px;line-height:1.4}
+.photo-credit a{color:var(--basics);text-decoration:underline;text-underline-offset:2px}
+.row .name{font-size:18px;font-weight:700;line-height:1.2}
+.row .meta{font-size:13px;color:var(--muted);margin-top:2px}
+.rtext{flex:1;min-width:0}
+.row .yr{flex:none;font-size:14px;color:var(--muted);align-self:flex-start;padding-top:2px}
+.empty{padding:28px 8px;color:var(--muted);text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:20px}
+
+/* detail */
+.credit{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
+.band{position:relative;height:112px;border-radius:22px;background:var(--c);display:grid;place-items:center;font-size:64px;overflow:hidden;margin-bottom:20px}
+.d-title{font-size:40px;line-height:1.05;font-weight:700;letter-spacing:-.02em;margin-bottom:4px}
+.d-cap{font-size:18px;font-style:italic;color:var(--muted);margin-bottom:18px}
+.passport{margin:0 0 26px;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:5px 16px}
+.prow{display:grid;grid-template-columns:36% 1fr;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.prow:last-child{border-bottom:1px solid var(--line)}
+.prow dt{font-size:14px;color:var(--muted)}
+.prow dd{font-size:17px;font-weight:600;line-height:1.3}
+.prow dd small{display:block;font-size:13px;font-weight:400;color:var(--muted);margin-top:3px}
+.sec{margin:0 0 24px}
+.sec h3{font-size:26px;line-height:1.15;font-weight:700;margin-bottom:8px}
+.bul{padding-left:20px;font-size:16px}
+.bul li{margin:5px 0}
+.quote{border-left:4px solid var(--c);padding:2px 0 2px 16px;margin:0 0 24px}
+.quote h3{font-size:14px;font-weight:500;color:var(--muted);margin-bottom:6px}
+.quote p{font-size:22px;line-height:1.35;font-style:italic}
+
+/* detail facts */
+.detail-kicker{font-size:11px;text-transform:uppercase;letter-spacing:.12em;font-weight:750;color:var(--muted);margin-bottom:7px}
+.quickfacts{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:18px 0 27px}
+.quickfact{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:19px;padding:14px 13px 13px}
+.quickfact .q-label{display:block;font-size:11px;letter-spacing:.035em;color:var(--muted);margin-bottom:7px}
+.quickfact .q-value{display:block;font-size:17px;font-weight:720;line-height:1.2;letter-spacing:-.035em;overflow-wrap:anywhere}
+.quickfact .q-note{display:block;font-size:11px;color:var(--muted);line-height:1.35;margin-top:5px}
+.passport-title{font-family:var(--font-serif);font-size:25px;letter-spacing:-.035em;margin:0 0 4px}
+
+/* actions & favs */
+.actions{display:flex;gap:6px;margin:0 0 20px}
+.act{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 2px;border-radius:19px;background:var(--surface);border:1px solid var(--line);font-weight:650;font-size:11px;box-shadow:0 3px 12px rgba(25,40,27,.03);text-align:center}
+.act span{font-size:20px;margin-bottom:4px}
+.heart{margin-left:auto;width:44px;height:44px;border-radius:50%;background:var(--surface);border:1px solid var(--line);font-size:22px;line-height:1;display:grid;place-items:center;padding:0;text-align:center}
+.heart.on{color:#D1304A;border-color:#D1304A}
+
+/* quiz */
+.qstat{font-size:13px;color:var(--muted);margin:-6px 0 14px}
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:26px;padding:22px 20px;box-shadow:0 8px 26px rgba(22,40,25,.06)}
+.q-kicker{font-size:12px;color:var(--muted);margin-bottom:4px}
+.q-name{font-size:clamp(30px,9vw,40px);letter-spacing:-.04em;line-height:1.02;margin-bottom:14px}
+.q-q{font-size:17px;color:var(--muted);margin-bottom:18px}
+.q-a{font-size:19px;font-weight:650;line-height:1.35;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:16px}
+.q-btns{display:flex;gap:10px}
+.qb{flex:1;text-align:center;padding:14px;border-radius:16px;border:1px solid var(--line);background:var(--bg);font-weight:650}
+.qb.yes{background:var(--basics);color:var(--bg);border-color:var(--basics)}
+.qb.show{width:100%;background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* calendar */
+.nowcard{display:flex;flex-direction:column;gap:9px;width:100%;margin:0 0 20px;padding:17px 18px;border-radius:24px;background:var(--surface);border:1px solid var(--line);box-shadow:0 5px 18px rgba(20,35,22,.05)}
+.nc-k{font-size:13px;color:var(--muted)}
+.nc-list{display:flex;flex-direction:column;gap:6px}
+.nc-i{font-size:17px;font-weight:650;letter-spacing:-.025em;padding-left:22px;position:relative}
+.nc-i::before{content:"";position:absolute;left:0;top:4px;width:13px;height:13px;border-radius:50%;border:2px solid var(--basics)}
+.nc-i.ok::before{background:var(--basics)}
+.nc-more{font-size:14px;color:var(--basics);font-weight:650}
+.ribbon{display:flex;gap:8px;overflow-x:auto;margin:0 -18px 18px;padding:2px 18px 6px;scroll-snap-type:x proximity;scrollbar-width:none}
+.ribbon::-webkit-scrollbar{display:none}
+.mchip{flex:none;scroll-snap-align:center;position:relative;min-width:56px;text-align:center;padding:11px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--line);font-weight:650;font-size:15px}
+.mchip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.mchip.now::after{content:"";position:absolute;top:6px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--basics)}
+.mchip.now[aria-pressed="true"]::after{background:var(--bg)}
+.m-kicker{font-size:14px;color:var(--muted);margin-bottom:2px}
+.m-title{font-size:clamp(40px,11vw,54px);line-height:.99;letter-spacing:-.055em;margin-bottom:14px}
+.prog{height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.prog>div{height:100%;background:var(--basics);border-radius:99px;transition:width .25s ease}
+.prog-t{font-size:13px;color:var(--muted);margin:8px 0 16px}
+.task{display:flex;gap:13px;align-items:flex-start;padding:15px;border-radius:21px;background:var(--surface);border:1px solid var(--line);margin-bottom:10px}
+.task.done{opacity:.62}
+.cb{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--basics);display:grid;place-items:center;padding:0;font-size:16px;line-height:1;text-align:center;color:var(--bg)}
+.task.done .cb{background:var(--basics)}
+.tb{min-width:0;flex:1}
+.tg{display:inline-block;font-size:12px;font-weight:650;color:var(--muted);padding:3px 9px;border-radius:99px;background:var(--bg);margin-bottom:6px}
+.tt{font-size:16px;line-height:1.4}
+.tn{font-size:13px;color:var(--muted);line-height:1.45;margin-top:6px}
+
+/* basics & pests */
+.b-intro{font-size:16px;color:var(--muted);margin:-6px 0 18px;line-height:1.45}
+.topic{display:flex;gap:14px;align-items:center;width:100%;padding:15px;border-radius:22px;background:var(--surface);border:1px solid var(--line);margin-bottom:10px}
+.t-ic{flex:none;width:52px;height:52px;border-radius:16px;background:var(--bg);display:grid;place-items:center;font-size:27px}
+.t-tx{display:flex;flex-direction:column;gap:3px;min-width:0}
+.t-t{font-size:20px;font-weight:700;letter-spacing:-.03em;line-height:1.15}
+.t-l{font-size:14px;color:var(--muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.gl{margin:0 0 27px}
+.gl-i{padding:12px 0;border-bottom:1px solid var(--line)}
+.gl-i dt{font-weight:700;font-size:17px;letter-spacing:-.02em}
+.gl-i dd{font-size:15px;color:var(--muted);line-height:1.5;margin-top:3px}
+.vl{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.vlink{padding:6px 11px;border-radius:99px;background:var(--bg);border:1px solid var(--line);font-size:13px;font-weight:650;color:var(--basics)}
+
+/* Garden */
+.my-garden-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+.garden-card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 16px; display: flex; gap: 14px; align-items: center; box-shadow: 0 4px 14px rgba(25,40,27,.03); width: 100%; text-align: left; }
+.garden-card .thumb { width: 60px; height: 60px; font-size: 30px; border-radius: 14px; }
+.garden-card .info { flex: 1; min-width: 0; }
+.garden-card .name { font-family: var(--font-serif); font-size: 19px; font-weight: 600; line-height: 1.2; margin-bottom: 4px; }
+.garden-card .meta { font-size: 13px; color: var(--muted); }
+.garden-card .age { font-weight: 650; color: var(--basics); }
+.add-btn { width: 100%; padding: 16px; border-radius: 20px; background: var(--basics); color: var(--bg); text-align: center; font-weight: 650; font-size: 16px; border: none; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(47, 107, 74, 0.2); }
+.add-btn:active { transform: scale(0.98); }
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+.form-group select, .form-group input { width: 100%; padding: 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; appearance: none; -webkit-appearance: none; }
+.form-group select { background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%235C6B61%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 12px; }
+.empty-garden { text-align: center; padding: 40px 20px; color: var(--muted); }
+.empty-garden h3 { font-family: var(--font-serif); font-size: 24px; color: var(--ink); margin-bottom: 10px; }
+.empty-garden p { font-size: 15px; line-height: 1.5; margin-bottom: 20px; }
+/* ---------- Определитель болезней ---------- */
+.selector-box { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+.selector-box::-webkit-scrollbar { display: none; }
+.sel-btn { flex: none; padding: 12px 18px; border-radius: 18px; border: 1px solid var(--line); background: var(--surface); font-weight: 650; font-size: 15px; transition: 0.2s; }
+.sel-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+.symptom-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.symptom-card { width: 100%; text-align: left; padding: 18px; border-radius: 20px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 3px 12px rgba(25,40,27,.03); display: flex; justify-content: space-between; align-items: center; }
+.symptom-card.active { border-color: var(--basics); background: color-mix(in srgb, var(--basics) 5%, var(--surface)); }
+.symptom-card .s-t { font-size: 17px; font-weight: 650; }
+.symptom-card .s-d { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.symptom-card .s-arrow { font-size: 20px; color: var(--muted); }
+
+.result-card { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 22px; margin-top: 20px; box-shadow: 0 8px 26px rgba(22,40,25,.06); }
+.result-title { font-family: var(--font-serif); font-size: 28px; font-weight: 700; margin-bottom: 8px; line-height: 1.1; }
+.result-desc { font-size: 16px; line-height: 1.5; margin-bottom: 20px; }
+.result-action { background: var(--bg); padding: 16px; border-radius: 16px; border-left: 4px solid var(--basics); font-size: 15px; line-height: 1.5; }
+.result-action b { display: block; margin-bottom: 4px; font-size: 13px; text-transform: uppercase; color: var(--basics); letter-spacing: 0.05em; }
+
+/* shared modern surfaces */
+.bar{gap:10px;margin-bottom:18px}
+.bar h2{font-size:27px;font-weight:780;letter-spacing:-.04em}
+.back{padding:9px 13px;border-radius:13px;background:#E8ECE7;border:0;font-size:14px}
+.row,.topic,.nowcard,.qcard,.task,.garden-card,.result-card,.symptom-card,.quickfact,.passport{border:0;box-shadow:0 4px 20px rgba(25,35,27,.045);background:#fff}
+.row{border-radius:18px}
+.thumb{border-radius:15px}
+.chip{border:0;background:#E8ECE7}
+.chip[aria-pressed="true"]{background:#2C4A3E;color:#fff;border-color:#2C4A3E}
+.add-btn{background:#2C4A3E;color:#fff;border-radius:17px;box-shadow:none}
+/* keep form controls clear and readable */
+input,select,textarea{font-family:var(--font-sans)}
+
+/* immersive photo hero on the variety card */
+.detail-view .hero-photo{position:relative;margin:26px -18px 18px;aspect-ratio:4/3;min-height:230px;max-height:min(400px,56vh);border-radius:26px;overflow:hidden;background:var(--c)}
+.detail-view .hero-photo::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(to bottom,rgba(0,0,0,.30),rgba(0,0,0,0) 32%,rgba(0,0,0,0) 72%,rgba(0,0,0,.20))}
+.gallery{display:flex;height:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.gallery::-webkit-scrollbar{display:none}
+.slide{position:relative;flex:0 0 100%;height:100%;scroll-snap-align:center;scroll-snap-stop:always;background:var(--c)}
+.slide::before{content:attr(data-e);position:absolute;inset:0;display:grid;place-items:center;font-size:96px}
+.slide img{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:cover}
+.hero-emoji{height:100%;display:grid;place-items:center;font-size:104px}
+.hero-bar{position:absolute;z-index:3;left:14px;right:14px;top:12px;display:flex;align-items:center;justify-content:space-between}
+.hero-actions{display:flex;align-items:center;gap:8px}
+.hero-bar .glass{background:rgba(255,255,255,.80);-webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);border:0;color:#1A1D1A;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+.hero-bar .back{padding:10px 16px;font-weight:650}
+.hero-bar .heart{margin-left:0}
+.hero-bar .heart.on{color:#D1304A}
+.dots{position:absolute;z-index:3;left:0;right:0;bottom:15px;display:flex;justify-content:center;gap:6px;pointer-events:none}
+.dots i{width:7px;height:7px;border-radius:99px;background:rgba(255,255,255,.55);transition:width .2s ease,background .2s ease}
+.dots i.on{width:19px;background:#fff}
+.detail-view .photo-credit{margin:-8px 0 16px}
+
+/* theme button */
+.theme-btn{width:44px;height:44px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:21px;line-height:1;padding:0;text-align:center;background:var(--surface);border:1px solid var(--line);color:var(--ink)}
+.hero-home{position:relative}
+.hero-home .home-theme{position:absolute;top:0;right:0}
+.hero-bar .theme-btn.glass{background:rgba(255,255,255,.80);color:#1A1D1A;border:0}
+:root[data-theme="light"]{color-scheme:light}
+/* dark theme: explicit */
+:root[data-theme="dark"]{--bg:#0E1310;--surface:#171E19;--ink:#EDF2EC;--muted:#9FAEA3;--line:#27312A;--basics:#8CC5A6;color-scheme:dark}
+:root[data-theme="dark"] .search::before{color:#8A9B8F}
+:root[data-theme="dark"] .search input{background:#1E2721}
+:root[data-theme="dark"] .search input:focus{background:#232E27;border-color:#4C6A57}
+:root[data-theme="dark"] .bento-garden{background:#1E2B22;color:#D3E6D8}
+:root[data-theme="dark"] .bento-tip{background:#2C2619;color:#EBDDC2}
+:root[data-theme="dark"] .section-heading button{color:#8CC5A6}
+:root[data-theme="dark"] .catalog-chip{background:#1E2721;color:#B8C6BC}
+:root[data-theme="dark"] .catalog-chip.active{background:#3F6F59;color:#fff}
+:root[data-theme="dark"] .tile{background:#171E19;border-color:#27312A}
+:root[data-theme="dark"] .note{background:#1E2721}
+:root[data-theme="dark"] .bottom-nav{background:rgba(16,21,18,.92);border-top-color:rgba(255,255,255,.08)}
+:root[data-theme="dark"] .tab-item{color:#8E9B92}
+:root[data-theme="dark"] .tab-item.active{color:#8CC5A6}
+:root[data-theme="dark"] .back{background:#1E2721}
+:root[data-theme="dark"] .row,:root[data-theme="dark"] .topic,:root[data-theme="dark"] .nowcard,:root[data-theme="dark"] .qcard,:root[data-theme="dark"] .task,:root[data-theme="dark"] .garden-card,:root[data-theme="dark"] .result-card,:root[data-theme="dark"] .symptom-card,:root[data-theme="dark"] .quickfact,:root[data-theme="dark"] .passport{background:#171E19;box-shadow:0 4px 20px rgba(0,0,0,.35)}
+:root[data-theme="dark"] .chip{background:#1E2721}
+:root[data-theme="dark"] .chip[aria-pressed="true"]{background:#3F6F59;border-color:#3F6F59;color:#fff}
+:root[data-theme="dark"] .add-btn{background:#3F6F59;color:#fff}
+:root[data-theme="dark"] .theme-btn{background:#1E2721;color:#EDF2EC}
+/* dark theme: follows the system unless the user picked a theme */
+@media (prefers-color-scheme: dark){
+:root:not([data-theme="light"]){--bg:#0E1310;--surface:#171E19;--ink:#EDF2EC;--muted:#9FAEA3;--line:#27312A;--basics:#8CC5A6;color-scheme:dark}
+:root:not([data-theme="light"]) .search::before{color:#8A9B8F}
+:root:not([data-theme="light"]) .search input{background:#1E2721}
+:root:not([data-theme="light"]) .search input:focus{background:#232E27;border-color:#4C6A57}
+:root:not([data-theme="light"]) .bento-garden{background:#1E2B22;color:#D3E6D8}
+:root:not([data-theme="light"]) .bento-tip{background:#2C2619;color:#EBDDC2}
+:root:not([data-theme="light"]) .section-heading button{color:#8CC5A6}
+:root:not([data-theme="light"]) .catalog-chip{background:#1E2721;color:#B8C6BC}
+:root:not([data-theme="light"]) .catalog-chip.active{background:#3F6F59;color:#fff}
+:root:not([data-theme="light"]) .tile{background:#171E19;border-color:#27312A}
+:root:not([data-theme="light"]) .note{background:#1E2721}
+:root:not([data-theme="light"]) .bottom-nav{background:rgba(16,21,18,.92);border-top-color:rgba(255,255,255,.08)}
+:root:not([data-theme="light"]) .tab-item{color:#8E9B92}
+:root:not([data-theme="light"]) .tab-item.active{color:#8CC5A6}
+:root:not([data-theme="light"]) .back{background:#1E2721}
+:root:not([data-theme="light"]) .row,:root:not([data-theme="light"]) .topic,:root:not([data-theme="light"]) .nowcard,:root:not([data-theme="light"]) .qcard,:root:not([data-theme="light"]) .task,:root:not([data-theme="light"]) .garden-card,:root:not([data-theme="light"]) .result-card,:root:not([data-theme="light"]) .symptom-card,:root:not([data-theme="light"]) .quickfact,:root:not([data-theme="light"]) .passport{background:#171E19;box-shadow:0 4px 20px rgba(0,0,0,.35)}
+:root:not([data-theme="light"]) .chip{background:#1E2721}
+:root:not([data-theme="light"]) .chip[aria-pressed="true"]{background:#3F6F59;border-color:#3F6F59;color:#fff}
+:root:not([data-theme="light"]) .add-btn{background:#3F6F59;color:#fff}
+:root:not([data-theme="light"]) .theme-btn{background:#1E2721;color:#EDF2EC}
+}
+
+/* buttons over the photo keep their light glass look in every theme */
+:root .hero-bar .glass,:root[data-theme] .hero-bar .glass{background:rgba(255,255,255,.80)!important;color:#1A1D1A!important}
+:root .hero-bar .glass.on,:root[data-theme] .hero-bar .glass.on{color:#D1304A!important}
+
+/* пометка «черновик» для непроверенных сортов */
+.draft-tag{color:#B26A00;font-weight:700}
+.draft-note{background:#FFF4DB;border:1px solid #F0D79A;color:#6B4A00;border-radius:16px;padding:12px 14px;font-size:14px;line-height:1.45;margin:0 0 16px}
+:root[data-theme="dark"] .draft-tag{color:#E5A93D}
+:root[data-theme="dark"] .draft-note{background:#2C2619;border-color:#4B3F22;color:#EBDDC2}
+@media (prefers-color-scheme: dark){
+:root:not([data-theme="light"]) .draft-tag{color:#E5A93D}
+:root:not([data-theme="light"]) .draft-note{background:#2C2619;border-color:#4B3F22;color:#EBDDC2}
+}
+
+/* общий поиск */
+.sr-total{font-size:13px;color:var(--muted);margin:2px 2px 6px}
+.sr-head{font-size:15px;font-weight:700;margin:18px 2px 8px}
+.sr-sugg{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+/* определитель: результат в шторке */
+.sheet-backdrop{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.38);border:0;padding:0;width:100%;height:100%}
+.sheet{position:fixed;z-index:61;left:0;right:0;bottom:0;width:min(560px,100%);margin:0 auto;background:var(--surface);border-radius:28px 28px 0 0;padding:10px 20px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -12px 40px rgba(0,0,0,.28);max-height:78vh;overflow:auto;animation:sheetin .22s ease-out}
+@keyframes sheetin{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet-grab{width:42px;height:5px;border-radius:99px;background:var(--line);margin:4px auto 14px}
+.sheet .result-title{font-size:26px}
+.sheet .result-desc{margin-bottom:14px}
+.sheet-btns{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.sheet .vlink.wide{width:100%;text-align:center;padding:13px 16px;font-size:15px}
+.sheet .vlink.ghost{background:transparent}
+@media (prefers-reduced-motion: reduce){.sheet{animation:none}}
+
+/* мой сад: изменить и удалить */
+.garden-item{margin-bottom:12px}
+.garden-actions{display:flex;gap:8px;align-items:center;padding:8px 4px 0}
+.g-btn{padding:8px 15px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:14px;font-weight:650}
+.g-btn.danger{color:#C0392B;border-color:#E7BDB7}
+.g-ask{flex:1;font-size:14px;color:var(--muted)}
+.form-error{color:#C0392B;font-size:14px;margin:-6px 0 14px}
+:root[data-theme="dark"] .g-btn.danger,:root[data-theme="dark"] .form-error{color:#E8857A;border-color:#5A3733}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .g-btn.danger,:root:not([data-theme="light"]) .form-error{color:#E8857A;border-color:#5A3733}}
+
+/* контурные иконки */
+.ico{width:1em;height:1em;display:block;flex:none}
+.thumb .ico,.hero-emoji .ico,.slide-ph .ico{color:rgba(255,255,255,.94)}
+.hero-emoji .ico,.slide-ph .ico{stroke-width:1.1}
+.tile .emoji .ico{color:var(--basics);opacity:.9;stroke-width:1.1}
+.t-ic .ico{color:var(--basics)}
+.tab-item .tab-icon{display:grid;place-items:center;height:24px}
+.tab-icon .ico{width:24px;height:24px;stroke-width:1.7}
+.hd-icon .ico{width:24px;height:24px}
+.slide::before{display:none}
+.slide-ph{position:absolute;inset:0;display:grid;place-items:center;font-size:96px}
+/* атмосфера: тон раздела и размытое фото */
+#app > .view{position:relative;z-index:1}
+.atmo,.atmo-photo,.atmo-veil{position:fixed;inset:0;z-index:0;pointer-events:none}
+.atmo{background:radial-gradient(120% 60% at 0% 0%, var(--ta), transparent 72%),radial-gradient(110% 50% at 100% 6%, var(--tb), transparent 72%)}
+.atmo[data-tone="home"]{--ta:rgba(111,163,124,.26);--tb:rgba(180,200,150,.18)}
+.atmo[data-tone="apple"]{--ta:rgba(217,82,63,.20);--tb:rgba(111,163,124,.22)}
+.atmo[data-tone="pear"]{--ta:rgba(185,194,59,.26);--tb:rgba(94,154,107,.20)}
+.atmo[data-tone="pest"]{--ta:rgba(176,122,75,.24);--tb:rgba(122,90,58,.16)}
+.atmo[data-tone="basics"]{--ta:rgba(79,154,116,.24);--tb:rgba(120,176,127,.16)}
+.atmo[data-tone="plan"]{--ta:rgba(62,124,140,.24);--tb:rgba(111,163,124,.16)}
+.atmo-photo{background-size:cover;background-position:center;filter:saturate(1.3);opacity:.55}
+.atmo-veil{background:rgba(244,246,242,.62)}
+:root[data-theme="dark"] .atmo-veil{background:rgba(9,13,11,.6)}
+/* матовое стекло на крупных карточках (не на длинных списках) */
+.passport,.quickfact,.symptom-card,.garden-card,.task,.nowcard,.result-card{background:rgba(255,255,255,.74)}
+:root[data-theme="dark"] .passport,:root[data-theme="dark"] .quickfact,:root[data-theme="dark"] .symptom-card,:root[data-theme="dark"] .garden-card,:root[data-theme="dark"] .task,:root[data-theme="dark"] .nowcard,:root[data-theme="dark"] .result-card{background:rgba(23,30,25,.68)}
+@media (prefers-color-scheme: dark){
+:root:not([data-theme="light"]) .atmo-veil{background:rgba(9,13,11,.6)}
+:root:not([data-theme="light"]) .passport,:root:not([data-theme="light"]) .quickfact,:root:not([data-theme="light"]) .symptom-card,:root:not([data-theme="light"]) .garden-card,:root:not([data-theme="light"]) .task,:root:not([data-theme="light"]) .nowcard,:root:not([data-theme="light"]) .result-card{background:rgba(23,30,25,.68)}
+}
+
+/* главная: сорт дня, каталог, инструменты */
+.dayhero{position:relative;display:block;width:100%;height:232px;border-radius:28px;overflow:hidden;text-align:left;color:#fff;background:var(--c);box-shadow:0 10px 30px rgba(20,35,22,.16)}
+.dayhero::before{content:"";position:absolute;inset:0;background:radial-gradient(90% 80% at 85% 10%,rgba(255,255,255,.28),transparent 60%)}
+.dh-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.dh-ph{position:absolute;right:-8px;top:2px;font-size:168px;line-height:1;opacity:.3}
+.dh-ph .ico{color:#fff;stroke-width:1}
+.dh-shade{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.64),rgba(0,0,0,0) 64%)}
+.dh-top{position:absolute;left:18px;top:16px;padding:6px 13px;border-radius:99px;background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);font-size:13px;font-weight:650}
+.dh-body{position:absolute;left:20px;right:20px;bottom:18px;display:flex;flex-direction:column;gap:4px}
+.dh-name{font-family:var(--font-serif);font-size:32px;font-weight:700;letter-spacing:-.035em;line-height:1.04}
+.dh-sub{font-size:14px;opacity:.92}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tool,.slim-btn{display:flex;align-items:center;gap:12px;text-align:left;border-radius:20px;background:rgba(255,255,255,.74);box-shadow:0 4px 18px rgba(25,35,27,.05)}
+.tool{padding:14px 14px}
+.tool .ico,.slim-btn .ico{width:26px;height:26px;color:var(--basics);flex:none}
+.tool b,.slim-btn b{display:block;font-size:15px;line-height:1.2}
+.tool small,.slim-btn small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.3}
+.slim-row{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.slim-btn{padding:12px 16px;width:100%}
+.slim-btn span{flex:1;min-width:0}
+.slim-btn i{font-style:normal;font-size:22px;color:var(--muted)}
+:root[data-theme="dark"] .tool,:root[data-theme="dark"] .slim-btn{background:rgba(23,30,25,.68)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tool,:root:not([data-theme="light"]) .slim-btn{background:rgba(23,30,25,.68)}}
+
+/* фото на плитках, баннер категории, пометка «иллюстрация» */
+.tile.has-photo{background:#2C4A3E;border:0;color:#fff}
+.tile-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tile.has-photo::after{display:block;content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.62),rgba(0,0,0,0) 62%)}
+.tile.has-photo .t,.tile.has-photo .n{color:#fff;position:relative;z-index:1}
+.tile.has-photo .n{opacity:.9}
+.cat-hero{position:relative;height:150px;border-radius:24px;overflow:hidden;margin:0 0 16px;background:#2C4A3E;box-shadow:0 8px 24px rgba(20,35,22,.14)}
+.cat-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cat-hero-shade{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6),rgba(0,0,0,0) 65%)}
+.cat-hero-t{position:absolute;left:18px;bottom:14px;color:#fff;display:flex;flex-direction:column;gap:2px}
+.cat-hero-t b{font-family:var(--font-serif);font-size:28px;letter-spacing:-.03em;line-height:1.05}
+.cat-hero-t span{font-size:14px;opacity:.92}
+.illus-badge{position:absolute;left:14px;bottom:14px;z-index:3;padding:6px 12px;border-radius:99px;background:rgba(0,0,0,.45);color:#fff;font-size:12.5px;font-weight:650;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.dh-illus{position:absolute;right:16px;top:16px;z-index:2;padding:5px 11px;border-radius:99px;background:rgba(0,0,0,.38);color:#fff;font-size:12px;font-weight:650}
+
+/* декоративные растения */
+:root{--orn:#7A6BA8}
+.atmo[data-tone="orn"]{--ta:rgba(122,107,168,.22);--tb:rgba(111,163,124,.20)}
+
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.checked-note{font-size:13px;font-weight:600;color:#2F6B4F;margin:4px 0 0}
+:root[data-theme="dark"] .checked-note{color:#8CC5A6}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .checked-note{color:#8CC5A6}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="live" class="sr-only" role="status" aria-live="polite"></div>
+
+<script>
+
+/* ---------- Тема: светлая / тёмная ---------- */
+const THEME_KEY = 'sad-theme';
+const systemDark = () => !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+const effectiveTheme = () => document.documentElement.getAttribute('data-theme') || (systemDark() ? 'dark' : 'light');
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem(THEME_KEY, t); } catch(e) {}
+  const m = document.querySelector && document.querySelector('meta[name="theme-color"]');
+  if(m) m.setAttribute('content', t === 'dark' ? '#0E1310' : '#F2F4F1');
+}
+const toggleTheme = () => applyTheme(effectiveTheme() === 'dark' ? 'light' : 'dark');
+try { const st = localStorage.getItem(THEME_KEY); if(st === 'dark' || st === 'light') applyTheme(st); } catch(e) {}
+const themeBtn = (cls = '') => {
+  const dark = effectiveTheme() === 'dark';
+  return `<button class="theme-btn ${cls}" data-theme-toggle="1" aria-label="${dark ? 'Включить светлую тему' : 'Включить тёмную тему'}">${dark ? '☀︎' : '☾'}</button>`;
+};
+try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if(!document.documentElement.getAttribute('data-theme')) render(); }); } catch(e) {}
+/* ---------- Данные ---------- */
+const CATEGORIES = [
+  {id:'apple',  title:'Яблоня',   emoji:'🍎', color:'var(--apple)'},
+  {id:'pear',   title:'Груша',    emoji:'🍐', color:'var(--pear)'},
+  {id:'orn',    title:'Декоративные', emoji:'🌳', color:'var(--orn)'},
+  {id:'plan',   title:'Календарь работ', emoji:'📅', color:'var(--plan)', go:'cal'},
+  {id:'basics', title:'Основы',   emoji:'📖', color:'var(--basics)',go:'basics'},
+  {id:'pests',  title:'Болезни и вредители', emoji:'🐛', color:'var(--pest)', go:'pests'},
+  {id:'stone',  title:'Косточковые', emoji:'🍒', color:'var(--stone)', soon:true},
+  {id:'grape',  title:'Виноград', emoji:'🍇', color:'var(--grape)', soon:true},
+  {id:'berry',  title:'Ягодники', emoji:'🍓', color:'var(--berry)', soon:true},
+  {id:'veg',    title:'Овощи',    emoji:'🥕', color:'var(--veg)',   soon:true},
+];
+
+/*@@VARIETIES@@*/
+/* ---------- State ---------- */
+const MONTHS = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+const MONTHS_SHORT = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"];
+const CAL = [
+ {m:1, phase:"Покой", tasks:[{id:"a",tag:"Уход",s:"Снег с веток",t:"Стряхивать мокрый тяжёлый снег с веток, чтобы они не ломались."},{id:"b",tag:"Защита",s:"Осмотр стволов",t:"Осмотреть стволы: нет ли погрызов грызунов и трещин коры.",note:"Повреждения коры лучше заметить до весны."},{id:"c",tag:"Хранение",s:"Перебрать плоды",t:"Перебрать хранящиеся плоды и убрать больные: гниль переходит на соседние."},{id:"d",tag:"Уход",s:"Снегозадержание",t:"Накапливать снег вокруг стволов (снегозадержание)."}]},
+ {m:2, phase:"Конец покоя", tasks:[{id:"a",tag:"Уход",s:"Черенки для прививки",t:"Заготовить черенки для весенней прививки и хранить их в прохладе."},{id:"b",tag:"Уход",s:"Инструмент",t:"Заточить и продезинфицировать секаторы и пилу перед обрезкой."},{id:"c",tag:"Защита",s:"Подготовить препараты",t:"Подготовить опрыскиватель и препараты к весенним обработкам."},{id:"d",tag:"Посадка",s:"Заказать саженцы",t:"Выбрать сорта и заказать саженцы и подвои.",note:"Список сортов смотрите в разделах «Яблоня» и «Груша»."}]},
+ {m:3, phase:"Пробуждение, почки ещё закрыты", tasks:[{id:"a",tag:"Уход",s:"Убрать листья и плоды",t:"Убрать опавшие листья и мумифицированные плоды: на них зимуют вредители и инфекции."},{id:"b",tag:"Обрезка",s:"Санитарная обрезка",t:"Провести санитарную и прореживающую обрезку до начала сокодвижения."},{id:"c",tag:"Защита",s:"Первая обработка",t:"Первая обработка по голой древесине до распускания почек: 3% бордоская жидкость или 3% медный купорос.",note:"Строго до распускания почек: позже можно обжечь молодые листья."},{id:"d",tag:"Уход",s:"Побелка",t:"Побелить стволы, пока нет активного сокодвижения."},{id:"e",tag:"Подкормка",s:"Азот",t:"Азотная подкормка в начале вегетации."}]},
+ {m:4, phase:"Распускание почек, цветение", tasks:[{id:"a",tag:"Защита",s:"Зелёный конус",t:"Фаза «зелёный конус»: контактные фунгициды против парши и препарат против зимующих вредителей.",note:"Препарат и дозу выбирайте по актуальному Госкаталогу пестицидов."},{id:"b",tag:"Уход",s:"Прививка",t:"Прививка черенками в период сокодвижения."},{id:"c",tag:"Защита",s:"Заморозки",t:"Следить за прогнозом заморозков: цветки повреждаются при заморозках.",note:"Например, цветки Топаза переносят не ниже −1 °C.",v:["a15"]},{id:"d",tag:"Защита",s:"Не опрыскивать в цветение",t:"Во время цветения химические обработки обычно не проводят: это вредит опылителям.",note:"Обрабатывают до цветения и после опадения лепестков."}]},
+ {m:5, phase:"Цветение, завязывание плодов", tasks:[{id:"a",tag:"Защита",s:"Розовый бутон",t:"Фаза «розовый бутон»: обработка перед цветением против болезней и вредителей."},{id:"b",tag:"Защита",s:"Конец цветения",t:"Конец цветения (опадение лепестков): следующая обработка против парши и вредителей.",note:"Интервал между обработками 5–14 дней, в зависимости от погоды и развития болезни."},{id:"c",tag:"Полив",s:"Полив после цветения",t:"После цветения в жару следить за влажностью почвы и поливать."},{id:"d",tag:"Подкормка",s:"Подкормка",t:"После цветения внести органические и минеральные удобрения."}]},
+ {m:6, phase:"Рост плодов", tasks:[{id:"a",tag:"Уход",s:"Прореживание завязи",t:"Прореживать завязь у сортов, склонных к перегрузке: плоды крупнее, урожай регулярнее.",note:"В карточках это отмечено у Гала, Джонаголда, Топаза и Флорины.",v:["a5","a14","a15","a10"]},{id:"b",tag:"Полив",s:"Первый полив",t:"Первый вегетационный полив — в июне, после опадения лишней завязи."},{id:"c",tag:"Защита",s:"Парша после дождей",t:"После дождей осматривать листья на паршу; обработки повторяют с интервалом 5–14 дней в зависимости от погоды."},{id:"d",tag:"Защита",s:"Срок ожидания",t:"Перед уборкой соблюдать срок ожидания из инструкции препарата."}]},
+ {m:7, phase:"Рост плодов, ранние сорта", tasks:[{id:"a",tag:"Полив",s:"Второй полив",t:"Второй полив — за 2–3 недели до созревания летних сортов (15–20 июля)."},{id:"b",tag:"Уборка",s:"Ранние сорта",t:"Созревают ранние сорта: Белый налив (с середины июля) и Мантет.",v:["a2","a8"]},{id:"c",tag:"Уход",s:"Подпорки",t:"Подпирать ветви, сильно нагруженные плодами."}]},
+ {m:8, phase:"Уборка летних и ранних осенних", tasks:[{id:"a",tag:"Уборка",s:"Любимица Клаппа",t:"Любимицу Клаппа снимать минимум за 10 дней до созревания на дереве.",v:["p4"]},{id:"b",tag:"Уборка",s:"Гала",t:"Созревает Гала (конец лета — начало осени).",v:["a5"]},{id:"c",tag:"Полив",s:"Третий полив",t:"Третий вегетационный полив — в августе."},{id:"d",tag:"Уход",s:"Падалица",t:"Собирать падалицу и больные плоды: так меньше инфекции на следующий год."}]},
+ {m:9, phase:"Уборка осенних сортов", tasks:[{id:"a",tag:"Уборка",s:"Осенние сорта",t:"Ред Делишес убирают в сентябре, Айдаред — с конца сентября.",v:["a13","a6"]},{id:"b",tag:"Уборка",s:"Плоды для хранения",t:"Плоды для хранения снимать аккуратно, без вмятин: повреждённые лежат хуже."},{id:"c",tag:"Посадка",s:"Осенняя посадка",t:"С конца сентября — осенняя посадка саженцев, до наступления устойчивых холодов."},{id:"d",tag:"Подкормка",s:"Калий",t:"Осенью внести калий в быстроусвояемой форме; внекорневые подкормки уже не нужны."}]},
+ {m:10, phase:"Поздние сорта, подготовка к зиме", tasks:[{id:"a",tag:"Уборка",s:"Поздние сорта",t:"Снимают поздние сорта: Джонаголд, Флорина (1–2 декада октября), Фуджи, Топаз (конец октября).",v:["a14","a10","a12","a15"]},{id:"b",tag:"Уход",s:"Убрать листья",t:"Убрать опавшие листья: на них зимует возбудитель парши."},{id:"c",tag:"Полив",s:"Влагозарядковый полив",t:"Влагозарядковый полив после листопада, до заморозков. Проверьте землю на глубине 30–50 см: если ком рассыпается, полив нужен.",note:"Ориентир: 3–4 ведра под молодое дерево, около 10 под взрослое. Особенно важно для молодых деревьев до 5 лет и для деревьев после обильного урожая."},{id:"d",tag:"Уход",s:"Побелка и защита от грызунов",t:"Побелить стволы и обмотать молодые стволы от грызунов безопасным материалом."},{id:"e",tag:"Уход",s:"Кора и приствольные круги",t:"Очистить кору щёткой от мха и лишайников, перекопать приствольные круги."}]},
+ {m:11, phase:"После листопада", tasks:[{id:"a",tag:"Защита",s:"Обработка после листопада",t:"Обработка после листопада: мочевина 500–700 г на 10 л воды или медьсодержащий препарат.",note:"Концентрированную мочевину нельзя применять на молодых деревьях с тонкой корой."},{id:"b",tag:"Обрезка",s:"Осенняя обрезка",t:"Осенняя обрезка на юге возможна с конца октября по ноябрь; в холодные зимы безопаснее перенести на весну.",note:"Источники расходятся по срокам."},{id:"c",tag:"Полив",s:"Успеть с влагозарядкой",t:"Если влагозарядковый полив не сделали, успейте до промерзания почвы."}]},
+ {m:12, phase:"Покой", tasks:[{id:"a",tag:"Защита",s:"Обмотки стволов",t:"Проверить обмотки стволов и защиту от грызунов."},{id:"b",tag:"Уход",s:"Снегозадержание",t:"Накапливать снег вокруг стволов."},{id:"c",tag:"Хранение",s:"Проверить плоды",t:"Проверить хранящиеся плоды."},{id:"d",tag:"Уход",s:"План на сезон",t:"Составить план на следующий сезон: обработки, прививки, посадки."}]}
+];
+const BASICS = [
+ {id:"rootstock",emoji:"🌱",title:"Подвой и привой",lead:"Дерево состоит из двух частей: корни даёт подвой, крону и плоды даёт привой (сорт).",sections:[{h:"Что делает подвой",items:["Подвой задаёт силу роста, высоту дерева и срок вступления в плодоношение.","На клоновых подвоях деревья вступают в плодоношение на 5–6 лет раньше, чем на семенных.","Подвои серий М и ММ — основа культуры яблони на клоновых подвоях. В Нидерландах 99% саженцев выращивают на М9."]},{h:"Высота дерева по силе роста подвоя",items:["<b>Очень карликовые</b>: до 2 м.","<b>Карликовые</b>: 2–3 м.","<b>Полукарликовые</b>: 3–4 м.","<b>Сильнорослые</b>: 5–7 м.","<b>Очень сильнорослые</b>: выше 7 м."]},{h:"Примеры",items:["М9 — карликовый подвой: деревья плодоносят на 2–3-й год после посадки (опыт Беларуси).","ММ106 — среднерослый подвой.","Моди и Флорина в опыте в Дагестане были на подвое М9 и плодоносили со второго года."]}],v:["a9","a10"],mo:[],src:"Жабровский И.Е., БГАТУ, «Роль клоновых подвоев яблони в плодоводстве»; журнал «Плодоводство» (Беларусь); Шахмирзоев Р.А., «Современное садоводство», 2021, №1",terms:[]},
+ {id:"grafting",emoji:"✂️",title:"Прививка",lead:"Прививка соединяет сорт (привой) с подвоем. Семена обычно не повторяют свойства сорта, поэтому сорта размножают прививкой.",sections:[{h:"Два типа",items:["<b>Окулировка</b> — прививка почкой («глазком»). Самый распространённый способ: проще и производительнее остальных.","<b>Прививка черенком</b>: копулировка, в расщеп, за кору и другие способы."]},{h:"Сроки",items:["Прививку черенком начинают за 10–15 дней до весеннего сокодвижения и заканчивают за 2 месяца до конца вегетации.","<b>В расщеп</b> — ранней весной, за 1–2 недели до начала сокодвижения.","<b>За кору</b> — в период активного сокодвижения, когда кора легко отделяется.","<b>Окулировка</b> — весной с началом сокодвижения или летом, в июле — августе."]},{h:"Если не прижилось",items:["Рану замазать садовым варом и повторить прививку весной или летом."]}],v:[],mo:[2,4],src:"Большая российская энциклопедия («Прививка растений»); БСЭ; Vikna.tv; The Exploroz forum (о семенах сорта)",terms:[]},
+ {id:"planting",emoji:"🌳",title:"Посадка саженца",lead:"Саженцы с открытыми корнями сажают весной или осенью. В южных районах возможны оба срока.",sections:[{h:"Сроки",items:["Весной обычно до конца апреля.","Осенью в средней полосе — со второй половины сентября до первой половины октября. В более тёплых районах сроки сдвигаются.","Для весенней посадки яму готовят осенью, для осенней — за 2–3 недели до посадки."]},{h:"Яма и глубина",items:["Размеры ямы источники называют разные: 60–70 см глубиной и 70–80 см шириной, либо глубина около 50 см.","Корневая шейка (переход корня в ствол) после посадки должна быть выше почвы: источники называют 3–5, 5–6 и 6–8 см. Земля в яме оседает, и шейка опускается."]},{h:"После посадки",items:["Обильно полить: 2–3 ведра воды. В сухую погоду повторить полив 2–3 раза.","Мульчировать приствольный круг рыхлой землёй, торфом или перегноем, чтобы сохранить влагу.","Лучше брать саженец не старше двух лет."]}],v:[],mo:[9],src:"Министерство сельского хозяйства Республики Татарстан («Яблоня в Татарстане»); Vikna.tv; azbyka.ru",terms:[]},
+ {id:"pruning",emoji:"🪚",title:"Обрезка",lead:"Обрезка управляет формой кроны, освещённостью и плодоношением. Загущенная крона не гарантирует большого урожая.",sections:[{h:"Два приёма",items:["<b>Прореживание</b> — вырезка ветви целиком.","<b>Укорачивание</b> — сокращение ветви.","Срез делают «на кольцо»: по кольцу наплыва, чтобы рана меньше травмировала дерево."]},{h:"Виды обрезки",items:["<b>Санитарная</b> — ежегодно: убрать сухие, больные и повреждённые ветви.","<b>Формирующая</b> — в первые годы жизни (по разным данным 3–5 или до 5–6 лет): создаёт прочную крону.","<b>Регулирующая</b> — управляет ростом и плодоношением.","<b>Омолаживающая</b> — для старых деревьев."]},{h:"Сроки",items:["Санитарную и прореживающую обрезку делают до начала сокодвижения.","На юге осенняя обрезка возможна с конца октября по ноябрь. Источники расходятся: в холодные зимы безопаснее весной."]}],v:[],mo:[3,11],src:"Азбука садовода (azbyka.ru); Министерство сельского хозяйства Республики Татарстан; Халва Медиа; Vikna.tv",terms:[]},
+ {id:"pollination",emoji:"🐝",title:"Опыление",lead:"Большинство сортов яблони перекрёстно опыляются: для урожая нужен другой сорт, цветущий в то же время.",sections:[{h:"Главное",items:["Самоплодные сорта лучше завязывают плоды при плохой погоде и малом числе пчёл, но и им опылитель рядом повышает урожай.","Сорт-опылитель должен цвести одновременно с основным.","Не все сорта совместимы: пыльца может не прорастать на рыльце, или пыльцевая трубка не доходит до семязачатка.","Опылители лучше размещать в разных местах сада."]},{h:"Триплоиды",items:["У триплоидных сортов, например Джонаголда, пыльца стерильна. Им нужны два сорта-опылителя, а сами они других не опыляют."]},{h:"Груша",items:["У груши тоже подбирают опылители. Для Вильямса подходят Бере Боск и Конференция.","Во время цветения химические обработки обычно не проводят."]}],v:["a14","a9","p1"],mo:[4],src:"Диссертация «Диагностика самоопыляемости сортов яблони…» (dissercat.com); Wikifarmer; Wikipedia (Jonagold); Cummins Nursery; Werribee Park Heritage Orchard",terms:[]},
+ {id:"watering",emoji:"💧",title:"Полив и подкормка",lead:"Плодоносящему саду нужны три вегетационных полива и влагозарядковый полив осенью.",sections:[{h:"Вегетационные поливы",items:["Первый — в июне, после опадения лишней завязи.","Второй — за 2–3 недели до созревания летних сортов (15–20 июля).","Третий — в августе.","После цветения в жару следить за влажностью почвы, вносить органические и минеральные удобрения."]},{h:"Влагозарядковый полив",items:["Проводят осенью после листопада, за несколько дней до устойчивых морозов.","Проверка: земля на глубине 30–50 см. Если ком рассыпается, полив нужен.","Ориентир: 3–4 ведра на молодое дерево, около 10 на взрослое."]},{h:"Подкормка",items:["Весной — азот в начале вегетации.","Осенью — калий в быстроусвояемой форме. Внекорневые подкормки осенью уже не нужны."]}],v:[],mo:[6,7,10],src:"БГАТУ («Капельное орошение сада»); Altapress; azbyka.ru; news.ru; Минсельхоз Кыргызстана",terms:[]},
+ {id:"phenophases",emoji:"🌸",title:"Фазы развития дерева",lead:"Обработки и подкормки привязывают к фазам развития дерева, а не к датам. Так сроки подходят и для тёплой, и для холодной весны.",sections:[{h:"Фазы яблони и груши по порядку",items:["<b>Зелёный конус</b>: контактные фунгициды против парши и препарат против зимующих вредителей, до появления листьев.","<b>Мышиное ухо</b>: листья ещё мелкие, дерево готовится к цветению.","<b>Розовый бутон</b>: обработка перед цветением против болезней и вредителей.","<b>Цветение</b>: химические обработки обычно не проводят, следят за заморозками.","<b>Конец цветения (опадение лепестков)</b>: следующая обработка против парши и вредителей. Интервал между обработками 5–14 дней, по погоде.","<b>Рост плодов</b>: поливы, прореживание завязи.","<b>Созревание плодов</b>: соблюдать срок ожидания из инструкции препарата."]}],v:[],mo:[3,4,5],src:"ФосАгро, лекторий (РГАУ-МСХА): фенофазы яблони и груши; Cyberleninka; Adama; Россельхозцентр (Мордовия)",terms:[]},
+ {id:"scab",emoji:"🍂",title:"Парша",lead:"Парша — наиболее опасное заболевание яблони. Она появляется как пятна на листьях и плодах.",sections:[{h:"Как развивается",items:["Гриб зимует в опавших листьях.","Весной после дождей выбрасываются споры, заражаются листья и завязи.","Потери урожая на восприимчивых сортах в разных данных от 12–40% до 70% в отдельные годы."]},{h:"Что помогает",items:["Убрать опавшие листья осенью.","Выбрать сорта с иммунитетом: ген Vf получен от дикой яблони Malus floribunda.","Провести обработки по фазам развития."]},{h:"Сорта в приложении",items:["<b>Устойчивы или иммунны</b>: Моди, Флорина, Топаз, Фуджи (по данным NSW DPI). Смотрите фильтр «Устойчивые к парше» в списке яблонь.","<b>Восприимчивы</b>: Гала, Белый налив, Джонаголд, Брэберн; Ренет Симиренко слабо устойчив."]}],v:["a9","a10","a15","a12","a5","a2","a14","a16","a3"],mo:[4,10],src:"Министерство сельского хозяйства Республики Татарстан; Adama; Белорусский институт защиты растений; NSW DPI, Agfact H4.1.12; Agronomy Journal (INRA); Wikipedia",terms:[]},
+ {id:"glossary",emoji:"📖",title:"Словарь",lead:"Главные слова из карточек сортов и календаря.",sections:[],terms:[{t:"Сорт",d:"Группа растений с общими свойствами. Размножается прививкой, поэтому деревья одного сорта — клоны."},{t:"Привой",d:"Часть сорта, которую прививают на подвой."},{t:"Подвой",d:"Растение, корни которого несут привитый сорт и влияют на силу роста."},{t:"Клон",d:"Потомство, полученное вегетативно. Все деревья Гренни Смит — клоны исходного дерева."},{t:"Самоплодность",d:"Способность завязывать плоды от собственной пыльцы."},{t:"Триплоид",d:"Сорт с тройным набором хромосом. Пыльца стерильна: нужны два опылителя, сам он других не опыляет (например, Джонаголд)."},{t:"Лёжкость",d:"Способность плодов сохраняться при хранении."},{t:"Съёмная зрелость",d:"Стадия, когда плоды уже можно снимать для хранения или перевозки."},{t:"Фенофаза",d:"Этап развития дерева: зелёный конус, розовый бутон, цветение и другие."},{t:"Ген Vf",d:"Ген иммунитета к парше. Получен от дикой яблони Malus floribunda."},{t:"Потребность в холоде",d:"Число часов низких температур, нужное дереву для нормального цветения."},{t:"Влагозарядковый полив",d:"Осенний обильный полив после листопада, до заморозков."},{t:"Клубный сорт",d:"Сорт, саженцы которого выращивают по лицензии (например, Моди)."}],v:[],mo:[],src:"Составлено по материалам разделов «Основы» и карточек сортов"}
+];
+/* ---------- Диагностика (Симптомы) ---------- */
+const DIAGNOSTICS = [
+  // Яблоня
+  {id: 'a1', crop: 'apple', symptom: 'Пятна на листьях', desc: 'Оливково-бурые пятна, бархатистый налёт', pestId: 'scab'},
+  {id: 'a2', crop: 'apple', symptom: 'Белый налёт', desc: 'Мучнистый налёт на молодых побегах', pestId: 'mildew'},
+  {id: 'a3', crop: 'apple', symptom: 'Гниль на плодах', desc: 'Коричневые пятна, плоды мумифицируются', pestId: 'monilia'},
+  {id: 'a4', crop: 'apple', symptom: 'Побег вянет, чернеет', desc: 'Похоже на "пастуший посох"', pestId: 'fireblight'},
+  {id: 'a5', crop: 'apple', symptom: 'Червивые плоды', desc: 'Ходы в мякоти, падалица', pestId: 'codling'},
+  {id: 'a6', crop: 'apple', symptom: 'Скрученные листья', desc: 'Липкий налёт, колонии насекомых', pestId: 'aphids'},
+  
+  // Груша
+  {id: 'p1', crop: 'pear', symptom: 'Пятна на листьях', desc: 'Пятна, опадение листьев', pestId: 'scab'},
+  {id: 'p2', crop: 'pear', symptom: 'Побег вянет, чернеет', desc: 'Быстрое усыхание ветвей', pestId: 'fireblight'},
+  {id: 'p3', crop: 'pear', symptom: 'Гниль на плодах', desc: 'Загнивание, мумификация', pestId: 'monilia'},
+  {id: 'p4', crop: 'pear', symptom: 'Червивые плоды', desc: 'Ходы в мякоти', pestId: 'codling'},
+  {id: 'p5', crop: 'pear', symptom: 'Бронзовые листья', desc: 'Клещ высасывает сок, листья буреют', pestId: 'mite'}
+];
+
+let diagState = { crop: 'apple', symptom: null };
+
+const PESTS = [
+ {id:"scab",kind:"Болезнь",emoji:"🍂",title:"Парша",latin:"Venturia inaequalis",lead:"Самая опасная болезнь яблони: пятна на листьях и плодах.",sections:[{h:"Как узнать",items:["Пятна на листьях и плодах.","При сильном поражении листья массово опадают сразу после цветения."]},{h:"Как развивается",items:["Гриб зимует в опавших листьях.","Весной после дождей выбрасываются споры, их разносят ветер и капли дождя.","Заражаются листья и завязи.","Потери урожая на восприимчивых сортах по разным данным: 12–40%, а по другим 40–70%."]},{h:"Что помогает",items:["Осенью убрать опавшие листья.","Сажать сорта с иммунитетом (ген Vf).","Контактные фунгициды в фазах «зелёный конус» — «красная почка», затем по схеме защиты: «розовый бутон» и «конец цветения».","Интервал между обработками 5–14 дней, в зависимости от погоды.","Соблюдать срок ожидания из инструкции препарата."]},{h:"Сорта в приложении",items:["<b>Устойчивы или иммунны</b>: Моди, Флорина, Топаз, Фуджи (по данным NSW DPI).","<b>Восприимчивы</b>: Гала, Белый налив, Джонаголд, Брэберн. Ренет Симиренко слабо устойчив."]}],v:["a9","a10","a15","a12","a5","a2","a14","a16","a3"],mo:[4,5,6,10],fun:"Иммунитет к парше (ген Vf) селекционеры получили от дикой яблони Malus floribunda. Так появилась и Флорина.",src:"Adama (жизненный цикл парши); Министерство сельского хозяйства Республики Татарстан; Белорусский институт защиты растений; NSW DPI, Agfact H4.1.12; Agronomy Journal (INRA)"},
+ {id:"mildew",kind:"Болезнь",emoji:"🌫️",title:"Мучнистая роса",latin:"Podosphaera leucotricha",lead:"Белый налёт на молодых листьях и побегах.",sections:[{h:"Как узнать",items:["Серовато-белый мучнистый налёт на молодых листьях. Первые признаки видны уже в конце апреля.","Поражаются листья, побеги, почки и цветки.","Побеги не растут, искривляются и постепенно отмирают."]},{h:"Как развивается",items:["Гриб зимует в верхних почках побегов.","Максимума болезнь достигает в конце июля.","Больные побеги плохо вызревают и зимой вымерзают.","Больные плоды растрескиваются и загнивают."]},{h:"Что помогает",items:["Весной и осенью обрезать и сжигать поражённые побеги.","Обработки по схеме защиты. Препарат и дозу выбирайте по актуальному Госкаталогу.","Выбирать более устойчивые сорта."]},{h:"Сорта в приложении",items:["<b>Восприимчивы</b>: Джонатан (сильно), Айдаред, Гала, Джонаголд, Брэберн.","<b>Устойчивы или частично устойчивы</b>: Топаз, Флорина (по данным питомников), Фуджи (частично)."]}],v:["a7","a6","a5","a14","a16","a15","a10","a12"],mo:[4,5,7],fun:"Гриб мучнистой росы растёт на поверхности листа, а не внутри: это наружный паразит.",src:"Министерство сельского хозяйства Республики Татарстан; Altapress; БСЭ; NSW DPI; Albemarle CiderWorks; Cummins Nursery"},
+ {id:"monilia",kind:"Болезнь",emoji:"🍎",title:"Монилиоз (плодовая гниль)",latin:"Monilia fructigena",lead:"Гниль плодов, у семечковых проявляется чаще всего во второй половине лета.",sections:[{h:"Как узнать",items:["Плоды гниют или засыхают, больные плоды остаются висеть на ветках.","Первые признаки заметны во второй половине лета.","У яблони и груши чаще проявляется плодовая гниль, у косточковых ещё и ожог цветков и веток."]},{h:"Как развивается",items:["Гриб проникает через механические повреждения плодов и побегов.","Зимует в поражённых органах. Главный источник инфекции — мумифицированные плоды.","Споры разносят ветер, дождь и насекомые, в том числе плодожорка.","Развитию помогают низины, загущённые кроны и прохладная влажная погода во время цветения."]},{h:"Что помогает",items:["Осенью собрать и уничтожить больные и мумифицированные плоды.","Снимать и хранить плоды без повреждений, больные сразу убирать.","Вырезать больные ветви, перекапывать приствольные круги.","Обработки начинают, когда плоды размером с грецкий орех, и повторяют через 10–15 дней (данные Казахстана).","Плодовая гниль часто идёт вместе с паршой: сначала лечат паршу."]}],v:[],mo:[6,9,10],fun:"Споры гриба переносят насекомые, в том числе яблонная плодожорка.",src:"БСЭ (статья «Монилиоз»); журнал «Караван» (Казахстан); Халва Медиа; Белорусский ГГАУ; «Профиль»"},
+ {id:"fireblight",kind:"Болезнь",emoji:"🔥",title:"Бактериальный ожог",latin:"Erwinia amylovora",lead:"Карантинная бактериальная болезнь, поражает все надземные части. Очаги отмечены и в Кабардино-Балкарии.",sections:[{h:"Как узнать",items:["Молодые побеги и ветки сначала словно наливаются жидкостью, затем вянут, буреют и чернеют.","Верхушка побега загибается, получается «пастуший посох».","Поражаются цветки, побеги и плоды."]},{h:"Почему опасен",items:["Инфекция распространяется по восприимчивым растениям очень быстро.","Из плодовых больше всего страдает груша."]},{h:"Что нужно знать",items:["Бактериальный ожог — карантинный объект для России и ЕАЭС. В России его впервые нашли в 2003 году в Калининградской области.","Очаги регистрировали в Кабардино-Балкарии, Дагестане, Карачаево-Черкесии, Краснодарском и Ставропольском краях и других регионах.","Как карантинный объект, он подлежит официальному контролю: при подозрении обращайтесь в службу карантина растений."]},{h:"Сорта в приложении",items:["<b>Восприимчивы по данным карточек</b>: Вильямс, Любимица Клаппа (сильно), Гала, Айдаред, Джонаголд, Брэберн. Топаз умеренно.","Флорина по данным питомников устойчива."]}],v:["p1","p4","a5","a6","a14","a16","a15","a10"],mo:[5,6],fun:"В России болезнь впервые нашли только в 2003 году, а теперь очаги есть и в КБР.",src:"ВНИИКР, «Бактериальный ожог плодовых культур»; журнал «Фитосанитария. Карантин растений», 2020, №4; Гродненский ГАУ; Cummins Nursery"},
+ {id:"codling",kind:"Вредитель",emoji:"🐛",title:"Яблонная плодожорка",latin:"Cydia pomonella",lead:"Бабочка, чьи гусеницы делают плоды червивыми.",sections:[{h:"Как узнать",items:["Гусеницы светло-розовые с коричневой головой, до 20 мм.","Плоды повреждены гусеницами и преждевременно опадают.","Гусеница питается семенами, иногда только мякотью."]},{h:"Как развивается",items:["Гусеницы зимуют в плотных коконах в трещинах коры или в верхнем слое почвы.","Бабочки появляются после цветения яблони, активны после захода солнца в безветренную погоду. Лёт может длиться два месяца и больше.","Куколка развивается весной 18–20 дней, летом 12–14 дней. Самка откладывает 70–120 яиц.","За сезон от одного до нескольких поколений, в зависимости от зоны.","Массовый лёт первого поколения — через 16–18 дней после конца цветения, когда завязи размером с грецкий орех (данные Казахстана)."]},{h:"Что помогает",items:["Очищать стволы и толстые ветви от старой отмершей коры.","Регулярно убирать падалицу.","Ловчие пояса на штамбах с появлением первой падалицы: осматривать каждые 7–10 дней и уничтожать гусениц.","Феромонные ловушки привлекают самцов и показывают сроки лёта.","Химические обработки проводят в период массового лёта бабочек."]}],v:[],mo:[5,6,7],fun:"Мониторинг феромонными ловушками позволяет сократить число обработок в саду до 4–6 за сезон.",src:"Большая российская энциклопедия; БСЭ; «Энтомологическое обозрение», 2020, т. 99, №2; журнал «Караван»; Nur.kz; Министерство сельского хозяйства Республики Татарстан"},
+ {id:"aphids",kind:"Вредитель",emoji:"🪲",title:"Тли",latin:"Aphis pomi и другие яблонные тли",lead:"Мелкие насекомые колониями на молодых листьях и побегах.",sections:[{h:"Как узнать",items:["Колонии на нижней стороне листьев, молодых побегах и почках.","Листья скручиваются, побеги искривляются.","Липкий налёт — падь. На ней может поселиться сажистый грибок.","Яблонно-подорожниковая тля сворачивает листья в трубки, при массовом размножении вызывает опадение завязи и деформацию плодов.","Красногалловые тли образуют на листьях красные вздутия — галлы."]},{h:"Как развивается",items:["Зимуют яйца на коре молодых ветвей (у разных видов по-разному).","Зелёная яблонная тля даёт 6–19 поколений в год.","Больше всего тли в июне и сентябре.","Муравьи защищают тлю от врагов и «разводят» её."]},{h:"Что помогает",items:["Беречь естественных врагов тли: божьих коровок, златоглазок, наездников.","Опрыскивание инсектицидами по схеме защиты. Препарат и дозу выбирайте по актуальному Госкаталогу.","Минсельхоз Кыргызстана советует при тле гуминовые кислоты вместе с инсектицидами: три обработки через 10 дней."]}],v:[],mo:[5,6,9],fun:"Самка тли рождает 20–40 детёнышей без оплодотворения.",src:"БСЭ (статья «Яблонные тли»); Брокгауз и Ефрон (booksite.ru); Халва Медиа; Минсельхоз Кыргызстана"},
+ {id:"mite",kind:"Вредитель",emoji:"🕷️",title:"Красный плодовый клещ",latin:"Panonychus ulmi",lead:"Микроскопический клещ: высасывает сок из листьев.",sections:[{h:"Как узнать",items:["Самка длиной 0,3–0,4 мм, ярко-красная.","Листья буреют и засыхают."]},{h:"Как развивается",items:["Зимуют яйца на коре веток, у основания годичных приростов и в развилках молодых ветвей.","Весной отрождаются личинки. Всё развитие занимает 20–30 суток.","В северных и средних зонах 3–6 поколений за сезон, на юге больше."]},{h:"Что помогает",items:["Против клещей акарициды наиболее эффективны в фазах «раскрытие почек» — «розовый бутон» и «опадение лепестков» — рост плодов.","Препарат и дозу выбирайте по актуальному Госкаталогу."]},{h:"Сорта в приложении",items:["Вильямс очень сильно страдает от паутинного клеща (по данным питомника)."]}],v:["p1"],mo:[4,5],fun:"В Крыму красный плодовый клещ даёт 8–10 поколений за сезон, в центре России 5.",src:"БСЭ; Большая российская энциклопедия; Adama; Werribee Park Heritage Orchard"}
+];
+
+const nowMonth = new Date().getMonth() + 1;
+const doneSet = new Set();
+try { JSON.parse(localStorage.getItem('sad-done') || '[]').forEach(k => doneSet.add(k)); } catch(e) {}
+const saveDone = () => { try { localStorage.setItem('sad-done', JSON.stringify([...doneSet])); } catch(e) {} };
+const doneKey = (m, id) => new Date().getFullYear() + '-' + m + '-' + id;
+const state = {screen:'home', cat:null, id:null, filter:'Все', query:'', back:'home', quiz:null, month:nowMonth, topic:null, pest:null, pestFilter:'Все', formOpen: false, pestBack: 'pests', topicBack: 'basics', editTree: null, confirmDel: null, formError: ''};
+const quizStats = {known:0, total:0};
+const favs = new Set();
+try { JSON.parse(localStorage.getItem('sad-favs') || '[]').forEach(id => favs.add(id)); } catch(e) {}
+const saveFavs = () => { try { localStorage.setItem('sad-favs', JSON.stringify([...favs])); } catch(e) {} };
+const app = document.getElementById('app');
+
+const thumb = v => {
+  const c = catById[v.cat];
+  const visual = v.image
+    ? `<img src="${v.image}" alt="Плод сорта ${v.name}" loading="lazy" onerror="this.outerHTML='${c.emoji}'">`
+    : c.emoji;
+  return `<div class="thumb" style="--c:${c.color}">${visual}</div>`;
+};
+const seasonKey = s => s.toLowerCase().includes('лет') && !s.toLowerCase().includes('осен') ? 'Летние'
+                    : s.toLowerCase().includes('зим') ? 'Зимние' : 'Осенние';
+
+/* ---------- Экраны ---------- */
+
+/* ---------- Общий поиск: сорта, болезни и вредители, основы, словарь, календарь ---------- */
+const normText = s => String(s || '').toLowerCase().replace(/ё/g, 'е').replace(/[^a-zа-я0-9\s-]/g, ' ').replace(/\s+/g, ' ').trim();
+const stemWord = w => w.length > 6 ? w.slice(0, w.length - 2) : w.length > 4 ? w.slice(0, w.length - 1) : w;
+function lev(a, b){
+  const m = a.length, n = b.length; if(Math.abs(m - n) > 1) return 2;
+  let prev = Array.from({length: n + 1}, (_, j) => j);
+  for(let i = 1; i <= m; i++){
+    const cur = [i];
+    for(let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[n];
+}
+let SEARCH_INDEX = null;
+function buildSearchIndex(){
+  const idx = [];
+  VARIETIES.forEach(v => idx.push({type: v.cat === 'orn' ? 'orn' : 'variety', v, title: normText(v.name + ' ' + (v.latin || '')),
+    text: normText([v.name, v.latin, v.kind, catById[v.cat].title, v.origin, v.parents, v.season, v.taste, v.bloom, v.crown, v.light, v.soil, v.fun, (v.facts || []).join(' ')].join(' '))}));
+  PESTS.forEach(p => {
+    const sy = DIAGNOSTICS.filter(d => d.pestId === p.id).map(d => d.symptom + ' ' + d.desc).join(' ');
+    idx.push({type:'pest', p, title: normText(p.title + ' ' + (p.latin || '')),
+      text: normText([p.title, p.latin, p.kind, p.lead, sy, p.sections.map(s => s.h + ' ' + s.items.join(' ')).join(' ')].join(' '))});
+  });
+  BASICS.forEach(b => {
+    (b.terms || []).forEach(tm => idx.push({type:'term', b, tm, title: normText(tm.t), text: normText(tm.t + ' ' + tm.d)}));
+    idx.push({type:'topic', b, title: normText(b.title), text: normText([b.title, b.lead, (b.sections || []).map(s => s.h + ' ' + s.items.join(' ')).join(' ')].join(' '))});
+  });
+  CAL.forEach(m => m.tasks.forEach(tk => idx.push({type:'task', m, tk, title: normText(tk.s + ' ' + tk.tag),
+    text: normText([MONTHS[m.m - 1], m.phase, tk.tag, tk.s, tk.t, tk.note].join(' '))})));
+  return idx;
+}
+function scoreEntry(e, toks, fuzzy){
+  let score = 0;
+  for(const tk of toks){
+    const st = stemWord(tk);
+    if(e.title.startsWith(st)) score += 13;
+    else if(e.title.includes(st)) score += 10;
+    else if(e.text.includes(st)) score += 2;
+    else if(fuzzy && tk.length >= 5 && e.text.split(' ').some(w => w.length >= st.length - 1 && lev(w.slice(0, st.length), st) <= 1)) score += 1;
+    else return 0;
+  }
+  return score;
+}
+const srBtn = (attr, emoji, title, sub) => `<button class="topic" ${attr}><span class="t-ic" aria-hidden="true">${emoji}</span><span class="t-tx"><span class="t-t">${title}</span><span class="t-l">${sub}</span></span></button>`;
+const cut = (s, n) => s.length > n ? s.slice(0, n - 1).trim() + '…' : s;
+function searchAll(q){
+  const toks = normText(q).split(' ').filter(Boolean);
+  if(!toks.length) return {groups: [], total: 0};
+  if(!SEARCH_INDEX) SEARCH_INDEX = buildSearchIndex();
+  let hits = SEARCH_INDEX.map(e => ({e, s: scoreEntry(e, toks, false)})).filter(x => x.s > 0);
+  if(!hits.length) hits = SEARCH_INDEX.map(e => ({e, s: scoreEntry(e, toks, true)})).filter(x => x.s > 0);
+  hits.sort((a, b) => b.s - a.s);
+  const groups = [];
+  const add = (title, type, limit, render) => {
+    const list = hits.filter(h => h.e.type === type);
+    if(list.length) groups.push({title, count: list.length, best: list[0].s, items: list.slice(0, limit).map(h => render(h.e))});
+  };
+  add('Сорта', 'variety', 10, e => rowHtml(e.v));
+  add('Декоративные растения', 'orn', 10, e => rowHtml(e.v));
+  add('Болезни и вредители', 'pest', 7, e => srBtn(`data-pest="${e.p.id}"`, e.p.emoji, e.p.title, `${e.p.kind} · ${cut(e.p.lead, 80)}`));
+  add('Основы', 'topic', 7, e => srBtn(`data-topic="${e.b.id}"`, e.b.emoji, e.b.title, cut(e.b.lead, 90)));
+  add('Словарь', 'term', 6, e => srBtn('data-topic="glossary"', '📖', e.tm.t, cut(e.tm.d, 90)));
+  add('Календарь работ', 'task', 8, e => srBtn(`data-mgo="${e.m.m}"`, '📅', e.tk.s, `${MONTHS[e.m.m - 1]} · ${e.tk.tag}`));
+  groups.sort((a, b) => b.best - a.best);
+  return {groups, total: hits.length};
+}
+let lastSearchCount = 0;
+function searchResultsHtml(q){
+  const res = searchAll(q);
+  const toks = normText(q).split(' ').filter(Boolean);
+  const match = text => { const n = normText(text); return toks.length > 0 && toks.every(tk => n.includes(stemWord(tk))); };
+  const yearNow = new Date().getFullYear();
+  const ageWord = a => a === 1 ? 'год' : a > 1 && a < 5 ? 'года' : 'лет';
+  const gardenHits = getGarden().map(t => ({t, v: VARIETIES.find(x => x.id === t.sortId)}))
+    .filter(({t, v}) => match((v ? v.name : (t.customName || '')) + ' ' + (t.place || '')));
+  const favHits = VARIETIES.filter(v => favs.has(v.id) && match(v.name));
+  const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const extra = [];
+  if(gardenHits.length) extra.push(`<p class="sr-head">У вас в саду · ${gardenHits.length}</p>` + gardenHits.map(({t, v}) =>
+    srBtn('data-go="garden"', '🌳', esc(v ? v.name : t.customName), `${esc(t.place || 'Без места')} · ${yearNow - t.year} ${ageWord(yearNow - t.year)}`)).join(''));
+  if(favHits.length) extra.push(`<p class="sr-head">В избранном · ${favHits.length}</p>` + favHits.map(v =>
+    srBtn(`data-id="${v.id}"`, '♥', v.name, catById[v.cat].title)).join(''));
+  const total = res.total + gardenHits.length;
+  lastSearchCount = total;
+  if(!total) return `<div class="empty">Ничего не найдено. Попробуйте:<div class="sr-sugg">${['парша','обрезка','Гала','влагозарядковый полив','октябрь'].map(x => `<button class="chip" data-q="${x}">${x}</button>`).join('')}</div></div>`;
+  return `<p class="sr-total">Найдено: ${total}</p>` + extra.join('') + res.groups.map(g => `<p class="sr-head">${g.title} · ${g.count}</p>${g.items.join('')}`).join('');
+}
+
+function home(){
+  const q = state.query.trim().toLowerCase();
+  const cm = CAL.find(x => x.m === nowMonth);
+  const pend = cm.tasks.filter(t => !doneSet.has(doneKey(nowMonth, t.id)));
+  const firstTask = pend.length ? pend[0].s : 'Все дела месяца отмечены';
+  const treesN = getGarden().length;
+  const favCount = VARIETIES.filter(v => favs.has(v.id)).length;
+  const treesWord = n => (n % 10 === 1 && n % 100 !== 11) ? 'дерево' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'дерева' : 'деревьев';
+  let body;
+  if(q){
+    body = searchResultsHtml(state.query);
+  } else {
+    const pool = VARIETIES.filter(v => v.status !== 'draft'); const list = pool.length ? pool : VARIETIES;
+    const dp = list[Math.floor(Date.now() / 86400000) % list.length];
+    const dc = catById[dp.cat]; const own = photoList(dp)[0]; const ill = null; const dph = own || (ill ? {src: ill.src, pos: ill.pos} : null);
+    const appleCount = count('apple'), pearCount = count('pear');
+    body = `<button class="dayhero" data-id="${dp.id}" style="--c:${dc.color}" aria-label="Сорт дня: ${dp.name}">
+        ${dph ? `<img class="dh-img" src="${dph.src}" alt="" decoding="async" style="${dph.pos ? 'object-position:' + dph.pos : ''}" onerror="this.style.display='none'">${ill ? '<span class="dh-illus">иллюстрация</span>' : ''}` : `<span class="dh-ph" aria-hidden="true">${dc.emoji}</span>`}
+        <span class="dh-shade"></span>
+        <span class="dh-top">${dc.id === 'orn' ? 'Растение дня' : 'Сорт дня'}</span>
+        <span class="dh-body"><span class="dh-name">${dp.name}</span><span class="dh-sub">${dc.title} · ${dp.season} · ${dp.y}</span></span>
+      </button>
+
+      <div class="section-heading" style="margin-top:26px"><h2>Каталог</h2><button data-tab="catalog">Весь каталог　›</button></div>
+      <div class="grid">
+        ${photoTile('apple', 'Яблоня', appleCount + ' ' + plural(appleCount))}
+        ${photoTile('pear', 'Груша', pearCount + ' ' + plural(pearCount))}
+        <button class="tile" style="--c:#F2E7DF" data-go="pests"><span class="emoji" aria-hidden="true">🐛</span><span class="t">Болезни и вредители</span><span class="n">${PESTS.length} статей</span></button>
+        <button class="tile" style="--c:#E5EBE5" data-go="basics"><span class="emoji" aria-hidden="true">🌱</span><span class="t">Основы садоводства</span><span class="n">${BASICS.length} тем</span></button>
+      </div>
+
+      <div class="section-heading" style="margin-top:26px"><h2>Инструменты</h2></div>
+      <div class="tools">
+        <button class="tool" data-go="diag">${svgIcon('search')}<span><b>Определитель</b><small>болезни по симптомам</small></span></button>
+        <button class="tool" data-go="garden">${svgIcon('tree')}<span><b>Мой сад</b><small>${treesN ? treesN + ' ' + treesWord(treesN) : 'сорта и посадки'}</small></span></button>
+        <button class="tool" data-go="favs">${svgIcon('heart')}<span><b>Избранное</b><small>${favCount ? favCount + ' сохранено' : 'сохранённые сорта'}</small></span></button>
+        <button class="tool" data-go="quiz">${svgIcon('bulb')}<span><b>Тренажёр</b><small>проверь знания</small></span></button>
+      </div>
+      <div class="slim-row">
+        <button class="slim-btn" data-go="cal">${svgIcon('calendar')}<span><b>Сейчас в саду · ${MONTHS[nowMonth-1]}</b><small>${firstTask}</small></span><i>›</i></button>
+      </div>
+      <p class="note">Справочник — рабочий помощник. Перед применением средств защиты растений сверяйтесь с актуальной инструкцией и региональными рекомендациями.</p>`;
+  }
+  return `<div class="view">
+    <div class="hero-home"><h1>Садовод</h1><p>Практический справочник для вашего сада</p>${themeBtn('home-theme')}</div>
+    <div class="search"><input id="q" type="search" placeholder="Найти сорт, болезнь, тему или дело…" value="${state.query.replace(/"/g,'&quot;')}" aria-label="Поиск по справочнику"></div>
+    ${body}
+  </div>`;
+}
+
+function catalogScreen(){
+  const q = state.query.trim().toLowerCase();
+  const found = q ? VARIETIES.filter(v => v.name.toLowerCase().includes(q) || catById[v.cat].title.toLowerCase().includes(q)) : [];
+  return `<div class="view">
+    <div class="hero-home" style="min-height:78px"><h1>Справочник</h1><p>Культуры, сорта и уход</p></div>
+    <div class="search"><input id="q" type="search" placeholder="Найти сорт, болезнь, тему или дело…" value="${state.query.replace(/"/g,'&quot;')}" aria-label="Поиск по каталогу"></div>
+    ${q ? searchResultsHtml(state.query) : `<div class="section-heading"><h2>Культуры</h2></div><div class="grid">${CATEGORIES.filter(c=>['apple','pear','orn','stone','grape','berry','veg'].includes(c.id)).map(c=>{const n=count(c.id);if(CAT_PHOTOS[c.id] && !c.soon) return photoTile(c.id, c.title, n+' '+plural(n));return `<button class="tile ${c.soon?'soon':''}" style="--c:${c.color}" ${c.soon?'disabled':`data-cat="${c.id}"`}><span class="emoji">${c.emoji}</span><span class="t">${c.title}</span><span class="n">${c.soon?'Скоро':n+' '+(c.id==='orn'?plantWord(n):plural(n))}</span></button>`}).join('')}</div><div style="height:18px"></div><div class="section-heading"><h2>Другие разделы</h2></div><div class="grid"><button class="tile" data-go="pests"><span class="emoji">🍃</span><span class="t">Болезни и вредители</span><span class="n">${PESTS.length} статей</span></button><button class="tile" data-go="basics"><span class="emoji">🌱</span><span class="t">Основы</span><span class="n">${BASICS.length} тем</span></button></div>`}
+  </div>`;
+}
+
+function bottomNav(){
+  const active = state.screen === 'home' ? 'home' : state.screen === 'catalog' || state.screen === 'cat' || state.screen === 'detail' || state.screen === 'pests' || state.screen === 'pest' || state.screen === 'basics' || state.screen === 'topic' || state.screen === 'favs' || state.screen === 'quiz' || state.screen === 'diag' ? 'catalog' : state.screen === 'cal' ? 'cal' : state.screen === 'garden' ? 'garden' : 'home';
+  return `<nav class="bottom-nav" aria-label="Основная навигация">
+    <button class="tab-item ${active==='home'?'active':''}" data-tab="home"><span class="tab-icon">${svgIcon('house')}</span><span>Главная</span></button>
+    <button class="tab-item ${active==='catalog'?'active':''}" data-tab="catalog"><span class="tab-icon">${svgIcon('book')}</span><span>Справочник</span></button>
+    <button class="tab-item ${active==='cal'?'active':''}" data-tab="cal"><span class="tab-icon">${svgIcon('calendar')}</span><span>Календарь</span></button>
+    <button class="tab-item ${active==='garden'?'active':''}" data-tab="garden"><span class="tab-icon">${svgIcon('tree')}</span><span>Мой сад</span></button>
+  </nav>`;
+}
+
+function rowHtml(v){
+  return `<button class="row" data-id="${v.id}">
+    ${thumb(v)}
+    <div class="rtext"><div class="name serif">${v.name}</div><div class="meta">${v.season}${v.status === 'draft' ? ' · <span class="draft-tag">черновик</span>' : ''}</div></div>
+    <span class="yr">${favs.has(v.id) ? '♥ ' : ''}${v.y}</span>
+  </button>`;
+}
+
+function category(){
+  const c = catById[state.cat];
+  const list = VARIETIES.filter(v => v.cat === c.id);
+  const isOrn = c.id === 'orn';
+  const filters = isOrn ? ['Все','Деревья','Кустарники','Проверенные'] : ['Все','Проверенные','Летние','Осенние','Зимние','Устойчивые к парше'];
+  const shown = state.filter === 'Все' ? list : state.filter === 'Проверенные' ? list.filter(v => v.status !== 'draft') : state.filter === 'Деревья' ? list.filter(v => v.kind === 'Дерево') : state.filter === 'Кустарники' ? list.filter(v => v.kind === 'Кустарник') : state.filter === 'Устойчивые к парше' ? list.filter(v => v.scab === 'res') : list.filter(v => seasonKey(v.season) === state.filter);
+  return `<div class="view">
+    <div class="bar"><button class="back" data-back="home">Назад</button><h2 class="serif">${c.title}</h2></div>
+    ${CAT_PHOTOS[c.id] ? `<div class="cat-hero"><img src="${CAT_PHOTOS[c.id].src}" alt="" decoding="async" style="object-position:${CAT_PHOTOS[c.id].pos}" onerror="this.style.display='none'"><div class="cat-hero-shade"></div><div class="cat-hero-t"><b>${c.title}</b><span>${list.length} ${plural(list.length)}</span></div></div>` : ''}
+    <div class="filters" role="group" aria-label="Срок созревания">
+      ${filters.map(f => `<button class="chip" data-filter="${f}" aria-pressed="${state.filter===f}">${f}</button>`).join('')}
+    </div>
+    ${shown.length ? shown.map(rowHtml).join('') : `<div class="empty">В этой группе пока нет сортов.</div>`}
+  </div>`;
+}
+
+const list = a => a && a.length ? `<ul class="bul">${a.map(x => `<li>${x}</li>`).join('')}</ul>` : '';
+
+const commonsPhoto = c => {
+  const f = encodeURIComponent(c.file);
+  return {src:`https://commons.wikimedia.org/wiki/Special:FilePath/${f}?width=900`,
+          credit:`${c.author}, ${c.license}, Wikimedia Commons`,
+          source:`https://commons.wikimedia.org/wiki/File:${f}`,
+          caption:c.caption || 'Плод'};
+};
+const photoList = v => {
+  const first = v.commons ? [commonsPhoto(v.commons)]
+              : v.image ? [{src:v.image, credit:v.imageCredit, source:v.imageSource, caption:'Плод'}] : [];
+  const more = (v.gallery || []).map(x => typeof x === 'string' ? {src:x} : x.file ? commonsPhoto(x) : x);
+  return [...first, ...more];
+};
+const photoCredits = ps => ps.filter(p => p.credit || p.source).map((p,i) =>
+  `Фото${ps.length > 1 ? ' ' + (i + 1) : ''}: ${p.source ? `<a href="${p.source}" target="_blank" rel="noopener noreferrer">${p.credit || 'источник изображения'}</a>` : p.credit}.`).join(' ');
+const checkedLabel = s => { const [y, m] = String(s).split('-'); return (MONTHS[(+m || 1) - 1] || '').toLowerCase() + ' ' + y; };
+const prow = (label, value, note, cls='') => `<div class="prow ${cls}"><dt>${label}</dt><dd>${value}${note ? `<small>${note}</small>` : ''}</dd></div>`;
+
+function detail(){
+  const v = VARIETIES.find(x => x.id === state.id);
+  if(!v) return `<div class="view"><div class="bar"><button class="back" data-back="home">Назад</button></div><div class="empty">Сорт не найден.</div></div>`;
+  const c = catById[v.cat];
+  const photos = photoList(v);
+  const illus = [];   // чужие фото вместо фото сорта не показываем
+  const shown = photos.length ? photos : illus;
+  const credits = photoCredits(photos) || (illus.length ? 'Иллюстрация: личный архив автора. На фото не этот сорт.' : '');
+  const quick = (label, value, note='') => `<div class="quickfact"><span class="q-label">${label}</span><span class="q-value">${value || 'Не указано'}</span>${note ? `<span class="q-note">${note}</span>` : ''}</div>`;
+  return `<div class="view detail-view">
+    <div class="hero-photo" style="--c:${c.color}">
+      ${shown.length
+        ? `<div class="gallery" id="gallery" aria-label="Фотографии сорта">${shown.map((p,i) => `<div class="slide"><span class="slide-ph" aria-hidden="true">${c.emoji}</span><img src="${p.src}" style="${p.pos ? 'object-position:' + p.pos : ''}" alt="${p.caption ? p.caption + ': ' : 'Плод сорта '}${v.name}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" onerror="this.style.display='none'"></div>`).join('')}</div>`
+        : `<div class="hero-emoji" aria-hidden="true">${c.emoji}</div>`}
+      ${illus.length ? '<span class="illus-badge">Иллюстрация · не этот сорт</span>' : ''}
+      <div class="hero-bar">
+        <button class="back glass" data-back="${state.back}">‹ Назад</button>
+        <button class="heart glass ${favs.has(v.id) ? 'on' : ''}" data-fav="${v.id}" aria-pressed="${favs.has(v.id)}" aria-label="В избранное">${favs.has(v.id) ? '♥' : '♡'}</button>
+      </div>
+      ${photos.length > 1 ? `<div class="dots" aria-hidden="true">${photos.map((p,i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join('')}</div>` : ''}
+    </div>
+    ${credits ? `<p class="photo-credit">${credits}${photos.some(p => /^https?:/.test(p.src)) ? ' Онлайн-изображения загружаются из интернета.' : ''}</p>` : ''}
+    <p class="detail-kicker">${c.title} · Карточка ${v.cat === 'orn' ? 'растения' : 'сорта'}</p>
+    ${v.status === 'draft' ? `<div class="draft-note"><b>Не проверено по источникам.</b> Это черновик: год, происхождение и свойства могут быть неточными. Сверяйте с Госреестром и научными источниками.</div>` : ''}
+    <h2 class="d-title serif">${v.name}</h2>
+    <p class="d-cap">${v.cat === 'orn' ? `<i>${v.latin}</i> · ${v.kind}` : (v.taste ? v.taste : 'Характеристики и особенности сорта')}</p>
+
+    ${v.cat === 'orn' ? `<div class="quickfacts" aria-label="Главные характеристики растения">
+      ${quick('ВЫСОТА',v.height)}
+      ${quick('КРОНА',v.crown)}
+      ${quick('ЦВЕТЕНИЕ',v.bloom)}
+      ${quick('СВЕТ',v.light)}
+    </div>
+
+    <h3 class="passport-title">Условия и уход</h3>
+    <dl class="passport">
+      ${prow('Почва', v.soil)}
+      ${prow('Полив', v.water)}
+      ${prow('Зимостойкость', v.hardy)}
+      ${prow('Происхождение', v.origin)}
+      ${v.autumn ? prow('Осенью', v.autumn) : ''}
+    </dl>` : `<div class="quickfacts" aria-label="Главные характеристики сорта">
+      ${quick('СРОК СОЗРЕВАНИЯ',v.season)}
+      ${quick('ЛЁЖКОСТЬ',v.keep)}
+      ${quick('ГОД ПОЯВЛЕНИЯ',v.year,v.yearNote)}
+      ${quick('ПРОИСХОЖДЕНИЕ',v.origin,v.parents ? 'Родители: '+v.parents : '')}
+    </div>
+
+    <h3 class="passport-title">Паспорт сорта</h3>
+    <dl class="passport">
+      ${prow('Зимостойкость', v.hardy)}
+      ${prow('Вкус', v.taste)}
+    </dl>`}
+    <section class="sec"><h3 class="serif">Особенности</h3>${list(v.facts)}</section>
+    ${v.care && v.care.length ? `<section class="sec"><h3 class="serif">Выращивание</h3>${list(v.care)}</section>` : ''}
+    ${v.fun ? `<blockquote class="quote" style="--c:${c.color}"><h3>${v.cat === 'orn' ? 'Интересный факт' : 'Из истории сорта'}</h3><p class="serif">${v.fun}</p></blockquote>` : ''}
+    <p class="credit">Источники: ${v.src}</p>
+       ${v.status === 'verified' && v.checked ? `<p class="checked-note">✓ Проверено по источникам: ${checkedLabel(v.checked)}</p>` : ''}
+  </div>`;
+}
+
+function taskHtml(mm, t){
+  const on = doneSet.has(doneKey(mm, t.id));
+  const links = (t.v || []).map(id => { const v = VARIETIES.find(x => x.id === id); return v ? `<button class="vlink" data-id="${id}">${v.name}</button>` : ''; }).join('');
+  return `<div class="task ${on ? 'done' : ''}">
+    <button class="cb" data-task="${mm}:${t.id}" aria-pressed="${on}" aria-label="Отметить выполненным">${on ? '✓' : ''}</button>
+    <div class="tb"><span class="tg">${t.tag}</span><p class="tt">${t.t}</p>${t.note ? `<p class="tn">${t.note}</p>` : ''}${links ? `<div class="vl">${links}</div>` : ''}</div>
+  </div>`;
+}
+function calScreen(){
+  const m = CAL.find(x => x.m === state.month);
+  const done = m.tasks.filter(t => doneSet.has(doneKey(m.m, t.id))).length;
+  const pct = Math.round(done / m.tasks.length * 100);
+  const ribbon = CAL.map(x => `<button class="mchip ${x.m === nowMonth ? 'now' : ''}" data-month="${x.m}" aria-pressed="${x.m === state.month}">${MONTHS_SHORT[x.m - 1]}</button>`).join('');
+  return `<div class="view">
+    <div class="bar"><button class="back" data-back="home">‹ Назад</button><h2 class="serif">Календарь работ</h2></div>
+    <div class="ribbon" role="group" aria-label="Месяцы">${ribbon}</div>
+    <p class="m-kicker">${m.m === nowMonth ? 'Сейчас · ' : ''}${m.phase}</p>
+    <h3 class="m-title serif">${MONTHS[m.m - 1]}</h3>
+    <div class="prog" aria-hidden="true"><div style="width:${pct}%"></div></div>
+    <p class="prog-t">Сделано ${done} из ${m.tasks.length}</p>
+    ${m.tasks.map(t => taskHtml(m.m, t)).join('')}
+    <p class="note">Календарь для яблони и груши. Сроки ориентировочные для юга России: ориентируйтесь на фазу развития дерева и погоду, а не на дату. Препараты и дозы подбирайте по актуальному Госкаталогу пестицидов и агрохимикатов, соблюдайте срок ожидания из инструкции.</p>
+  </div>`;
+}
+
+function basicsScreen(){
+  return `<div class="view">
+    <div class="bar"><button class="back" data-back="home">‹ Назад</button><h2 class="serif">Основы</h2></div>
+    <p class="b-intro">Короткие объяснения главных тем садоводства: что это, как и когда делать.</p>
+    ${BASICS.map(b => `<button class="topic" data-topic="${b.id}"><span class="t-ic" aria-hidden="true">${b.emoji}</span><span class="t-tx"><span class="t-t serif">${b.title}</span><span class="t-l">${b.lead}</span></span></button>`).join('')}
+  </div>`;
+}
+function topicScreen(){
+  const b = BASICS.find(x => x.id === state.topic);
+  const vlinks = (b.v || []).map(id => { const v = VARIETIES.find(x => x.id === id); return v ? `<button class="vlink" data-id="${id}">${v.name}</button>` : ''; }).join('');
+  const mlinks = (b.mo || []).map(m => `<button class="vlink" data-mgo="${m}">${MONTHS[m - 1]}</button>`).join('');
+  return `<div class="view">
+    <div class="bar"><button class="back" data-back="${state.topicBack || 'basics'}">‹ Назад</button></div>
+    <p class="detail-kicker">Основы · ${b.emoji}</p>
+    <h2 class="d-title serif">${b.title}</h2>
+    <p class="d-cap">${b.lead}</p>
+    ${b.sections.map(x => `<section class="sec"><h3 class="serif">${x.h}</h3>${list(x.items)}</section>`).join('')}
+    ${b.terms.length ? `<dl class="gl">${b.terms.map(x => `<div class="gl-i"><dt>${x.t}</dt><dd>${x.d}</dd></div>`).join('')}</dl>` : ''}
+    ${vlinks ? `<section class="sec"><h3 class="serif">Сорта в приложении</h3><div class="vl">${vlinks}</div></section>` : ''}
+    ${mlinks ? `<section class="sec"><h3 class="serif">В календаре работ</h3><div class="vl">${mlinks}</div></section>` : ''}
+    <p class="credit">Источники: ${b.src}</p>
+  </div>`;
+}
+
+function pestsScreen(){
+  const kinds = ['Все','Болезни','Вредители'];
+  const shown = PESTS.filter(p => state.pestFilter === 'Все' || (state.pestFilter === 'Болезни' ? p.kind === 'Болезнь' : p.kind === 'Вредитель'));
+  return `<div class="view">
+    <div class="bar"><button class="back" data-back="home">‹ Назад</button><h2 class="serif long">Болезни и вредители</h2></div>
+    <div class="filters" role="group" aria-label="Тип">${kinds.map(k => `<button class="chip" data-pfilter="${k}" aria-pressed="${state.pestFilter === k}">${k}</button>`).join('')}</div>
+    ${shown.map(p => `<button class="topic" data-pest="${p.id}"><span class="t-ic" aria-hidden="true">${p.emoji}</span><span class="t-tx"><span class="t-t serif">${p.title}</span><span class="t-l">${p.kind} · ${p.lead}</span></span></button>`).join('')}
+    <p class="note">Названия препаратов и дозы здесь не приводятся: подбирайте их по актуальному Госкаталогу пестицидов и агрохимикатов и соблюдайте срок ожидания из инструкции.</p>
+  </div>`;
+}
+function pestScreen(){
+  const b = PESTS.find(x => x.id === state.pest);
+  const vlinks = (b.v || []).map(id => { const v = VARIETIES.find(x => x.id === id); return v ? `<button class="vlink" data-id="${id}">${v.name}</button>` : ''; }).join('');
+  const mlinks = (b.mo || []).map(m => `<button class="vlink" data-mgo="${m}">${MONTHS[m - 1]}</button>`).join('');
+  return `<div class="view" style="--c:var(--pest)">
+    <div class="bar"><button class="back" data-back="${state.pestBack || 'pests'}">‹ Назад</button></div>
+    <p class="detail-kicker">${b.kind} · ${b.emoji}</p>
+    <h2 class="d-title serif">${b.title}</h2>
+    <p class="d-cap"><i>${b.latin}</i>. ${b.lead}</p>
+    ${b.sections.map(x => `<section class="sec"><h3 class="serif">${x.h}</h3>${list(x.items)}</section>`).join('')}
+    ${b.fun ? `<blockquote class="quote" style="--c:var(--pest)"><h3>Интересный факт</h3><p class="serif">${b.fun}</p></blockquote>` : ''}
+    ${vlinks ? `<section class="sec"><h3 class="serif">Сорта в приложении</h3><div class="vl">${vlinks}</div></section>` : ''}
+    ${mlinks ? `<section class="sec"><h3 class="serif">В календаре работ</h3><div class="vl">${mlinks}</div></section>` : ''}
+    <p class="credit">Источники: ${b.src}</p>
+  </div>`;
+}
+
+/* ---------- Мой сад ---------- */
+let gardenMem = [];
+function getGarden() {
+  try { return JSON.parse(localStorage.getItem('sad_garden') || '[]'); } catch(e) { return gardenMem; }
+}
+function saveGarden(garden) {
+  gardenMem = garden;
+  try { localStorage.setItem('sad_garden', JSON.stringify(garden)); } catch(e) {}
+}
+
+function gardenScreen(){
+  const garden = getGarden();
+  const currentYear = new Date().getFullYear();
+  const editing = state.editTree ? garden.find(x => x.id === state.editTree) : null;
+
+  if (state.formOpen) {
+    const cur = editing || {sortId: '', customName: '', year: currentYear, place: ''};
+    const esc = s => String(s || '').replace(/"/g, '&quot;');
+    return `<div class="view">
+      <div class="bar"><button class="back" data-back="garden">‹ Назад</button><h2 class="serif">${editing ? 'Изменить дерево' : 'Новое дерево'}</h2></div>
+      <div class="form-group"><label>Сорт</label><select id="f-sort"><option value="">Выберите сорт...</option>${VARIETIES.map(v => `<option value="${v.id}" ${v.id === cur.sortId ? 'selected' : ''}>${v.name} (${catById[v.cat].title})</option>`).join('')}</select></div>
+      <div class="form-group"><label>Или впишите свой сорт, если его нет в списке</label><input type="text" id="f-custom" placeholder="Например, Уэлси из бабушкиного сада" value="${esc(cur.customName)}"></div>
+      <div class="form-group"><label>Год посадки</label><input type="number" id="f-year" min="1900" max="${currentYear}" value="${cur.year}"></div>
+      <div class="form-group"><label>Место в саду</label><input type="text" id="f-place" placeholder="Например, у забора" value="${esc(cur.place)}"></div>
+      ${state.formError ? `<p class="form-error">${state.formError}</p>` : ''}
+      <button class="add-btn" data-save-tree>${editing ? 'Сохранить изменения' : 'Сохранить дерево'}</button>
+    </div>`;
+  }
+
+  return `<div class="view">
+    <div class="bar"><button class="back" data-back="home">‹ Назад</button><h2 class="serif">Мой сад</h2></div>
+    <button class="add-btn" data-add-tree>+ Добавить дерево</button>
+    ${garden.length ? `<div class="my-garden-list">${garden.map(t => {
+        const v = VARIETIES.find(x => x.id === t.sortId);
+        if (!v && t.customName){
+          const age0 = currentYear - t.year;
+          const acts = state.confirmDel === t.id
+            ? `<span class="g-ask">Удалить это дерево?</span><button class="g-btn danger" data-del-tree-yes="${t.id}">Удалить</button><button class="g-btn" data-del-tree-no="1">Отмена</button>`
+            : `<button class="g-btn" data-edit-tree="${t.id}">Изменить</button><button class="g-btn danger" data-del-tree="${t.id}">Удалить</button>`;
+          const nm = String(t.customName).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+          const pl = String(t.place || 'Без места').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+          return `<div class="garden-item"><div class="garden-card"><div class="thumb" style="--c:var(--basics)">🌳</div><div class="info"><div class="name">${nm}</div><div class="meta">${pl} · <span class="age">${age0} ${age0 === 1 ? 'год' : age0 > 1 && age0 < 5 ? 'года' : 'лет'}</span> · свой сорт</div></div></div><div class="garden-actions">${acts}</div></div>`;
+        }
+        if (!v) return `<div class="garden-item"><div class="garden-card"><div class="info"><div class="name">Сорт удалён из базы</div><div class="meta">${t.place || 'Без места'}</div></div></div><div class="garden-actions"><button class="g-btn danger" data-del-tree-yes="${t.id}">Убрать из сада</button></div></div>`;
+        const c = catById[v.cat];
+        const age = currentYear - t.year;
+        const actions = state.confirmDel === t.id
+          ? `<span class="g-ask">Удалить это дерево?</span><button class="g-btn danger" data-del-tree-yes="${t.id}">Удалить</button><button class="g-btn" data-del-tree-no="1">Отмена</button>`
+          : `<button class="g-btn" data-edit-tree="${t.id}">Изменить</button><button class="g-btn danger" data-del-tree="${t.id}">Удалить</button>`;
+        return `<div class="garden-item">
+          <button class="garden-card" data-tree-id="${t.id}" data-id="${v.id}">
+            <div class="thumb" style="--c:${c.color}">${c.emoji}</div>
+            <div class="info"><div class="name">${v.name}</div><div class="meta">${t.place || 'Без места'} · <span class="age">${age} ${age === 1 ? 'год' : age > 1 && age < 5 ? 'года' : 'лет'}</span></div></div>
+          </button>
+          <div class="garden-actions">${actions}</div>
+        </div>`;
+      }).join('')}</div>` : `<div class="empty-garden"><h3>Тут пока пусто</h3><p>Добавьте свои деревья, чтобы приложение считало их возраст.</p></div>`}
+  </div>`;
+}
+
+function favsScreen(){
+  const list = VARIETIES.filter(v => favs.has(v.id));
+  return `<div class="view">
+    <div class="bar"><button class="back" data-back="home">‹ Назад</button><h2 class="serif">Избранное</h2></div>
+    ${list.length ? list.map(rowHtml).join('') : `<div class="empty">Пока пусто. Нажмите ♡ в карточке сорта, чтобы добавить его сюда.</div>`}
+  </div>`;
+}
+
+const bad = x => !x || /уточн|неизвест/i.test(x);
+const QUIZ_TYPES = [
+  {k:'year',   q:'В каком году появился сорт?',            a:v => v.year + (v.yearNote ? '. ' + v.yearNote : ''), ok:v => !bad(v.year)},
+  {k:'origin', q:'Откуда сорт и кто его вывел?',           a:v => v.origin + (v.parents ? '. Родители: ' + v.parents : ''), ok:v => !bad(v.origin)},
+  {k:'season', q:'Какой у сорта срок созревания?',         a:v => v.season, ok:v => !bad(v.season)},
+  {k:'keep',   q:'Какая у сорта лёжкость?',                a:v => v.keep, ok:v => !bad(v.keep)},
+  {k:'taste',  q:'Какой у сорта вкус?',                    a:v => v.taste, ok:v => !bad(v.taste)}
+];
+function newCard(){
+  const prev = state.quiz ? state.quiz.id : null;
+  const pool = VARIETIES.filter(v => v.id !== prev && v.cat !== 'orn');
+  const v = pool[Math.floor(Math.random() * pool.length)];
+  const types = QUIZ_TYPES.filter(t => t.ok(v));
+  const t = types[Math.floor(Math.random() * types.length)];
+  state.quiz = {id:v.id, t:t.k, shown:false};
+}
+function quizScreen(){
+  if(!state.quiz) newCard();
+  const v = VARIETIES.find(x => x.id === state.quiz.id);
+  const t = QUIZ_TYPES.find(x => x.k === state.quiz.t);
+  return `<div class="view">
+    <div class="bar"><button class="back" data-back="home">‹ Назад</button><h2 class="serif">Тренажёр</h2></div>
+    <p class="qstat">Знал: ${quizStats.known} из ${quizStats.total}</p>
+    <div class="qcard">
+      <p class="q-kicker">${catById[v.cat].title}</p>
+      <h3 class="serif q-name">${v.name}</h3>
+      <p class="q-q">${t.q}</p>
+      ${state.quiz.shown
+        ? `<div class="q-a">${t.a(v)}</div><div class="q-btns"><button class="qb" data-quiz="no">Не знал</button><button class="qb yes" data-quiz="yes">Знал</button></div>`
+        : `<button class="qb show" data-quiz="show">Показать ответ</button>`}
+    </div>
+  </div>`;
+}
+
+function diagScreen(){
+  const symptoms = DIAGNOSTICS.filter(d => d.crop === diagState.crop);
+  const result = diagState.symptom ? PESTS.find(p => p.id === diagState.symptom) : null;
+
+  return `<div class="view">
+    <div class="bar"><button class="back" data-back="home">‹ Назад</button><h2 class="serif">Определитель</h2></div>
+    
+    <p class="b-intro">Выберите культуру и симптом. Приложение подскажет, что это может быть.</p>
+
+    <div class="selector-box">
+      <button class="sel-btn ${diagState.crop === 'apple' ? 'active' : ''}" data-diag-crop="apple">🍎 Яблоня</button>
+      <button class="sel-btn ${diagState.crop === 'pear' ? 'active' : ''}" data-diag-crop="pear">🍐 Груша</button>
+    </div>
+
+    <div class="symptom-list">
+      ${symptoms.map(s => `<button class="symptom-card ${diagState.symptom === s.pestId ? 'active' : ''}" data-diag-symptom="${s.pestId}">
+        <div>
+          <div class="s-t">${s.symptom}</div>
+          <div class="s-d">${s.desc}</div>
+        </div>
+        <span class="s-arrow">›</span>
+      </button>`).join('')}
+    </div>
+
+    ${result ? `<button class="sheet-backdrop" data-diag-close="1" aria-label="Закрыть"></button>
+    <div class="sheet" role="dialog" aria-label="Результат определителя">
+      <div class="sheet-grab" aria-hidden="true"></div>
+      <p class="detail-kicker" style="margin-bottom: 5px;">Вероятный диагноз</p>
+      <h3 class="result-title">${result.title}</h3>
+      <p class="result-desc">${result.lead}</p>
+      <div class="result-action">
+        <b>Что делать</b>
+        ${result.sections.find(x => x.h === "Что помогает")?.items[0] || "Обратитесь к карточке болезни для подробностей."}
+      </div>
+      <div class="sheet-btns">
+        <button class="vlink wide" data-pest="${result.id}">Открыть полную статью ›</button>
+        <button class="vlink wide ghost" data-diag-close="1">Закрыть</button>
+      </div>
+    </div>` : ''}
+  </div>`;
+}
+
+/* ---------- Render & Events ---------- */
+const catById = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
+const count = id => VARIETIES.filter(v => v.cat === id).length;
+const plantWord = n => (n % 10 === 1 && n % 100 !== 11) ? 'растение' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'растения' : 'растений';
+const plural = n => { const m10=n%10, m100=n%100; return (m10===1&&m100!==11)?'сорт':(m10>=2&&m10<=4&&(m100<10||m100>=20))?'сорта':'сортов'; };
+
+
+/* ---------- Запоминание прокрутки: «Назад» возвращает туда, где вы были ---------- */
+const scrollMem = {};
+let navMode = 'forward', lastViewKey = '';
+const viewKey = () => {
+  const s = state.screen;
+  return s === 'detail' ? 'detail|' + state.id : s === 'cat' ? 'cat|' + state.cat + '|' + state.filter : s === 'topic' ? 'topic|' + state.topic
+       : s === 'pest' ? 'pest|' + state.pest : s === 'cal' ? 'cal|' + state.month : s === 'diag' ? 'diag|' + diagState.crop
+       : s === 'pests' ? 'pests|' + state.pestFilter : s;
+};
+const rememberScroll = () => { scrollMem[viewKey()] = window.scrollY || window.pageYOffset || 0; };
+
+
+/* ---------- Контурные иконки (Line Art) вместо эмодзи ---------- */
+const ICONS = {"apple": "<path d=\"M12 7.6c-1.3-1.2-3.1-1.7-4.7-1C4.9 7.6 4 10 4.5 12.8c.6 3.4 2.5 6.7 4.8 6.7.9 0 1.6-.5 2.7-.5c1.1 0 1.8.5 2.7.5c2.3 0 4.2-3.3 4.8-6.7.5-2.8-.4-5.2-2.8-6.2-1.6-.7-3.4-.2-4.7 1z\"/><path d=\"M12 7.6c0-1.7.6-3.1 1.9-4.1\"/><path d=\"M14 3.3c1.4-.2 2.6.3 3.2 1.4-1.4.5-2.6.2-3.2-1.4z\"/>", "pear": "<path d=\"M12 7.2c-1.4 0-2.3 1.2-2.6 2.6-.3 1.3-1.1 2.1-2 3.1-1.1 1.2-1.9 2.3-1.9 3.8 0 2.4 2.8 4.2 6.5 4.2s6.5-1.8 6.5-4.2c0-1.5-.8-2.6-1.9-3.8-.9-1-1.7-1.8-2-3.1-.3-1.4-1.2-2.6-2.6-2.6z\"/><path d=\"M12 7.2c.1-1.6.7-2.8 1.8-3.7\"/><path d=\"M13.7 4.5c1.2-.4 2.4-.1 3.2.8-1.3.5-2.5.3-3.2-.8z\"/>", "cherry": "<circle cx=\"8\" cy=\"16.5\" r=\"3.2\"/><circle cx=\"16.5\" cy=\"17\" r=\"3\"/><path d=\"M8 13.3c.4-3 2-6.3 5.5-8.8M16.5 14c-.8-3.2-1.5-6-3-9.5\"/><path d=\"M13.5 4.5c1.8-.6 3.6-.4 5 .6-1.8.9-3.6.7-5-.6z\"/>", "grape": "<circle cx=\"8.5\" cy=\"10.5\" r=\"2.3\"/><circle cx=\"15.5\" cy=\"10.5\" r=\"2.3\"/><circle cx=\"12\" cy=\"14.5\" r=\"2.3\"/><circle cx=\"12\" cy=\"7.3\" r=\"2.3\"/><circle cx=\"12\" cy=\"19\" r=\"1.9\"/><path d=\"M12 5c0-1.3.7-2.2 1.8-2.8\"/><path d=\"M13.8 2.2c1.2-.2 2.2.2 2.8 1.2-1.2.4-2.2.1-2.8-1.2z\"/>", "berry": "<path d=\"M12 20.2c-4-1.9-6.2-5-6.2-8.2 0-2.6 2.3-4.2 6.2-4.2s6.2 1.6 6.2 4.2c0 3.2-2.2 6.3-6.2 8.2z\"/><path d=\"M8.5 7.4L12 9l3.5-1.6M12 9V5.2\"/><path d=\"M9.5 12h.01M12 11.2h.01M14.5 12h.01M10.8 14.5h.01M13.2 14.5h.01M12 16.8h.01\"/>", "carrot": "<path d=\"M8.4 9.6c0-1.3 1.5-2.1 3.6-2.1s3.6.8 3.6 2.1c0 2.9-2.4 7.6-3.6 10.9-1.2-3.3-3.6-8-3.6-10.9z\"/><path d=\"M9.8 12.4h2.2M11.2 15.4h2\"/><path d=\"M12 7.5C11.6 5.6 10.2 4.3 8.2 4M12 7.5V3M12 7.5c.4-1.9 1.9-3.2 3.9-3.5\"/>", "book": "<path d=\"M5 5.6c2.5-1 5-.7 7 1 2-1.7 4.5-2 7-1v12.8c-2.5-1-5-.7-7 1-2-1.7-4.5-2-7-1z\"/><path d=\"M12 6.6v12.8\"/>", "calendar": "<rect x=\"4\" y=\"5.5\" width=\"16\" height=\"14.5\" rx=\"3\"/><path d=\"M4 10h16M8.5 3.5v4M15.5 3.5v4\"/><path d=\"M8.5 14h.01M12 14h.01M15.5 14h.01M8.5 17h.01M12 17h.01\"/>", "caterpillar": "<circle cx=\"6.5\" cy=\"15.5\" r=\"2.2\"/><circle cx=\"10.7\" cy=\"13.2\" r=\"2.2\"/><circle cx=\"15\" cy=\"13.2\" r=\"2.2\"/><circle cx=\"18.6\" cy=\"15.8\" r=\"2.3\"/><path d=\"M18.6 13.5c.2-1.4-.1-2.5-1-3.5M20.2 14c.7-1.2.9-2.2.7-3.2\"/>", "leaf": "<path d=\"M5 19.2C5 11 10 5.4 19.2 4.8c0 9.2-5.2 14.4-13.4 14.4z\"/><path d=\"M5 19.2c3-4.2 6.2-7.2 10.2-9.4\"/>", "sprout": "<path d=\"M12 20.5v-8.2\"/><path d=\"M12 12.3c0-3.6-2.5-5.7-6.2-5.7 0 3.6 2.5 5.7 6.2 5.7z\"/><path d=\"M12 14.5c0-3.1 2.2-5.2 5.7-5.2 0 3.1-2.2 5.2-5.7 5.2z\"/>", "scissors": "<circle cx=\"7\" cy=\"17\" r=\"2.6\"/><circle cx=\"17\" cy=\"17\" r=\"2.6\"/><path d=\"M8.9 15.1L18 4.5M15.1 15.1L6 4.5\"/>", "tree": "<path d=\"M12 3.5c-3 0-5.3 2.2-5.3 5 0 .6.1 1.2.3 1.7-1.2.8-2 2.1-2 3.6 0 2.4 2 4.2 4.5 4.2h5c2.5 0 4.5-1.8 4.5-4.2 0-1.5-.8-2.8-2-3.6.2-.5.3-1.1.3-1.7 0-2.8-2.3-5-5.3-5z\"/><path d=\"M12 18.2V21M12 14.5l-2-2M12 15.8l2.2-2.2\"/>", "bee": "<path d=\"M8 11.8c0-2 1.8-3.6 4-3.6s4 1.6 4 3.6v2.8c0 2.1-1.8 3.7-4 3.7s-4-1.6-4-3.7z\"/><path d=\"M8 12.6h8M8.2 15.2h7.6\"/><path d=\"M9.6 8.6C8.6 5.6 6 5 5 6.1c-.9 1 .3 3.3 3.6 3.5M14.4 8.6C15.4 5.6 18 5 19 6.1c.9 1-.3 3.3-3.6 3.5\"/><path d=\"M12 18.3v1.7\"/>", "drop": "<path d=\"M12 3.5c3.2 4 5.6 6.9 5.6 10.1a5.6 5.6 0 0 1-11.2 0c0-3.2 2.4-6.1 5.6-10.1z\"/><path d=\"M9.4 14.6c.2 1.3 1 2.1 2.3 2.4\"/>", "flower": "<circle cx=\"12\" cy=\"12\" r=\"2.2\"/><g><path d=\"M12 9.8C10.6 7.8 11 4.8 12 3.6c1 1.2 1.4 4.2 0 6.2z\"/><path d=\"M12 9.8C10.6 7.8 11 4.8 12 3.6c1 1.2 1.4 4.2 0 6.2z\" transform=\"rotate(72 12 12)\"/><path d=\"M12 9.8C10.6 7.8 11 4.8 12 3.6c1 1.2 1.4 4.2 0 6.2z\" transform=\"rotate(144 12 12)\"/><path d=\"M12 9.8C10.6 7.8 11 4.8 12 3.6c1 1.2 1.4 4.2 0 6.2z\" transform=\"rotate(216 12 12)\"/><path d=\"M12 9.8C10.6 7.8 11 4.8 12 3.6c1 1.2 1.4 4.2 0 6.2z\" transform=\"rotate(288 12 12)\"/></g>", "leafspot": "<path d=\"M5 19.2C5 11 10 5.4 19.2 4.8c0 9.2-5.2 14.4-13.4 14.4z\"/><path d=\"M9 15.2h.01M12 12.2h.01M13.8 15.4h.01M15.5 10.5h.01\"/>", "cloud": "<path d=\"M7.2 18.6h9.4a3.8 3.8 0 0 0 .4-7.5 5.6 5.6 0 0 0-10.4-1.9 4.7 4.7 0 0 0 .6 9.4z\"/>", "flame": "<path d=\"M12 3.4c1 3.3 4.6 5.1 4.6 9.3a4.6 4.6 0 0 1-9.2 0c0-1.8.8-3.1 1.8-4.1.2 1.2.9 1.9 1.6 2 0-2.4.3-4.7 1.2-7.2z\"/>", "beetle": "<path d=\"M12 8.2c2.6 0 4.2 2.3 4.2 5s-1.8 5.4-4.2 5.4-4.2-2.7-4.2-5.4 1.6-5 4.2-5z\"/><path d=\"M12 8.2v10.4M10.2 6.7c.4-1 1-1.6 1.8-1.6s1.4.6 1.8 1.6\"/><path d=\"M7.8 11.6L5 10M7.6 14.6H4.5M8.2 17.2l-2.7 1.8M16.2 11.6L19 10M16.4 14.6h3.1M15.8 17.2l2.7 1.8\"/><path d=\"M10 12h.01M14 12h.01M10 15h.01M14 15h.01\"/>", "spider": "<circle cx=\"12\" cy=\"13.4\" r=\"2.7\"/><circle cx=\"12\" cy=\"9.3\" r=\"1.7\"/><path d=\"M9.5 12L5 9.5M9.3 13.5H4M9.5 15L5 17.5M10.4 16.2L8 20M14.5 12L19 9.5M14.7 13.5H20M14.5 15L19 17.5M13.6 16.2L16 20\"/>", "search": "<circle cx=\"11\" cy=\"11\" r=\"6.2\"/><path d=\"M15.6 15.6L20 20\"/>", "house": "<path d=\"M4 11.4L12 4.4l8 7\"/><path d=\"M6 10v9.6h12V10\"/><path d=\"M10 19.6v-5h4v5\"/>", "branch": "<path d=\"M4 20c3.6-1 6.2-4.6 7.2-9.2.8-3.6 3-5.8 7.6-6.8\"/><path d=\"M11 11.6C10.5 9 8.6 7.4 5.8 7.2c.2 2.8 2.2 4.4 5.2 4.4z\"/><path d=\"M13.8 8.6c.2-2.2 1.7-3.6 4-4-.1 2.5-1.6 3.9-4 4z\"/><path d=\"M8.6 16c1.8-.2 3.2-1.2 4-3\"/>"};
+ICONS.heart = '<path d="M12 20s-7.2-4.5-7.2-10.1A4.1 4.1 0 0 1 12 7.4a4.1 4.1 0 0 1 7.2 2.5C19.2 15.5 12 20 12 20z"/>';
+ICONS.bulb = '<path d="M9.2 18h5.6M10.2 21h3.6"/><path d="M12 3.4a5.6 5.6 0 0 0-3.3 10.1c.8.6 1.3 1.5 1.3 2.5h4c0-1 .5-1.9 1.3-2.5A5.6 5.6 0 0 0 12 3.4z"/>';
+const CAT_PHOTOS = {apple:{src:'photos/cat-apple.webp', pos:'38% 55%'}, pear:{src:'photos/cat-pear.webp', pos:'68% 72%'}};
+const photoTile = (cid, title, n) => { const ph = CAT_PHOTOS[cid]; if(!ph) return `<button class="tile" data-cat="${cid}"><span class="emoji" aria-hidden="true">${catById[cid].emoji}</span><span class="t">${title}</span><span class="n">${n}</span></button>`; return `<button class="tile has-photo" data-cat="${cid}"><img class="tile-img" src="${ph.src}" alt="" loading="lazy" decoding="async" style="object-position:${ph.pos}" onerror="this.style.display='none'"><span class="t">${title}</span><span class="n">${n}</span></button>`; };
+const EMOJI_ICON = {'🍎':'apple','🍐':'pear','🍒':'cherry','🍇':'grape','🍓':'berry','🥕':'carrot','📖':'book','📅':'calendar','🐛':'caterpillar','🍃':'leaf','🌱':'sprout','✂':'scissors','🌳':'tree','🪚':'branch','🐝':'bee','💧':'drop','🌸':'flower','🍂':'leafspot','🌫':'cloud','🔥':'flame','🪲':'beetle','🕷':'spider'};
+const svgIcon = n => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><use href="#ic-${n}"/></svg>`;
+let SPRITE = '';
+const getSprite = () => SPRITE || (SPRITE = '<svg width="0" height="0" style="position:absolute" aria-hidden="true">' + Object.keys(ICONS).map(k => `<symbol id="ic-${k}" viewBox="0 0 24 24">${ICONS[k]}</symbol>`).join('') + '</svg>');
+const EMOJI_RE = new RegExp('(' + Object.keys(EMOJI_ICON).join('|') + ')\\uFE0F?', 'g');
+const swapEmoji = html => html.replace(/>([^<>]+)</g, (m, txt) => '>' + txt.replace(EMOJI_RE, (x, e) => svgIcon(EMOJI_ICON[e])) + '<');
+
+/* ---------- Атмосфера: цветной тон раздела и размытое фото сорта ---------- */
+function toneName(){
+  const s = state.screen;
+  if(s === 'cat') return state.cat === 'orn' ? 'orn' : state.cat === 'pear' ? 'pear' : 'apple';
+  if(s === 'detail'){ const v = VARIETIES.find(x => x.id === state.id); return v ? (v.cat === 'orn' ? 'orn' : v.cat === 'pear' ? 'pear' : 'apple') : 'home'; }
+  if(s === 'pests' || s === 'pest' || s === 'diag') return 'pest';
+  if(s === 'basics' || s === 'topic' || s === 'garden') return 'basics';
+  if(s === 'cal') return 'plan';
+  return 'home';
+}
+function atmoHtml(){
+  let photo = '';
+  if(state.screen === 'detail'){
+    const v = VARIETIES.find(x => x.id === state.id); const ps = v ? photoList(v) : [];
+    const asrc = v && v.imageBlur ? v.imageBlur : '';
+    if(asrc) photo = `<div class="atmo-photo" style="background-image:url('${asrc}')"></div><div class="atmo-veil"></div>`;
+  }
+  return `<div class="atmo" data-tone="${toneName()}" aria-hidden="true"></div>${photo}`;
+}
+
+function render(){
+  const keepFocus = document.activeElement && document.activeElement.id === 'q';
+  const pos = keepFocus ? document.activeElement.selectionStart : 0;
+  const scr = state.screen;
+
+  app.innerHTML = swapEmoji(getSprite() + atmoHtml() + (scr === 'home' ? home() : scr === 'catalog' ? catalogScreen() : scr === 'cat' ? category() : scr === 'favs' ? favsScreen() : scr === 'quiz' ? quizScreen() : scr === 'cal' ? calScreen() : scr === 'basics' ? basicsScreen() : scr === 'topic' ? topicScreen() : scr === 'pests' ? pestsScreen() : scr === 'pest' ? pestScreen() : scr === 'garden' ? gardenScreen() : scr === 'diag' ? diagScreen() : detail()) + bottomNav());
+
+  if(keepFocus){ const i = document.getElementById('q'); if(i){ i.focus(); i.setSelectionRange(pos,pos); } }
+  if(scr === 'detail' && document.getElementById){
+    const gal = document.getElementById('gallery');
+    if(gal && gal.addEventListener){
+      gal.addEventListener('scroll', () => {
+        const i = Math.round(gal.scrollLeft / Math.max(gal.clientWidth, 1));
+        document.querySelectorAll('.dots i').forEach((d, k) => d.classList.toggle('on', k === i));
+      }, {passive:true});
+    }
+  }
+  if(scr === 'cal' && document.querySelector){ const c = document.querySelector('.mchip[aria-pressed="true"]'); if(c && c.scrollIntoView) c.scrollIntoView({inline:'center', block:'nearest'}); }
+  const lv = document.getElementById('live');
+  if(lv && lv !== app){ lv.textContent = (state.screen === 'home' && state.query.trim()) ? (lastSearchCount ? 'Найдено результатов: ' + lastSearchCount : 'Ничего не найдено') : ''; }
+  const k = viewKey();
+  if(k !== lastViewKey){
+    const y = navMode === 'back' ? (scrollMem[k] || 0) : 0;
+    lastViewKey = k; navMode = 'forward';
+    window.scrollTo(0, y);
+    if(y) setTimeout(() => window.scrollTo(0, y), 60);
+  }
+}
+
+app.addEventListener('click', e => {
+  const t = e.target.closest('button'); if(!t) return;
+  const d = t.dataset;
+  rememberScroll(); navMode = d.back !== undefined ? 'back' : 'forward';
+  if(d.themeToggle !== undefined){ toggleTheme(); render(); return; }
+  if(d.q !== undefined){ state.query = d.q; render(); return; }
+  if(d.editTree !== undefined){ state.editTree = d.editTree; state.formOpen = true; state.formError = ''; state.confirmDel = null; render(); return; }
+  if(d.delTree !== undefined){ state.confirmDel = d.delTree; render(); return; }
+  if(d.delTreeNo !== undefined){ state.confirmDel = null; render(); return; }
+  if(d.delTreeYes !== undefined){ saveGarden(getGarden().filter(x => x.id !== d.delTreeYes)); state.confirmDel = null; render(); return; }
+  if(d.diagClose !== undefined){ diagState.symptom = null; render(); return; }
+  if(d.tab){
+    state.screen = d.tab;
+    state.back = 'home';
+    if(d.tab === 'garden'){ state.formOpen = false; state.editTree = null; state.confirmDel = null; }
+    if(d.tab === 'cal') state.month = nowMonth;
+    if(d.tab !== 'home' && d.tab !== 'catalog') state.query = '';
+    render(); return;
+  }
+  
+// Для определителя
+  if(d.diagCrop){ diagState.crop = d.diagCrop; diagState.symptom = null; render(); return; }
+  if(d.diagSymptom){ diagState.symptom = d.diagSymptom; render(); return; }
+
+  // Переход из Моего сада в карточку
+  if(d.treeId && d.id){
+    state.back = 'garden';
+    state.screen = 'detail';
+    state.id = d.id;
+    render();
+    return;
+  }
+
+  if(d.cat){ state.screen='cat'; state.cat=d.cat; state.filter='Все'; }
+  else if(d.id){
+    state.back = ['cat','favs','cal','topic','pest','catalog'].includes(state.screen) ? state.screen : 'home';
+    if(state.screen === 'home') state.cat = null;
+    state.screen='detail'; state.id=d.id; }
+  else if(d.filter){ state.filter = d.filter; }
+  else if(d.back){ 
+    if (d.back === 'garden' && state.formOpen) {
+      state.formOpen = false; state.editTree = null; state.formError = '';
+      render();
+    } else {
+      state.screen = d.back; }
+  }
+else if(d.go){ state.screen = d.go; if(d.go === 'quiz' && !state.quiz) newCard(); if(d.go === 'cal') state.month = nowMonth; }
+  else if(d.fav){ favs.has(d.fav) ? favs.delete(d.fav) : favs.add(d.fav); saveFavs(); }
+  
+  // === МОЙ САД ===
+  else if (d.go === 'garden') {
+    state.screen = 'garden';
+    state.formOpen = false;
+    render();
+  }
+  else if (d.addTree !== undefined) {
+    state.editTree = null; state.formError = ''; state.formOpen = true;
+    render();
+  }
+  else if (d.saveTree !== undefined) {
+    const sortId = document.getElementById('f-sort').value;
+    const customEl = document.getElementById('f-custom');
+    const customName = sortId ? '' : ((customEl && customEl.value) || '').trim();
+    const year = parseInt(document.getElementById('f-year').value);
+    const place = document.getElementById('f-place').value.trim();
+    if ((!sortId && !customName) || !year || year < 1900 || year > new Date().getFullYear()) { state.formError = 'Выберите сорт из списка или впишите своё название и укажите год посадки (от 1900 до текущего).'; render(); return; }
+    const garden = getGarden();
+    if (state.editTree) {
+      const i = garden.findIndex(x => x.id === state.editTree);
+      if (i >= 0) garden[i] = {...garden[i], sortId, customName, year, place};
+    } else {
+      garden.push({ id: Date.now().toString(), sortId, customName, year, place });
+    }
+    saveGarden(garden);
+    state.formOpen = false; state.editTree = null; state.formError = '';
+    render();
+  }
+  // ================
+
+  else if(d.quiz){
+    if(d.quiz === 'show'){ state.quiz.shown = true; }
+    else { quizStats.total++; if(d.quiz === 'yes') quizStats.known++; newCard(); }
+  }
+  else if(d.month){ state.month = Number(d.month); }
+  else if(d.pest){ state.pestBack = (state.screen === 'pests' || state.screen === 'pest') ? 'pests' : state.screen; state.pest = d.pest; state.screen = 'pest'; }
+  else if(d.pfilter){ state.pestFilter = d.pfilter; }
+  else if(d.topic){ state.topicBack = (state.screen === 'basics' || state.screen === 'topic') ? 'basics' : state.screen; state.topic = d.topic; state.screen = 'topic'; }
+  else if(d.mgo){ state.month = Number(d.mgo); state.screen = 'cal'; }
+  else if(d.task){ const [mm, id] = d.task.split(':'); const k = doneKey(Number(mm), id); doneSet.has(k) ? doneSet.delete(k) : doneSet.add(k); saveDone(); }
+  else return;
+  render();
+});
+
+app.addEventListener('input', e => {
+  if(e.target.id === 'q'){ state.query = e.target.value; render(); }
+});
+
+// Свайп от левого края вправо — переход назад, как в iOS.
+let backSwipeStart = null;
+document.addEventListener('touchstart', e => {
+  if (!e.touches || e.touches.length !== 1) { backSwipeStart = null; return; }
+  const touch = e.touches[0];
+  const target = e.target;
+  // Не перехватываем жесты внутри полей ввода и выделение текста.
+  if (target.closest('input, textarea, select, [contenteditable="true"]')) { backSwipeStart = null; return; }
+  backSwipeStart = { x: touch.clientX, y: touch.clientY, edge: touch.clientX <= 28 };
+}, { passive: true });
+
+document.addEventListener('touchend', e => {
+  if (!backSwipeStart || !backSwipeStart.edge || !e.changedTouches || !e.changedTouches.length) {
+    backSwipeStart = null; return;
+  }
+  const touch = e.changedTouches[0];
+  const dx = touch.clientX - backSwipeStart.x;
+  const dy = touch.clientY - backSwipeStart.y;
+  backSwipeStart = null;
+  // Только уверенный горизонтальный свайп от левого края.
+  if (dx < 85 || Math.abs(dy) > 70 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+
+  rememberScroll(); navMode = 'back';
+  if (state.screen === 'detail') {
+    state.screen = state.back || 'home';
+  } else if (state.screen === 'topic') {
+    state.screen = state.topicBack || 'basics';
+  } else if (state.screen === 'pest') {
+    state.screen = state.pestBack || 'pests';
+  } else if (state.screen === 'garden' && state.formOpen) {
+    state.formOpen = false; state.editTree = null; state.formError = '';
+  } else if (state.screen !== 'home') {
+    if (state.screen === 'cal') state.month = nowMonth;
+    state.screen = 'home';
+    state.query = '';
+  } else {
+    return;
+  }
+  render();
+}, { passive: true });
+
+document.addEventListener('touchcancel', () => { backSwipeStart = null; }, { passive: true });
+
+/*@@START@@*/
+
+/* ---------- Установка и работа без интернета ---------- */
+if(typeof navigator !== 'undefined' && 'serviceWorker' in navigator){
+  const hadController = !!navigator.serviceWorker.controller; let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if(hadController && !reloaded){ reloaded = true; location.reload(); } });
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
+</script>
+</body>
+</html>
