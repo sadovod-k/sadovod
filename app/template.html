@@ -433,6 +433,7 @@ input,select,textarea{font-family:var(--font-sans)}
 .checked-note{font-size:13px;font-weight:600;color:#2F6B4F;margin:4px 0 0}
 :root[data-theme="dark"] .checked-note{color:#8CC5A6}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .checked-note{color:#8CC5A6}}
+.ver{margin:10px 4px 0;font-size:12px;color:var(--muted);text-align:center}
 </style>
 </head>
 <body>
@@ -442,6 +443,7 @@ input,select,textarea{font-family:var(--font-sans)}
 <script>
 
 /* ---------- Тема: светлая / тёмная ---------- */
+const APP_VERSION = '@@VERSION_LABEL@@';
 const THEME_KEY = 'sad-theme';
 const systemDark = () => !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
 const effectiveTheme = () => document.documentElement.getAttribute('data-theme') || (systemDark() ? 'dark' : 'light');
@@ -684,7 +686,8 @@ function home(){
       <div class="slim-row">
         <button class="slim-btn" data-go="cal">${svgIcon('calendar')}<span><b>Сейчас в саду · ${MONTHS[nowMonth-1]}</b><small>${firstTask}</small></span><i>›</i></button>
       </div>
-      <p class="note">Справочник — рабочий помощник. Перед применением средств защиты растений сверяйтесь с актуальной инструкцией и региональными рекомендациями.</p>`;
+      <p class="note">Справочник — рабочий помощник. Перед применением средств защиты растений сверяйтесь с актуальной инструкцией и региональными рекомендациями.</p>
+      <p class="ver">Версия: ${APP_VERSION}</p>`;
   }
   return `<div class="view">
     <div class="hero-home"><h1>Садовод</h1><p>Практический справочник для вашего сада</p>${themeBtn('home-theme')}</div>
