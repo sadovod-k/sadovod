@@ -63,7 +63,21 @@
   "yearNote": "В Госреестре с 1947 года",
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "White Transparent on tree, National Fruit Collection (acc. 2000-096).jpg",
+   "author": "National Fruit Collection, Brogdale (в коллекции: White Transparent)",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плод на дереве"
+  },
+  "gallery": [
+   {
+    "file": "Cross section of White Transparent, National Fruit Collection (acc. 2000-096).jpg",
+    "author": "National Fruit Collection, Brogdale (в коллекции: White Transparent)",
+    "license": "Open Government Licence v2.0",
+    "caption": "Плоды и разрез"
+   }
+  ]
  },
  {
   "id": "a3",
@@ -88,7 +102,13 @@
   "yearNote": "Происхождение спорно",
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Cross section of Reinette Simirenko, National Fruit Collection (acc. 1950-114).jpg",
+   "author": "National Fruit Collection, Brogdale",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плоды и разрез"
+  }
  },
  {
   "id": "a4",
@@ -239,7 +259,21 @@
   "parents": "Сеянец Тетовского (свободное опыление)",
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Mantet on tree, National Fruit Collection (acc. 1963-106).jpg",
+   "author": "National Fruit Collection, Brogdale",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плод на дереве"
+  },
+  "gallery": [
+   {
+    "file": "Cross section of Mantet, National Fruit Collection (acc. 1963-106).jpg",
+    "author": "National Fruit Collection, Brogdale",
+    "license": "Open Government Licence v2.0",
+    "caption": "Плоды и разрез"
+   }
+  ]
  },
  {
   "id": "a9",
@@ -591,7 +625,13 @@
   "src": "Wikipedia (Topaz); Orange Pippin; Cummins Nursery; Ashridge Trees; fryd.app; Specialty Produce",
   "scab": "res",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Cross section of Topaz, National Fruit Collection (acc. 1948-737).jpg",
+   "author": "National Fruit Collection, Brogdale",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плоды и разрез"
+  }
  },
  {
   "id": "a16",
@@ -1492,7 +1532,13 @@
   "scab": "",
   "cat": "apple",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Cross section of Papirovka, National Fruit Collection (acc. 1949-112).jpg",
+   "author": "National Fruit Collection, Brogdale",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плоды и разрез"
+  }
  },
  {
   "id": "a54",
@@ -1517,7 +1563,13 @@
   "scab": "",
   "cat": "apple",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Cross section of Pepin Shafrannyi (MM106), National Fruit Collection (acc. 1975-006).jpg",
+   "author": "National Fruit Collection, Brogdale (MM106)",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плоды и разрез"
+  }
  },
  {
   "id": "a55",
@@ -1620,7 +1672,21 @@
   "src": "Wikipedia (Wealthy); Minnesota Historical Society (MNopedia); American Pomological Society; New England Apples; Montana State University",
   "status": "verified",
   "care": [],
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Wealthy on tree, National Fruit Collection (acc. 2000-098).jpg",
+   "author": "National Fruit Collection, Brogdale",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плод на дереве"
+  },
+  "gallery": [
+   {
+    "file": "Cross section of Wealthy, National Fruit Collection (acc. 2000-098).jpg",
+    "author": "National Fruit Collection, Brogdale",
+    "license": "Open Government Licence v2.0",
+    "caption": "Плоды и разрез"
+   }
+  ]
  },
  {
   "id": "a60",
