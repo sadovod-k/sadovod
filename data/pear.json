@@ -540,7 +540,13 @@
   "scab": "",
   "cat": "pear",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "D'anjou pear.jpg",
+   "author": "Rhododendrites",
+   "license": "CC BY-SA 4.0",
+   "caption": "Плод"
+  }
  },
  {
   "id": "p26",
