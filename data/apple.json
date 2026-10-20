@@ -155,7 +155,13 @@
   "parents": "Джонатан × Вагенер",
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Cross section of Idared (LA), National Fruit Collection (acc. 1976-146).jpg",
+   "author": "National Fruit Collection, Brogdale",
+   "license": "Open Government Licence v2.0",
+   "caption": "Разрез плода"
+  }
  },
  {
   "id": "a7",
