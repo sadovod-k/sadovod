@@ -94,6 +94,9 @@ def metadata(name):
     for page in ((data.get('query') or {}).get('pages') or {}).values():
         meta = ((page.get('imageinfo') or [{}])[0]).get('extmetadata') or {}
         a = re.sub(r'^\S+\.(?:jpe?g|png|webp|tiff?|gif)\s*:\s*', '', _plain((meta.get('Artist') or {}).get('value')), flags=re.I)
+        guess = re.match(r'No machine-readable author provided\.\s*(.+?)\s+assumed\b', a, flags=re.I)   # заглушка Викисклада: «автор не указан, предположительно X»
+        if guess:
+            a = guess.group(1)
         l = _plain((meta.get('LicenseShortName') or {}).get('value'))
         if a and l:
             return {'author': a, 'license': l}
