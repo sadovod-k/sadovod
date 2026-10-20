@@ -6,7 +6,7 @@
 """
 import io, os, time, urllib.error, urllib.parse, urllib.request
 
-UA = 'SadovodApp/1.0 (https://github.com/sadovod-k/sadovod; студенческий проект)'
+UA = 'SadovodApp/1.0 (https://github.com/sadovod-k/sadovod; student project)'   # только латиница: заголовки HTTP не принимают русские буквы
 W, H = 720, 540
 
 
