@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -434,6 +434,8 @@ input,select,textarea{font-family:var(--font-sans)}
 :root[data-theme="dark"] .checked-note{color:#8CC5A6}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .checked-note{color:#8CC5A6}}
 .ver{margin:10px 4px 0;font-size:12px;color:var(--muted);text-align:center}
+html{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%}
+input,select,textarea,.search input,.form-group input,.form-group select{font-size:16px !important}
 </style>
 </head>
 <body>
@@ -1057,11 +1059,14 @@ const viewKey = () => {
        : s === 'pest' ? 'pest|' + state.pest : s === 'cal' ? 'cal|' + state.month : s === 'diag' ? 'diag|' + diagState.crop
        : s === 'pests' ? 'pests|' + state.pestFilter : s;
 };
+['gesturestart','gesturechange','gestureend'].forEach(ev => document.addEventListener(ev, e => { if(e.preventDefault) e.preventDefault(); }));
+document.addEventListener('touchmove', e => { if(e.touches && e.touches.length > 1 && e.preventDefault) e.preventDefault(); }, {passive:false});
 const rememberScroll = () => { scrollMem[viewKey()] = window.scrollY || window.pageYOffset || 0; };
 
 /* ---------- История переходов: системная кнопка «Назад», «Назад» в браузере и ссылки на разделы ---------- */
 const hasHistory = typeof history !== 'undefined' && !!history && typeof history.pushState === 'function' && typeof location !== 'undefined';
-let histIndex = 0, histReady = false, histKey = null, curSnap = null, restoring = false, lastPop = 0;
+let histIndex = 0, histReady = false, histKey = null, curSnap = null, restoring = false, lastPop = 0, pendingAfterPop = null;
+const histScreens = [];
 const NAV_KEYS = ['screen','cat','id','filter','query','back','month','topic','pest','pestFilter','pestBack','topicBack','editTree'];
 const NAV_DEFAULT = {screen:'home', cat:null, id:null, filter:'Все', query:'', back:'home', month:null, topic:null, pest:null, pestFilter:'Все', pestBack:'pests', topicBack:'basics', editTree:null};
 // «Экран» для истории: фильтры и месяцы не создают новых шагов
@@ -1076,7 +1081,7 @@ const hashFor = sn => {
 function snapFromHash(h){
   const parts = String(h || '').replace(/^#\/?/, '').split('/'); const a = parts[0]; let b = '';
   try { b = parts[1] ? decodeURIComponent(parts[1]) : ''; } catch(e) {}
-  if(a === 'v'){ const v = VARIETIES.find(x => x.id === b); if(v) return {screen:'detail', id:b, cat:v.cat, back:'cat'}; }
+  if(a === 'v'){ const v = VARIETIES.find(x => x.id === b); if(v) return {screen:'detail', id:b, cat:v.cat, back:'home'}; }
   if(a === 'c' && catById[b] && !catById[b].soon && VARIETIES.some(x => x.cat === b)) return {screen:'cat', cat:b, filter:'Все'};
   if(a === 'p' && PESTS.some(x => x.id === b)) return {screen:'pest', pest:b, pestBack:'pests'};
   if(a === 't' && BASICS.some(x => x.id === b)) return {screen:'topic', topic:b, topicBack:'basics'};
@@ -1096,15 +1101,16 @@ function applySnap(sn){
 }
 function initNav(){
   if(!hasHistory || histReady) return; histReady = true;
+  try { history.scrollRestoration = 'manual'; } catch(e) {}      // место на странице восстанавливаем сами, иначе Safari возвращает наверх
   try {
     const st = history.state;
-    if(st && st.sad && st.snap){ histIndex = st.idx || 0; applySnap(st.snap); }          // перезагрузка: тот же экран
+    if(st && st.sad && st.snap){ histIndex = st.idx || 0; applySnap(st.snap); histScreens[histIndex] = state.screen; }          // перезагрузка: тот же экран
     else {
       const sn = snapFromHash(location.hash);
       applySnap(null); const base = navSnap();
       history.replaceState({sad:true, idx:0, snap:base}, '', homeUrl());
-      histIndex = 0;
-      if(sn){ applySnap(sn); histIndex = 1; history.pushState({sad:true, idx:1, snap:navSnap()}, '', hashFor(navSnap())); }   // ссылка на сорт или раздел: под ней «домой»
+      histIndex = 0; histScreens[0] = 'home';
+      if(sn){ applySnap(sn); histIndex = 1; histScreens[1] = state.screen; history.pushState({sad:true, idx:1, snap:navSnap()}, '', hashFor(navSnap())); }   // ссылка на сорт или раздел: под ней «домой»
     }
   } catch(e) {}
   histKey = navKey(); curSnap = navSnap();
@@ -1118,12 +1124,20 @@ function syncHistory(){
       history.replaceState({sad:true, idx:histIndex, snap:curSnap}, '');     // запоминаем, в каком виде оставили прежний экран
       histIndex++;
       history.pushState({sad:true, idx:histIndex, snap:sn}, '', hashFor(sn));
+      histScreens[histIndex] = sn.screen;
     } catch(e) {}
     histKey = k;
   }
   curSnap = sn;
 }
-const goBack = () => { if(hasHistory && histIndex > 0){ history.back(); return true; } return false; };
+// «Назад»: на предыдущий экран; а если кнопка ведёт на главный, а до него больше одного шага, цепочка сбрасывается до главного
+const goBack = target => {
+  if(!hasHistory || histIndex <= 0) return false;
+  if(target === 'home' && histIndex > 1 && histScreens[histIndex - 1] !== 'home'){ history.go(-histIndex); return true; }
+  history.back(); return true;
+};
+// Вкладки нижней панели: сначала вернуться к главному экрану (сбросить цепочку), потом открыть вкладку
+const goRoot = fn => { if(hasHistory && histIndex > 0){ pendingAfterPop = fn; history.go(-histIndex); } else fn(); };
 
 
 /* ---------- Контурные иконки (Line Art) вместо эмодзи ---------- */
@@ -1185,7 +1199,7 @@ function render(){
     const y = navMode === 'back' ? (scrollMem[k] || 0) : 0;
     lastViewKey = k; navMode = 'forward';
     window.scrollTo(0, y);
-    if(y) setTimeout(() => window.scrollTo(0, y), 60);
+    if(y){ if(typeof requestAnimationFrame === 'function') requestAnimationFrame(() => window.scrollTo(0, y)); setTimeout(() => window.scrollTo(0, y), 60); }
   }
   syncHistory();
 }
@@ -1202,12 +1216,16 @@ app.addEventListener('click', e => {
   if(d.delTreeYes !== undefined){ saveGarden(getGarden().filter(x => x.id !== d.delTreeYes)); state.confirmDel = null; render(); return; }
   if(d.diagClose !== undefined){ diagState.symptom = null; render(); return; }
   if(d.tab){
-    state.screen = d.tab;
-    state.back = 'home';
-    if(d.tab === 'garden'){ state.formOpen = false; state.editTree = null; state.confirmDel = null; }
-    if(d.tab === 'cal') state.month = nowMonth;
-    if(d.tab !== 'home' && d.tab !== 'catalog') state.query = '';
-    render(); return;
+    const applyTab = () => {
+      state.screen = d.tab;
+      state.back = 'home';
+      if(d.tab === 'garden'){ state.formOpen = false; state.editTree = null; state.confirmDel = null; }
+      if(d.tab === 'cal') state.month = nowMonth;
+      if(d.tab !== 'home' && d.tab !== 'catalog') state.query = '';
+      render();
+    };
+    if(hasHistory && histIndex > 0 && !(histIndex === 1 && state.screen === d.tab)) goRoot(applyTab); else applyTab();
+    return;
   }
   
 // Для определителя
@@ -1233,7 +1251,7 @@ app.addEventListener('click', e => {
     if (d.back === 'garden' && state.formOpen) {
       state.formOpen = false; state.editTree = null; state.formError = '';
       render();
-    } else if (goBack()) {
+    } else if (goBack(d.back)) {
       return;                       // вернулись на предыдущий экран по истории переходов
     } else {
       state.screen = d.back; }
@@ -1289,7 +1307,8 @@ app.addEventListener('input', e => {
   if(e.target.id === 'q'){ state.query = e.target.value; render(); }
 });
 
-// Свайп от левого края вправо — переход назад, как в iOS.
+// Свайп от левого края вправо — переход назад, как в iOS. Нужен только без истории браузера: иначе работает системный жест.
+if(!hasHistory){
 let backSwipeStart = null;
 document.addEventListener('touchstart', e => {
   if (!e.touches || e.touches.length !== 1) { backSwipeStart = null; return; }
@@ -1315,11 +1334,6 @@ document.addEventListener('touchend', e => {
   if (state.screen === 'garden' && state.formOpen) {
     state.formOpen = false; state.editTree = null; state.formError = ''; render(); return;
   }
-  if (hasHistory && histIndex > 0) {
-    // системный жест «Назад» (iOS, Android) сам переходит по истории: если он уже сработал, второй раз не возвращаемся
-    setTimeout(() => { if (lastPop >= startT) return; rememberScroll(); navMode = 'back'; history.back(); }, 260);
-    return;
-  }
   rememberScroll(); navMode = 'back';
   if (state.screen === 'detail') {
     state.screen = state.back || 'home';
@@ -1340,6 +1354,7 @@ document.addEventListener('touchend', e => {
 }, { passive: true });
 
 document.addEventListener('touchcancel', () => { backSwipeStart = null; }, { passive: true });
+}
 
 if(hasHistory){
   window.addEventListener('popstate', e => {
@@ -1349,6 +1364,7 @@ if(hasHistory){
     restoring = true; navMode = 'back'; histIndex = st.idx || 0;
     applySnap(st.snap);
     try { render(); } finally { restoring = false; }
+    if(pendingAfterPop){ const f = pendingAfterPop; pendingAfterPop = null; if(histIndex === 0) f(); }
   });
   const persist = () => { try { history.replaceState({sad:true, idx:histIndex, snap:navSnap()}, ''); } catch(e) {} };
   window.addEventListener('pagehide', persist);
