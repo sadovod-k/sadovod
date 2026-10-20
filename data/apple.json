@@ -430,7 +430,13 @@
   "scab": "",
   "cat": "apple",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Ambrosia jm26705.jpg",
+   "author": "Joergens.mi",
+   "license": "CC BY-SA 3.0",
+   "caption": "Плод"
+  }
  },
  {
   "id": "a20",
@@ -541,7 +547,13 @@
   "src": "Wikipedia (Fuji); Apples and People; NSW DPI, Agfact H4.1.12; CooksInfo",
   "scab": "res",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Apfel-Fuji.jpg",
+   "author": "Superbass",
+   "license": "CC BY-SA 4.0",
+   "caption": "Плод"
+  }
  },
  {
   "id": "a13",
@@ -567,7 +579,13 @@
   "scab": "",
   "care": [],
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Red delicious (apple) jm043708.jpg",
+   "author": "Joergens.mi",
+   "license": "CC BY 3.0",
+   "caption": "Плод"
+  }
  },
  {
   "id": "a14",
