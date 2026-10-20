@@ -53,28 +53,53 @@ def download(name, local_dir=None):
     raise OSError('; '.join(problems[-3:]) or 'нет ответа')
 
 
+def _save(site, rel, data):
+    os.makedirs(os.path.join(site, 'photos'), exist_ok=True)
+    with open(os.path.join(site, rel), 'wb') as f: f.write(data)
+
+
+def _credit(c):
+    return f"{c['author']}, {c['license']}, Wikimedia Commons"
+
+
+def _source(c):
+    return 'https://commons.wikimedia.org/wiki/File:' + urllib.parse.quote(c['file'].replace(' ', '_'))
+
+
 def localize(items, site, root):
-    """Для карточек с commons без своего фото: скачать, положить в site/photos/c-<id>.webp и подписать автора."""
+    """Для карточек с commons (главное фото) и gallery (дополнительные): скачать, положить в site/photos и подписать автора."""
     local_dir = os.environ.get('SADOVOD_COMMONS_DIR') or os.path.join(root, 'commons-src')
     done = failed = 0
+
+    def fetch(c, owner):
+        nonlocal failed
+        try:
+            return prepare(download(c['file'], local_dir))
+        except Exception as e:
+            print(f"  предупреждение: фото «{c['file']}» не скачалось ({e}); карточка {owner} покажет его только при интернете")
+            failed += 1
+            return None
+
     for v in items:
         c = v.get('commons')
-        if not c or v.get('image'):
-            continue
-        try:
-            data = prepare(download(c['file'], local_dir))
-        except Exception as e:
-            print(f"  предупреждение: фото «{c['file']}» не скачалось ({e}); карточка {v['id']} покажет его только при интернете")
-            failed += 1
-            continue
-        rel = f"photos/c-{v['id']}.webp"
-        os.makedirs(os.path.join(site, 'photos'), exist_ok=True)
-        with open(os.path.join(site, rel), 'wb') as f: f.write(data)
-        v['image'] = rel
-        v['imageCredit'] = f"{c['author']}, {c['license']}, Wikimedia Commons"
-        v['imageSource'] = 'https://commons.wikimedia.org/wiki/File:' + urllib.parse.quote(c['file'].replace(' ', '_'))
-        del v['commons']
-        done += 1
+        if c and not v.get('image'):
+            data = fetch(c, v['id'])
+            if data:
+                rel = f"photos/c-{v['id']}.webp"
+                _save(site, rel, data)
+                v['image'] = rel; v['imageCredit'] = _credit(c); v['imageSource'] = _source(c)
+                del v['commons']; done += 1
+        gal = v.get('gallery')
+        if isinstance(gal, list):
+            for n, g in enumerate(gal, 1):
+                if not (isinstance(g, dict) and g.get('file') and not g.get('src')):
+                    continue
+                data = fetch(g, v['id'])
+                if data:
+                    rel = f"photos/c-{v['id']}-{n}.webp"
+                    _save(site, rel, data)
+                    gal[n - 1] = {'src': rel, 'credit': _credit(g), 'source': _source(g), 'caption': g.get('caption') or 'Плод'}
+                    done += 1
     if done or failed:
         print(f'  фото с Викисклада: сохранено для работы без интернета {done}, не скачалось {failed}')
     return done, failed
