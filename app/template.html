@@ -750,7 +750,7 @@ const list = a => a && a.length ? `<ul class="bul">${a.map(x => `<li>${x}</li>`)
 
 const commonsPhoto = c => {
   const f = encodeURIComponent(c.file);
-  return {src:`https://commons.wikimedia.org/wiki/Special:FilePath/${f}?width=900`,
+  return {src:`https://commons.wikimedia.org/wiki/Special:FilePath/${f}?width=960`,
           credit:`${c.author}, ${c.license}, Wikimedia Commons`,
           source:`https://commons.wikimedia.org/wiki/File:${f}`,
           caption:c.caption || 'Плод'};
