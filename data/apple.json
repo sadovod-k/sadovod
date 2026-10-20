@@ -497,7 +497,17 @@
   "scab": "",
   "cat": "apple",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Jazz apples.jpg",
+   "caption": "Плод"
+  },
+  "gallery": [
+   {
+    "file": "Jazz apples 20250617 120256.jpg",
+    "caption": "Плод"
+   }
+  ]
  },
  {
   "id": "a11",
@@ -621,7 +631,17 @@
   "src": "Wikipedia (Jonagold); Cornell University, бюллетень FLS-150; American Pomological Society; Cummins Nursery; CooksInfo",
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Jonagold apples from Belgian Limburg.jpg",
+   "caption": "Плод"
+  },
+  "gallery": [
+   {
+    "file": "Jonagold apple.jpg",
+    "caption": "Плод"
+   }
+  ]
  },
  {
   "id": "a15",
@@ -684,7 +704,17 @@
   "scab": "",
   "care": [],
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Apfel-Braeburn.jpg",
+   "caption": "Плод"
+  },
+  "gallery": [
+   {
+    "file": "Braeburn jm26189 ji.jpg",
+    "caption": "Плод"
+   }
+  ]
  },
  {
   "id": "a22",
@@ -802,7 +832,11 @@
   "src": "Wikipedia (Champion apple); каталог Havlis; Genesys (EURISCO); Hort. Sci. (Prague) 2007; Acta Scientiarum Polonorum Hortorum Cultus",
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Champion apples 20250626 205750.jpg",
+   "caption": "Плод"
+  }
  },
  {
   "id": "a25",

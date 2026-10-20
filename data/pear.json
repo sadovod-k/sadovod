@@ -111,7 +111,17 @@
   "parents": "Бартлетт × Фламандская красавица",
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Clapps Liebling Birne Freilichtmuseum Roscheider Hof Frucht H15.jpg",
+   "caption": "Плод"
+  },
+  "gallery": [
+   {
+    "file": "Clapps Liebling Birne Freilichtmuseum Roscheider Hof Frucht H13.jpg",
+    "caption": "Плод"
+   }
+  ]
  },
  {
   "id": "p5",
@@ -267,7 +277,17 @@
   "src": "Wikipedia (Abate Fetel); Werribee Park Heritage Orchard; Grow Great Fruit (Fruit Tree Database); Predieri S., Gatti E., 2009, Postharvest Biology and Technology",
   "status": "verified",
   "care": [],
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Fruit Abate Fetel 1mcp.jpg",
+   "caption": "Плод"
+  },
+  "gallery": [
+   {
+    "file": "Fruit Abate Fetel 02.jpg",
+    "caption": "Плод"
+   }
+  ]
  },
  {
   "id": "p11",
@@ -429,7 +449,11 @@
   "scab": "",
   "cat": "pear",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Passe-Crassane.JPG",
+   "caption": "Плод"
+  }
  },
  {
   "id": "p22",
@@ -457,7 +481,11 @@
   "scab": "",
   "cat": "pear",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Curé (pear), Mons-Boubert, Somme, Fr, expo du 29-10-2017 (66).jpg",
+   "caption": "Плод"
+  }
  },
  {
   "id": "p23",
@@ -485,7 +513,11 @@
   "scab": "",
   "cat": "pear",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Comice.JPG",
+   "caption": "Плод"
+  }
  },
  {
   "id": "p24",
@@ -573,6 +605,16 @@
   "scab": "",
   "cat": "pear",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Forelle pear 01.jpg",
+   "caption": "Плод"
+  },
+  "gallery": [
+   {
+    "file": "Forelle (Birne) jm28132.jpg",
+    "caption": "Плод"
+   }
+  ]
  }
 ]
