@@ -440,6 +440,13 @@ input,select,textarea,.search input,.form-group input,.form-group select{font-si
 .nav-pane{position:absolute;inset:0;overflow:hidden;background:var(--bg);will-change:transform}
 .nav-top{box-shadow:-10px 0 28px rgba(0,0,0,.16)}
 .nav-shade{position:absolute;inset:0;background:#000;opacity:.22;pointer-events:none}
+.photo-credit{margin:-8px 0 10px}
+.photo-credit summary{list-style:none;display:inline-flex;align-items:center;gap:6px;padding:9px 2px;font-size:12px;color:var(--muted);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.photo-credit summary::-webkit-details-marker{display:none}
+.photo-credit summary::after{content:'›';display:inline-block;font-size:15px;line-height:1;transition:transform .15s}
+.photo-credit[open] summary::after{transform:rotate(90deg)}
+.photo-credit p{margin:0 0 6px;font-size:11px;line-height:1.45;color:var(--muted)}
+.photo-credit p a{color:var(--basics);text-decoration:underline;text-underline-offset:2px}
 </style>
 </head>
 <body>
@@ -787,7 +794,7 @@ function detail(){
       </div>
       ${photos.length > 1 ? `<div class="dots" aria-hidden="true">${photos.map((p,i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join('')}</div>` : ''}
     </div>
-    ${credits ? `<p class="photo-credit">${credits}${photos.some(p => /^https?:/.test(p.src)) ? ' Онлайн-изображения загружаются из интернета.' : ''}</p>` : ''}
+    ${credits ? `<details class="photo-credit"><summary>Источники фото</summary><p>${credits}${photos.some(p => /^https?:/.test(p.src)) ? ' Онлайн-изображения загружаются из интернета.' : ''}</p></details>` : ''}
     <p class="detail-kicker">${c.title} · Карточка ${v.cat === 'orn' ? 'растения' : 'сорта'}</p>
     ${v.status === 'draft' ? `<div class="draft-note"><b>Не проверено по источникам.</b> Это черновик: год, происхождение и свойства могут быть неточными. Сверяйте с Госреестром и научными источниками.</div>` : ''}
     <h2 class="d-title serif">${v.name}</h2>
