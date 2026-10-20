@@ -87,8 +87,8 @@ def validate(items=None):
         elif img and not os.path.exists(os.path.join(ROOT, img)):
             err(f'файл фото {img} не найден')
         c = v.get('commons')
-        if c is not None and (not isinstance(c, dict) or not all(c.get(x) for x in ('file', 'author', 'license'))):
-            err('«commons» должен содержать file, author и license')
+        if c is not None and (not isinstance(c, dict) or not c.get('file')):
+            err('«commons» должен содержать имя файла file (автор и лицензия подставятся при сборке; можно указать author и license вручную)')
 
         for k in ('name', 'y', 'year', 'origin', 'season', 'hardy', 'keep', 'taste', 'src', 'fun', 'yearNote', 'parents'):
             if re.search(r'<\s*script', str(v.get(k, '')), re.I): err(f'в «{k}» запрещён тег script')
