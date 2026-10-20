@@ -59,7 +59,10 @@ def _save(site, rel, data):
 
 
 def _credit(c):
-    return f"{c['author']}, {c['license']}, Wikimedia Commons"
+    s = f"{c['author']}, {c['license']}, Wikimedia Commons"
+    if str(c['license']).upper().startswith('CC'):      # лицензии CC требуют указать, что изображение изменено
+        s += ' (обрезано и сжато)'
+    return s
 
 
 def _source(c):
