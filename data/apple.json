@@ -23,7 +23,21 @@
   "yearNote": "Старинный сорт народной селекции",
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Antonovka on tree, National Fruit Collection (acc. 1948-666).jpg",
+   "author": "National Fruit Collection, Brogdale",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плод на дереве"
+  },
+  "gallery": [
+   {
+    "file": "Cross section of Antonovka, National Fruit Collection (acc. 1948-666).jpg",
+    "author": "National Fruit Collection, Brogdale",
+    "license": "Open Government Licence v2.0",
+    "caption": "Плоды и разрез"
+   }
+  ]
  },
  {
   "id": "a2",
@@ -160,7 +174,7 @@
    "file": "Cross section of Idared (LA), National Fruit Collection (acc. 1976-146).jpg",
    "author": "National Fruit Collection, Brogdale",
    "license": "Open Government Licence v2.0",
-   "caption": "Разрез плода"
+   "caption": "Плоды и разрез"
   }
  },
  {
