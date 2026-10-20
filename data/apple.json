@@ -693,7 +693,21 @@
   "src": "Wikipedia (Elstar); CGN Wageningen University, GEN209; Justia Patents PP6450; Cummins Nursery; Plantura",
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Elstar on tree, National Fruit Collection (acc. 1974-005).jpg",
+   "author": "National Fruit Collection, Brogdale",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плод на дереве"
+  },
+  "gallery": [
+   {
+    "file": "Cross section of Elstar, National Fruit Collection (acc. 1974-005).jpg",
+    "author": "National Fruit Collection, Brogdale",
+    "license": "Open Government Licence v2.0",
+    "caption": "Плоды и разрез"
+   }
+  ]
  },
  {
   "id": "a24",
@@ -749,7 +763,21 @@
   "care": [],
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Gloster 69 on tree, National Fruit Collection (acc. 1968-067).jpg",
+   "author": "National Fruit Collection, Brogdale",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плод на дереве"
+  },
+  "gallery": [
+   {
+    "file": "Cross section of Gloster 69, National Fruit Collection (acc. 1968-067).jpg",
+    "author": "National Fruit Collection, Brogdale",
+    "license": "Open Government Licence v2.0",
+    "caption": "Плоды и разрез"
+   }
+  ]
  },
  {
   "id": "a26",
@@ -809,7 +837,21 @@
   "src": "Wikipedia (Mutsu); American Pomological Society (Sudds, 1961); Albemarle CiderWorks; Werribee Park Heritage Orchard; Fedco Trees",
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Mutsu (LA 69A) on tree, National Fruit Collection (acc. 1977-140).jpg",
+   "author": "National Fruit Collection, Brogdale (клон LA 69A)",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плод на дереве"
+  },
+  "gallery": [
+   {
+    "file": "Cross section of Mutsu (LA 69A), National Fruit Collection (acc. 1977-140).jpg",
+    "author": "National Fruit Collection, Brogdale (клон LA 69A)",
+    "license": "Open Government Licence v2.0",
+    "caption": "Плоды и разрез"
+   }
+  ]
  },
  {
   "id": "a28",
@@ -835,7 +877,21 @@
   "care": [],
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Empire on tree, National Fruit Collection (acc. 1962-041).jpg",
+   "author": "National Fruit Collection, Brogdale",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плод на дереве"
+  },
+  "gallery": [
+   {
+    "file": "Cross section of Empire, National Fruit Collection (acc. 1962-041).jpg",
+    "author": "National Fruit Collection, Brogdale",
+    "license": "Open Government Licence v2.0",
+    "caption": "Плоды и разрез"
+   }
+  ]
  },
  {
   "id": "a29",
@@ -861,7 +917,21 @@
   "care": [],
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Cortland (LA 72A) on tree, National Fruit Collection (acc. 1976-139).jpg",
+   "author": "National Fruit Collection, Brogdale (клон LA 72A)",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плод на дереве"
+  },
+  "gallery": [
+   {
+    "file": "Cross section of Cortland (LA 72A), National Fruit Collection (acc. 1976-139).jpg",
+    "author": "National Fruit Collection, Brogdale (клон LA 72A)",
+    "license": "Open Government Licence v2.0",
+    "caption": "Плоды и разрез"
+   }
+  ]
  },
  {
   "id": "a30",
@@ -889,7 +959,21 @@
   "src": "Wikipedia (Spartan); American Pomological Society (Fruit Varieties Journal); Albemarle CiderWorks; CooksInfo; New England Apples; Rootstofruits Nursery",
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Spartan (LA) on tree, National Fruit Collection (acc. 1974-351).jpg",
+   "author": "National Fruit Collection, Brogdale (клон LA)",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плод на дереве"
+  },
+  "gallery": [
+   {
+    "file": "Cross section of Spartan (LA), National Fruit Collection (acc. 1974-351).jpg",
+    "author": "National Fruit Collection, Brogdale (клон LA)",
+    "license": "Open Government Licence v2.0",
+    "caption": "Плоды и разрез"
+   }
+  ]
  },
  {
   "id": "a32",
