@@ -114,7 +114,13 @@
   "parents": "Случайный сеянец, возможно Гримс Голден × Голден Рейнет",
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Cross section of Testerspur Golden Delicious, National Fruit Collection (acc. 1975-178).jpg",
+   "author": "National Fruit Collection, Brogdale (клон Testerspur)",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плоды и разрез"
+  }
  },
  {
   "id": "a5",
@@ -202,7 +208,13 @@
   "parents": "Сеянец Эсопус Шпиценберг",
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Cross section of Jonathan (EMLA 1), National Fruit Collection (acc. 1979-164).jpg",
+   "author": "National Fruit Collection, Brogdale (клон EMLA 1)",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плоды и разрез"
+  }
  },
  {
   "id": "a8",
@@ -633,7 +645,27 @@
   "care": [],
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Cross section of Early McIntosh, National Fruit Collection (acc. 1929-042).jpg",
+   "author": "National Fruit Collection, Brogdale (клон Early McIntosh)",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плоды и разрез"
+  },
+  "gallery": [
+   {
+    "file": "Cross section of Starkspur McIntosh, National Fruit Collection (acc. 1973-126).jpg",
+    "author": "National Fruit Collection, Brogdale (клон Starkspur McIntosh)",
+    "license": "Open Government Licence v2.0",
+    "caption": "Плоды и разрез"
+   },
+   {
+    "file": "Cross section of Black McIntosh (EM), National Fruit Collection (acc. 1952-016).jpg",
+    "author": "National Fruit Collection, Brogdale (клон Black McIntosh)",
+    "license": "Open Government Licence v2.0",
+    "caption": "Плоды и разрез"
+   }
+  ]
  },
  {
   "id": "a23",
@@ -743,7 +775,13 @@
   "care": [],
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Cross section of Melba, National Fruit Collection (acc. 1925-021).jpg",
+   "author": "National Fruit Collection, Brogdale",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плоды и разрез"
+  }
  },
  {
   "id": "a27",
