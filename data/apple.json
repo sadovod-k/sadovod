@@ -1040,7 +1040,13 @@
   "scab": "",
   "cat": "apple",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Cross section of Pilot, National Fruit Collection (acc. 1994-016).jpg",
+   "author": "National Fruit Collection, Brogdale",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плоды и разрез"
+  }
  },
  {
   "id": "a33",
@@ -1095,7 +1101,13 @@
   "src": "Wikipedia (Pinova); US Plant Patent PP11601; Fedco Trees; Salt Spring Apple Company",
   "status": "verified",
   "care": [],
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Cross section of Pinova, National Fruit Collection (acc. 1994-015).jpg",
+   "author": "National Fruit Collection, Brogdale",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плоды и разрез"
+  }
  },
  {
   "id": "a35",
@@ -1714,7 +1726,13 @@
   "care": [],
   "cat": "apple",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Cross section of Freedom (USA), National Fruit Collection (acc. 1984-148).jpg",
+   "author": "National Fruit Collection, Brogdale",
+   "license": "Open Government Licence v2.0",
+   "caption": "Плоды и разрез"
+  }
  },
  {
   "id": "a62",
