@@ -51,7 +51,13 @@
   "parents": "Сеянец Леон Леклерк де Лаваль",
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Conference pear.jpg",
+   "author": "Glysiak",
+   "license": "CC BY-SA 4.0",
+   "caption": "Плод"
+  }
  },
  {
   "id": "p3",
