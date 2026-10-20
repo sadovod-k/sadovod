@@ -3,6 +3,7 @@
 import json, os, re, shutil, sys, hashlib, zipfile, datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from validate import validate, load_all, ROOT
+import commons
 
 LOADER = """let VARIETIES = [];
 const DATA_FILES = ['data/apple.json', 'data/pear.json', 'data/ornamental.json'];
@@ -43,10 +44,11 @@ def shrink(path, width, quality):
     buf = io.BytesIO(); im.save(buf, 'WEBP', quality=quality, method=6)
     return _b64(buf.getvalue())
 
-def add_blur(items):
+def add_blur(items, base=None):
+    base = base or ROOT
     for v in items:
         img = v.get('image', '')
-        path = os.path.join(ROOT, img) if img and not img.startswith(('http', 'data:')) else ''
+        path = os.path.join(base, img) if img and not img.startswith(('http', 'data:')) else ''
         if path and os.path.exists(path): v['imageBlur'] = tiny_blur(path)
 
 def main():
@@ -74,12 +76,14 @@ def main():
     version_label = datetime.date.today().strftime('%d.%m.%Y') + ' · ' + data_hash
     html = template.replace('@@VERSION_LABEL@@', version_label).replace('/*@@VARIETIES@@*/', LOADER).replace('/*@@START@@*/', START_LOADER)
     open(os.path.join(site, 'index.html'), 'w', encoding='utf-8').write(html)
-    shutil.copytree(os.path.join(ROOT, 'data'), os.path.join(site, 'data'))
-    for fname in os.listdir(os.path.join(site, 'data')):
-        fpath = os.path.join(site, 'data', fname); arr = json.load(open(fpath, encoding='utf-8')); add_blur(arr)
-        json.dump(arr, open(fpath, 'w', encoding='utf-8'), ensure_ascii=False)
     if os.path.isdir(os.path.join(ROOT, 'photos')):
         shutil.copytree(os.path.join(ROOT, 'photos'), os.path.join(site, 'photos'))
+    shutil.copytree(os.path.join(ROOT, 'data'), os.path.join(site, 'data'))
+    for fname in os.listdir(os.path.join(site, 'data')):
+        fpath = os.path.join(site, 'data', fname); arr = json.load(open(fpath, encoding='utf-8'))
+        commons.localize(arr, site, ROOT)          # фото с Викисклада скачиваются сюда, чтобы работали без интернета
+        add_blur(arr, base=site)
+        json.dump(arr, open(fpath, 'w', encoding='utf-8'), ensure_ascii=False)
     shutil.copytree(os.path.join(ROOT, 'static/icons'), os.path.join(site, 'icons'))
     shutil.copy(os.path.join(ROOT, 'static/apple-touch-icon.png'), os.path.join(site, 'apple-touch-icon.png'))
     for f in ('manifest.webmanifest', '_headers'):
