@@ -93,24 +93,45 @@ def metadata(name):
     data = json.loads(_get(url, 'запрос к Викискладу').decode('utf-8'))
     for page in ((data.get('query') or {}).get('pages') or {}).values():
         meta = ((page.get('imageinfo') or [{}])[0]).get('extmetadata') or {}
-        a = _plain((meta.get('Artist') or {}).get('value')); l = _plain((meta.get('LicenseShortName') or {}).get('value'))
+        a = re.sub(r'^\S+\.(?:jpe?g|png|webp|tiff?|gif)\s*:\s*', '', _plain((meta.get('Artist') or {}).get('value')), flags=re.I)
+        l = _plain((meta.get('LicenseShortName') or {}).get('value'))
         if a and l:
             return {'author': a, 'license': l}
     raise OSError('в ответе нет автора или лицензии')
 
 
+def _lic_key(lic):
+    u = str(lic).upper()
+    if u.startswith(('OGL', 'OPEN GOVERNMENT')):
+        return 'OGL'
+    return re.sub(r'[^A-Z0-9.]', '', u)
+
+
 def resolve(c, owner):
-    """Карточка требует только file: если автора или лицензии нет, они берутся с Викисклада.
+    """Карточке достаточно file: автор и лицензия берутся с Викисклада. Если они вписаны вручную, лицензия сверяется с Викискладом.
     Возвращает полные данные или None, если фото показывать нельзя (нет данных или лицензия не подходит)."""
     c = dict(c)
-    if not (c.get('author') and c.get('license')):
-        try:
-            m = metadata(c['file'])
-        except Exception as e:
+    try:
+        m = metadata(c['file'])
+    except Exception as e:
+        m = None
+        if not (c.get('author') and c.get('license')):
             print(f"  предупреждение: у фото «{c['file']}» не указаны автор и лицензия, получить их не удалось ({e}); фото не показывается")
             return None
-        c['author'] = c.get('author') or m['author']; c['license'] = c.get('license') or m['license']
-        print(f"  фото «{c['file']}»: автор и лицензия получены с Викисклада: {c['author']}, {c['license']}")
+    if m:
+        if not (c.get('author') and c.get('license')):
+            c['author'] = c.get('author') or m['author']; c['license'] = c.get('license') or m['license']
+            print(f"  фото «{c['file']}»: автор и лицензия получены с Викисклада: {c['author']}, {c['license']}")
+        elif _lic_key(m['license']) != _lic_key(c['license']):
+            words = str(m['license']).upper().replace('-', ' ').split()
+            if 'NC' in words or 'ND' in words:
+                print(f"  предупреждение: у фото «{c['file']}» на Викискладе лицензия «{m['license']}» (только некоммерческое или без изменений); фото не показывается")
+                return None
+            if license_ok(m['license']):
+                print(f"  внимание: у фото «{c['file']}» в данных лицензия «{c['license']}», на Викискладе «{m['license']}»; использую «{m['license']}»")
+                c['license'] = m['license']
+            else:
+                print(f"  внимание: у фото «{c['file']}» на Викискладе указано «{m['license']}» (возможно, несколько лицензий); оставлена лицензия из данных «{c['license']}»")
     if not license_ok(c['license']):
         print(f"  предупреждение: лицензия «{c['license']}» у фото «{c['file']}» не подходит; фото не показывается")
         return None
@@ -124,7 +145,7 @@ def _save(site, rel, data):
 
 def _credit(c):
     s = f"{c['author']}, {c['license']}, Wikimedia Commons"
-    if str(c['license']).upper().startswith('CC'):      # лицензии CC требуют указать, что изображение изменено
+    if str(c['license']).upper().startswith('CC') and 'BY' in str(c['license']).upper():      # лицензии CC BY требуют указать, что изображение изменено
         s += ' (обрезано и сжато)'
     return s
 
