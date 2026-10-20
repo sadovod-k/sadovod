@@ -4,7 +4,7 @@
 (нет сети, сбой Викисклада), сборка не ломается: карточка по-прежнему покажет фото через интернет.
 Файл можно положить и вручную в папку commons-src/ (имя файла как на Викискладе).
 """
-import io, os, time, urllib.parse, urllib.request
+import io, os, time, urllib.error, urllib.parse, urllib.request
 
 UA = 'SadovodApp/1.0 (https://github.com/sadovod-k/sadovod; студенческий проект)'
 W, H = 720, 540
@@ -34,16 +34,23 @@ def download(name, local_dir=None):
             with open(p, 'rb') as f: return f.read()
     if os.environ.get('SADOVOD_OFFLINE') == '1':
         raise OSError('режим без сети')
-    url = 'https://commons.wikimedia.org/wiki/Special:FilePath/' + urllib.parse.quote(name) + '?width=1000'
-    last = None
-    for attempt in range(3):
-        try:
-            req = urllib.request.Request(url, headers={'User-Agent': UA})
-            with urllib.request.urlopen(req, timeout=40) as r:
-                return r.read()
-        except Exception as e:
-            last = e; time.sleep(2 * (attempt + 1))
-    raise last
+    problems = []
+    # Викисклад отдаёт уменьшенные копии только стандартных ширин (иначе ответ 429), поэтому 960, а при неудаче 1280
+    for width in (960, 1280):
+        url = 'https://commons.wikimedia.org/wiki/Special:FilePath/' + urllib.parse.quote(name) + '?width=%d' % width
+        for attempt in range(3):
+            try:
+                req = urllib.request.Request(url, headers={'User-Agent': UA})
+                with urllib.request.urlopen(req, timeout=40) as r:
+                    return r.read()
+            except urllib.error.HTTPError as e:
+                problems.append('ширина %d: ответ %s' % (width, e.code))
+                if e.code in (429, 500, 502, 503, 504):
+                    time.sleep(3 * (attempt + 1)); continue
+                break                       # 403, 404 и т. п. повторять нет смысла
+            except Exception as e:
+                problems.append('ширина %d: %s' % (width, e)); time.sleep(2 * (attempt + 1))
+    raise OSError('; '.join(problems[-3:]) or 'нет ответа')
 
 
 def localize(items, site, root):
