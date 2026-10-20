@@ -168,7 +168,11 @@
   "parents": "Кидд'с Оранж Ред × Голден Делишес",
   "scab": "",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Südtiroler Apfel g.g.A Gala (edit).jpg",
+   "caption": "Плод"
+  }
  },
  {
   "id": "a6",
@@ -366,7 +370,11 @@
   "scab": "",
   "cat": "apple",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Honeycrisp-Apple.jpg",
+   "caption": "Плод"
+  }
  },
  {
   "id": "a18",
