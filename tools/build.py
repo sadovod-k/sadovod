@@ -44,6 +44,19 @@ def shrink(path, width, quality):
     buf = io.BytesIO(); im.save(buf, 'WEBP', quality=quality, method=6)
     return _b64(buf.getvalue())
 
+def add_thumbs(items, site):
+    """Маленькая копия главного фото (240x180) для строк списка: телефон рисует её мгновенно, большое фото только в карточке."""
+    from PIL import Image, ImageOps
+    for v in items:
+        img = v.get('image', '')
+        if not img or img.startswith(('http', 'data:')): continue
+        src = os.path.join(site, img)
+        if not os.path.exists(src): continue
+        rel = 'photos/s-' + os.path.splitext(os.path.basename(img))[0] + '.webp'
+        im = ImageOps.fit(Image.open(src).convert('RGB'), (240, 180), Image.LANCZOS)
+        im.save(os.path.join(site, rel), 'WEBP', quality=72, method=6)
+        v['thumb'] = rel
+
 def add_blur(items, base=None):
     base = base or ROOT
     for v in items:
@@ -102,6 +115,7 @@ def main():
         fpath = os.path.join(site, 'data', fname); arr = json.load(open(fpath, encoding='utf-8'))
         commons.localize(arr, site, ROOT)          # фото с Викисклада скачиваются сюда, чтобы работали без интернета
         add_blur(arr, base=site)
+        add_thumbs(arr, site)
         json.dump(arr, open(fpath, 'w', encoding='utf-8'), ensure_ascii=False)
     shutil.copytree(os.path.join(ROOT, 'static/icons'), os.path.join(site, 'icons'))
     shutil.copy(os.path.join(ROOT, 'static/apple-touch-icon.png'), os.path.join(site, 'apple-touch-icon.png'))
