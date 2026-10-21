@@ -2038,7 +2038,21 @@
   ],
   "care": [],
   "fun": "Торговое название SweeTango составлено из английских слов sweet («сладкий») и tang («кисловатый вкус»), а сам сорт называется Minneiska.",
-  "src": "Патент США PP18,812 «Apple tree named ‘Minneiska’» (2008); University of Minnesota, Minnesota Hardy (лицензирование); Minnesota Daily (2009); Specialty Produce; Wikipedia (SweeTango); стенд КБГАУ"
+  "src": "Патент США PP18,812 «Apple tree named ‘Minneiska’» (2008); University of Minnesota, Minnesota Hardy (лицензирование); Minnesota Daily (2009); Specialty Produce; Wikipedia (SweeTango); стенд КБГАУ",
+  "commons": {
+   "file": "SweeTango (apple) jm024111.jpg",
+   "caption": "Плод"
+  },
+  "gallery": [
+   {
+    "file": "SweeTango 20250530 121735.jpg",
+    "caption": "Плоды"
+   },
+   {
+    "file": "SweeTango apple harvest 2010.jpg",
+    "caption": "Урожай, 2010"
+   }
+  ]
  },
  {
   "id": "a69",
@@ -2138,7 +2152,7 @@
   "name": "Ред Велокс (Red Velox)",
   "y": "Уточнить",
   "year": "Уточнить",
-  "yearNote": "Год не найден. Регистрационное название сорта Stark GR 2018 (по данным питомника Griba)",
+  "yearNote": "Год не найден. Регистрационное название по данным питомника Griba — Stark GR 2018, а по данным питомника Oberhofer — Stark Gugger (мутация Старкинга, найдена в 2004 году под Брессаноне, Италия; патент США PP25387). Какое верно — уточнить",
   "origin": "Италия, питомник Griba Vivai (правообладатель)",
   "parents": "Мутация стандартного Ред Делишес",
   "season": "Осенний (середина сентября, примерно на неделю раньше стандартного Ред Делишес, по данным питомника)",
@@ -2157,6 +2171,6 @@
    "Сажать с опылителем другого сорта: клоны Ред Делишес друг друга не опыляют."
   ],
   "fun": "Velox по-латыни значит «быстрый»: клон рано набирает окраску.",
-  "src": "Griba Vivai (каталог сортов); Fytoria Milis (Греция, описание сорта); статья о борьбе с оржавленностью Red Velox, Химачал-Прадеш (2025); Jan R. и др., 2020 (Кашмир); стенд КБГАУ"
+  "src": "Griba Vivai (каталог сортов); Fytoria Milis (Греция, описание сорта); статья о борьбе с оржавленностью Red Velox, Химачал-Прадеш (2025); Jan R. и др., 2020 (Кашмир); стенд КБГАУ; Oberhofer (Италия, описание сорта); патент США PP25387 (Stark Gugger)"
  }
 ]
