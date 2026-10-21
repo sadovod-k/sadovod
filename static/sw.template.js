@@ -7,14 +7,32 @@ const APP_CACHE = 'sadovod-app-' + VERSION;
 const PHOTO_CACHE = 'sadovod-photos-v1';
 const PHOTO_LIMIT = 60;
 const APP_FILES = @@APP_FILES@@;
+const PHOTO_HASHES = @@PHOTO_HASHES@@;   // фото: имя → контрольная сумма
 
 self.addEventListener('install', e => {
   e.waitUntil((async () => {
     const cache = await caches.open(APP_CACHE);
+    const old = (await caches.keys()).filter(k => k.startsWith('sadovod-app-') && k !== APP_CACHE);
+    // фото, которое не изменилось, берём из прошлой версии, а не качаем заново
+    const reuse = async f => {
+      const h = PHOTO_HASHES[f];
+      if(!h) return false;
+      for(const k of old){
+        const hit = await (await caches.open(k)).match(f, {ignoreSearch: true});
+        if(hit && hit.headers.get('x-sadovod-hash') === h){ await cache.put(f, hit); return true; }
+      }
+      return false;
+    };
     // каждый файл отдельно: если один не скачался, остальные всё равно сохранятся
     await Promise.allSettled(APP_FILES.map(async f => {
-      const res = await fetch(new Request(f, {cache: 'reload'}));
-      if(res && res.ok) await cache.put(f, res);
+      if(await reuse(f)) return;
+      let res = await fetch(new Request(f, {cache: 'reload'}));
+      if(!(res && res.ok)) return;
+      if(PHOTO_HASHES[f]){
+        const headers = new Headers(res.headers); headers.set('x-sadovod-hash', PHOTO_HASHES[f]);
+        res = new Response(await res.blob(), {status: 200, headers});
+      }
+      await cache.put(f, res);
     }));
     await self.skipWaiting();
   })());
@@ -61,6 +79,7 @@ self.addEventListener('fetch', e => {
     e.respondWith((async () => {
       const cache = await caches.open(APP_CACHE);
       const hit = await cache.match(req, {ignoreSearch: true});
+      if(hit && url.pathname.includes('/photos/')) return hit;   // фото меняются только с новой версией
       const refresh = fetch(req)
         .then(res => { if(res && res.ok) cache.put(req, res.clone()); return res; })
         .catch(() => null);
