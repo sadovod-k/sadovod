@@ -1360,7 +1360,12 @@
   "care": [],
   "cat": "apple",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "tasting": {
+   "score": "4,4",
+   "look": "4,4–4,5",
+   "src": "ВНИИСПК, каталог сортов"
+  }
  },
  {
   "id": "a41",
@@ -1443,7 +1448,12 @@
   "scab": "",
   "cat": "apple",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "tasting": {
+   "score": "4,4",
+   "look": "4,4",
+   "src": "ВНИИСПК, каталог сортов"
+  }
  },
  {
   "id": "a44",
@@ -1607,7 +1617,12 @@
   "scab": "",
   "cat": "apple",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "tasting": {
+   "score": "4,5",
+   "look": "4,4",
+   "src": "ВНИИСПК, каталог сортов"
+  }
  },
  {
   "id": "a52",
@@ -1752,7 +1767,12 @@
   "care": [],
   "cat": "apple",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "tasting": {
+   "score": "4,3",
+   "look": "4,4",
+   "src": "ВНИИСПК, каталог сортов"
+  }
  },
  {
   "id": "a57",
@@ -1903,7 +1923,12 @@
   "care": [],
   "cat": "apple",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "tasting": {
+   "score": "4,3",
+   "look": "4,3",
+   "src": "ВНИИСПК, каталог сортов"
+  }
  },
  {
   "id": "a64",
