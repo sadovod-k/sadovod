@@ -35,8 +35,8 @@ def download(name, local_dir=None):
     if os.environ.get('SADOVOD_OFFLINE') == '1':
         raise OSError('режим без сети')
     problems = []
-    # Викисклад отдаёт уменьшенные копии только стандартных ширин (иначе ответ 429), поэтому 960, а при неудаче 1280
-    for width in (960, 1280):
+    # Викисклад отдаёт уменьшенные копии только стандартных ширин (иначе ответ 429), поэтому 1280, а при неудаче 960
+    for width in (1280, 960):
         url = 'https://commons.wikimedia.org/wiki/Special:FilePath/' + urllib.parse.quote(name) + '?width=%d' % width
         for attempt in range(3):
             try:
