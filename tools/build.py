@@ -66,6 +66,11 @@ def main():
     if os.path.isdir(pdir):          # новое или заменённое фото меняет версию, и телефоны скачают его при следующем открытии
         for fname in sorted(os.listdir(pdir)):
             hasher.update(fname.encode()); hasher.update(open(os.path.join(pdir, fname), 'rb').read())
+    hasher.update(open(os.path.join(ROOT, 'tools/commons.py'), 'rb').read())
+    cdir = os.path.join(ROOT, 'commons-src')
+    if os.path.isdir(cdir):
+        for fname in sorted(os.listdir(cdir)):
+            hasher.update(fname.encode()); hasher.update(open(os.path.join(cdir, fname), 'rb').read())
     data_hash = hasher.hexdigest()[:8]
 
     # контрольные суммы входных файлов: если версия на сайте не совпадает с ожидаемой, по ним видно, какой файл отличается
@@ -106,7 +111,12 @@ def main():
     for sub in ('icons', 'data', 'photos'):
         d = os.path.join(site, sub)
         if os.path.isdir(d): app_files += [sub + '/' + f for f in sorted(os.listdir(d))]
-    sw = open(os.path.join(ROOT, 'static/sw.template.js'), encoding='utf-8').read().replace('@@VERSION@@', data_hash).replace('@@APP_FILES@@', json.dumps(app_files, ensure_ascii=False))
+    # контрольная сумма каждого фото: телефон перекачивает только новые и изменённые фото
+    photo_hashes = {}
+    if os.path.isdir(os.path.join(site, 'photos')):
+        for f in sorted(os.listdir(os.path.join(site, 'photos'))):
+            photo_hashes['photos/' + f] = _h(open(os.path.join(site, 'photos', f), 'rb').read())
+    sw = open(os.path.join(ROOT, 'static/sw.template.js'), encoding='utf-8').read().replace('@@VERSION@@', data_hash).replace('@@APP_FILES@@', json.dumps(app_files, ensure_ascii=False)).replace('@@PHOTO_HASHES@@', json.dumps(photo_hashes))
     open(os.path.join(site, 'sw.js'), 'w', encoding='utf-8').write(sw)
 
     # 2) один файл: данные внутри (для проверки и работы без сервера); фото из папки не вшиваются

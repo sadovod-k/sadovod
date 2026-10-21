@@ -7,11 +7,11 @@
 import html, io, json, os, re, time, urllib.error, urllib.parse, urllib.request
 
 UA = 'SadovodApp/1.0 (https://github.com/sadovod-k/sadovod; student project)'   # только латиница: заголовки HTTP не принимают русские буквы
-W, H = 720, 540
+W, H = 1080, 810
 
 
 def prepare(data):
-    """Обрезка по центру до 4:3, размер 720x540, WebP (обычно 20–60 КБ)."""
+    """Обрезка по центру до 4:3, размер 1080x810, WebP (обычно 60–140 КБ)."""
     from PIL import Image, ImageOps
     im = ImageOps.exif_transpose(Image.open(io.BytesIO(data))).convert('RGB')
     w, h = im.size
@@ -21,9 +21,9 @@ def prepare(data):
         nh = round(w * 3 / 4); y0 = (h - nh) // 2; im = im.crop((0, y0, w, y0 + nh))
     im = im.resize((W, H), Image.LANCZOS)
     out = b''
-    for q in (60, 54, 48, 42):
+    for q in (80, 74, 68, 60):
         buf = io.BytesIO(); im.save(buf, 'WEBP', quality=q, method=6); out = buf.getvalue()
-        if len(out) <= 60 * 1024: break
+        if len(out) <= 140 * 1024: break
     return out
 
 
