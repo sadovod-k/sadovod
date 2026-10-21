@@ -7,7 +7,7 @@ FILES = {'apple': 'data/apple.json', 'pear': 'data/pear.json', 'orn': 'data/orna
 PREFIX = {'a': 'apple', 'p': 'pear', 'o': 'orn'}
 REQUIRED_ORN = ['id', 'cat', 'name', 'latin', 'kind', 'y', 'season', 'origin', 'height', 'crown', 'bloom', 'light', 'soil', 'water', 'hardy', 'src', 'status']
 REQUIRED_TEXT = ['id', 'cat', 'name', 'y', 'year', 'origin', 'season', 'hardy', 'keep', 'taste', 'src']
-KNOWN = set(REQUIRED_TEXT) | {'yearNote', 'parents', 'facts', 'care', 'fun', 'scab', 'image', 'imageCredit',
+KNOWN = set(REQUIRED_TEXT) | {'tasting', 'yearNote', 'parents', 'facts', 'care', 'fun', 'scab', 'image', 'imageCredit',
                               'imageSource', 'imageFull', 'imageCaption', 'commons', 'gallery', 'photo', 'photoCredit', 'status',
                               'latin', 'kind', 'height', 'crown', 'bloom', 'light', 'soil', 'water', 'autumn', 'use', 'checked'}
 
@@ -79,6 +79,9 @@ def validate(items=None):
 
         for k in v:
             if k not in KNOWN: warn(f'неизвестное поле «{k}»')
+        t = v.get('tasting')
+        if t is not None and not (isinstance(t, dict) and t.get('score') and t.get('src')):
+            err('у «tasting» (дегустационная оценка) нужны «score» и «src» (источник)')
 
         img = v.get('image', '')
         if img.startswith('http'):
