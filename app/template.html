@@ -133,6 +133,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .quickfact.wide{grid-column:1 / -1}
 .rates{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0 27px}
 .rate-num{font-size:26px!important}
+.rate-look{font-size:13px!important;color:var(--ink)!important;margin-top:6px!important}
+.rate-look b{font-weight:720}
 .rate-num small{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:0}
 .stars{display:flex;gap:2px;margin:-4px 0 0 -6px}
 .star{width:36px;height:40px;padding:0;border:0;background:transparent;display:grid;place-items:center;color:var(--muted);-webkit-tap-highlight-color:transparent}
@@ -873,8 +875,8 @@ function rateHtml(v){
   return `<h3 class="passport-title">Оценки</h3>
     <div class="rates">
       <div class="quickfact rate-off">
-        <span class="q-label">ДЕГУСТАЦИОННАЯ ОЦЕНКА</span>
-        ${t ? `<span class="q-value rate-num">${t.score}<small> из 5</small></span><span class="q-note">${t.src}</span>`
+        <span class="q-label">ДЕГУСТАЦИОННАЯ ОЦЕНКА ВКУСА</span>
+        ${t ? `<span class="q-value rate-num">${t.score}<small> из 5</small></span>${t.look ? `<span class="q-note rate-look">Внешний вид — <b>${t.look}</b></span>` : ''}<span class="q-note">${t.src}</span>`
             : `<span class="q-value unk">Нет данных</span><span class="q-note">Официальной оценки по 5-балльной шкале в источниках не нашлось</span>`}
       </div>
       <div class="quickfact rate-my">
