@@ -48,6 +48,7 @@ def add_blur(items, base=None):
     base = base or ROOT
     for v in items:
         img = v.get('image', '')
+        if v.get('imageFull'): continue            # документальное фото (стол, цветовая шкала): фон из него не делаем
         path = os.path.join(base, img) if img and not img.startswith(('http', 'data:')) else ''
         if path and os.path.exists(path): v['imageBlur'] = tiny_blur(path)
 
