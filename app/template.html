@@ -1471,6 +1471,15 @@ function htmlForSnap(sn){
   try { applySnap(sn); return {html: screenHtml(false), y: scrollMem[viewKey()] || 0}; }
   finally { NAV_KEYS.forEach(k => { state[k] = keep[k]; }); state.formOpen = fo; state.confirmDel = cd; state.formError = fe; state.quiz = qz; diagState.crop = dc; diagState.symptom = ds; }
 }
+// ждём, пока картинки внутри узла будут готовы к показу (не дольше ms), чтобы при смене экрана они не мигали
+function imgsReady(root, ms){
+  let imgs = [];
+  try { imgs = root && root.querySelectorAll ? Array.from(root.querySelectorAll('img')) : []; } catch(e) {}
+  imgs = imgs.filter(i => i && typeof i.decode === 'function');
+  if(!imgs.length) return null;                       // ждать нечего: действуем сразу
+  const all = Promise.all(imgs.map(i => i.decode().catch(() => {})));
+  return Promise.race([all, new Promise(r => setTimeout(r, ms))]);
+}
 function buildSlideLayer(delta){
   if(!ownNav || histIndex + delta < 0 || typeof document.createElement !== 'function' || !document.body || typeof document.body.appendChild !== 'function') return null;
   const sn = H.snapAt(delta); if(!sn) return null;
@@ -1482,7 +1491,10 @@ function buildSlideLayer(delta){
   const shade = mk('nav-shade');
   const top = mk('nav-pane nav-top', clone(screenHtml(false), window.scrollY || 0));
   el.appendChild(under); el.appendChild(shade); el.appendChild(top);
+  // слой показываем, когда картинки в нём готовы; до этого виден сам экран, он такой же
   document.body.appendChild(el);
+  const ready = imgsReady(el, 150);
+  if(ready && el.style){ el.style.visibility = 'hidden'; ready.then(() => { el.style.visibility = ''; }); }
   return {el, under, shade, top};
 }
 function setSlide(L, x, w){
@@ -1496,7 +1508,14 @@ function finishSlide(L, commit, w, done){
   L.top.style.transition = tr; L.under.style.transition = tr; L.shade.style.transition = tr;
   void L.top.offsetWidth;
   setSlide(L, commit ? w : 0, w);
-  setTimeout(() => { try { if(commit) done(); } finally { if(typeof L.el.remove === 'function') L.el.remove(); sliding = false; } }, SLIDE_MS + 20);
+  const removeLayer = () => { if(typeof L.el.remove === 'function') L.el.remove(); sliding = false; };
+  setTimeout(() => {
+    if(!commit){ removeLayer(); return; }
+    try { done(); } catch(e) { removeLayer(); throw e; }
+    // новый экран уже на месте под слоем: убираем слой, когда его картинки готовы, иначе они мигнут
+    const ready = imgsReady(app, 300);
+    if(ready) ready.then(removeLayer, removeLayer); else removeLayer();
+  }, SLIDE_MS + 20);
 }
 function slideBack(run, delta){
   if(sliding) return;
