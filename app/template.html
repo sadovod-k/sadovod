@@ -447,6 +447,19 @@ input,select,textarea,.search input,.form-group input,.form-group select{font-si
 .photo-credit[open] summary::after{transform:rotate(90deg)}
 .photo-credit p{margin:0 0 6px;font-size:11px;line-height:1.45;color:var(--muted)}
 .photo-credit p a{color:var(--basics);text-decoration:underline;text-underline-offset:2px}
+.hero-photo.tall{aspect-ratio:1/1;max-height:min(460px,62vh)}
+.slide.full,.slide.full img{background:#161b17}
+.slide.full img{object-fit:contain}
+.zoom-btn{position:absolute;inset:0;z-index:2;border:0;background:transparent;padding:0;cursor:zoom-in;-webkit-tap-highlight-color:transparent}
+.zoom-badge{position:absolute;right:12px;bottom:12px;display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:99px;background:rgba(0,0,0,.55);color:#fff;font-size:12px;font-weight:600}
+.zoom-badge svg{width:14px;height:14px}
+.zoomer{position:fixed;inset:0;z-index:10000;background:rgba(8,10,8,.97);display:flex;flex-direction:column}
+.zoom-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;display:flex;align-items:center;justify-content:center;touch-action:pan-x pan-y}
+.zoom-img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.zoomer.big .zoom-scroll{display:block}
+.zoomer.big .zoom-img{max-width:none;max-height:none;width:230%;height:auto}
+.zoom-x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:14px;width:44px;height:44px;border-radius:99px;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:26px;line-height:1}
+.zoom-tip{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);text-align:center;color:rgba(255,255,255,.7);font-size:12px;pointer-events:none}
 </style>
 </head>
 <body>
@@ -764,7 +777,7 @@ const commonsPhoto = c => {
 };
 const photoList = v => {
   const first = v.commons ? [commonsPhoto(v.commons)]
-              : v.image ? [{src:v.image, credit:v.imageCredit, source:v.imageSource, caption:'Плод'}] : [];
+              : v.image ? [{src:v.image, credit:v.imageCredit, source:v.imageSource, caption:v.imageCaption || 'Плод', full:!!v.imageFull}] : [];
   const more = (v.gallery || []).map(x => typeof x === 'string' ? {src:x} : x.file ? commonsPhoto(x) : x);
   return [...first, ...more];
 };
@@ -783,9 +796,9 @@ function detail(){
   const credits = photoCredits(photos) || (illus.length ? 'Иллюстрация: личный архив автора. На фото не этот сорт.' : '');
   const quick = (label, value, note='') => `<div class="quickfact"><span class="q-label">${label}</span><span class="q-value">${value || 'Не указано'}</span>${note ? `<span class="q-note">${note}</span>` : ''}</div>`;
   return `<div class="view detail-view">
-    <div class="hero-photo" style="--c:${c.color}">
+    <div class="hero-photo${shown[0] && shown[0].full ? ' tall' : ''}" style="--c:${c.color}">
       ${shown.length
-        ? `<div class="gallery" id="gallery" aria-label="Фотографии сорта">${shown.map((p,i) => `<div class="slide"><span class="slide-ph" aria-hidden="true">${c.emoji}</span><img src="${p.src}" style="${p.pos ? 'object-position:' + p.pos : ''}" alt="${p.caption ? p.caption + ': ' : 'Плод сорта '}${v.name}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" onerror="this.style.display='none'"></div>`).join('')}</div>`
+        ? `<div class="gallery" id="gallery" aria-label="Фотографии сорта">${shown.map((p,i) => `<div class="slide${p.full ? ' full' : ''}"><span class="slide-ph" aria-hidden="true">${c.emoji}</span><img src="${p.src}" style="${p.pos ? 'object-position:' + p.pos : ''}" alt="${p.caption ? p.caption + ': ' : 'Плод сорта '}${v.name}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" onerror="this.style.display='none'">${p.full ? `<button class="zoom-btn" data-zoom="${p.src}" data-alt="${(p.caption || 'Фото') + ': ' + v.name}" aria-label="Открыть фото крупно"><span class="zoom-badge">${svgIcon('search')} Увеличить</span></button>` : ''}</div>`).join('')}</div>`
         : `<div class="hero-emoji" aria-hidden="true">${c.emoji}</div>`}
       ${illus.length ? '<span class="illus-badge">Иллюстрация · не этот сорт</span>' : ''}
       <div class="hero-bar">
@@ -1183,6 +1196,7 @@ function makeVirtualHistory(){
 }
 function handlePop(st){
   if(!st || !st.sad || !st.snap) return;
+  closeZoom();
   lastPop = Date.now();
   rememberScroll();                       // прокрутка экрана, который покидаем
   restoring = true; navMode = 'back'; histIndex = st.idx || 0;
@@ -1230,6 +1244,22 @@ function screenHtml(withSprite){
   return swapEmoji((withSprite ? getSprite() : '') + atmoHtml() + (scr === 'home' ? home() : scr === 'catalog' ? catalogScreen() : scr === 'cat' ? category() : scr === 'favs' ? favsScreen() : scr === 'quiz' ? quizScreen() : scr === 'cal' ? calScreen() : scr === 'basics' ? basicsScreen() : scr === 'topic' ? topicScreen() : scr === 'pests' ? pestsScreen() : scr === 'pest' ? pestScreen() : scr === 'garden' ? gardenScreen() : scr === 'diag' ? diagScreen() : detail()) + bottomNav());
 }
 
+let zoomOpen = false;
+function closeZoom(){ try { document.querySelectorAll('.zoomer').forEach(n => { if(typeof n.remove === 'function') n.remove(); }); } catch(e) {} zoomOpen = false; }
+function openZoom(src, alt){
+  if(typeof document.createElement !== 'function' || !document.body || typeof document.body.appendChild !== 'function') return;
+  closeZoom();
+  const box = document.createElement('div'); box.className = 'zoomer'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Фото крупно');
+  box.innerHTML = '<div class="zoom-scroll"><img class="zoom-img" src="' + String(src).replace(/"/g, '&quot;') + '" alt="' + String(alt || 'Фото').replace(/"/g, '&quot;') + '"></div><button class="zoom-x" aria-label="Закрыть">×</button><span class="zoom-tip">Нажмите на фото, чтобы увеличить</span>';
+  if(typeof box.addEventListener === 'function') box.addEventListener('click', e => {
+    const tg = e.target, cl = tg && tg.classList;
+    if(tg && tg.closest && tg.closest('.zoom-x')) closeZoom();
+    else if(cl && cl.contains('zoom-img')) box.classList.toggle('big');
+    else closeZoom();
+  });
+  document.body.appendChild(box); zoomOpen = true;
+}
+
 function render(){
   if(hasHistory && !histReady) initNav();
   const keepFocus = document.activeElement && document.activeElement.id === 'q';
@@ -1265,6 +1295,7 @@ app.addEventListener('click', e => {
   const t = e.target.closest('button'); if(!t) return;
   const d = t.dataset;
   rememberScroll(); navMode = d.back !== undefined ? 'back' : 'forward';
+  if(d.zoom !== undefined){ openZoom(d.zoom, d.alt); return; }
   if(d.themeToggle !== undefined){ toggleTheme(); render(); return; }
   if(d.q !== undefined){ state.query = d.q; render(); return; }
   if(d.editTree !== undefined){ state.editTree = d.editTree; state.formOpen = true; state.formError = ''; state.confirmDel = null; render(); return; }
@@ -1472,7 +1503,7 @@ if(ownNav){
   let g = null;
   document.addEventListener('touchstart', e => {
     if((g || sliding) && Date.now() - slideT > 1500){ g = null; clearLayers(); }
-    if(g || sliding || histIndex <= 0 || !e.touches || e.touches.length !== 1) return;
+    if(g || sliding || zoomOpen || histIndex <= 0 || !e.touches || e.touches.length !== 1) return;
     const t0 = e.touches[0];
     if(t0.clientX > 24) return;
     if(e.target && e.target.closest && e.target.closest('input, textarea, select')) return;
