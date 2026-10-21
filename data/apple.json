@@ -487,7 +487,17 @@
   "scab": "",
   "cat": "apple",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Cosmic Crisp (apple) jm141839.jpg",
+   "caption": "Плод"
+  },
+  "gallery": [
+   {
+    "file": "Cosmic Crisp.jpg",
+    "caption": "Плоды"
+   }
+  ]
  },
  {
   "id": "a21",
@@ -1160,7 +1170,11 @@
   "scab": "",
   "cat": "apple",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Evelina jm25977.jpg",
+   "caption": "Плод"
+  }
  },
  {
   "id": "a34",
