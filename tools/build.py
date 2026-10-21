@@ -80,6 +80,9 @@ def main():
         for fname in sorted(os.listdir(pdir)):
             hasher.update(fname.encode()); hasher.update(open(os.path.join(pdir, fname), 'rb').read())
     hasher.update(open(os.path.join(ROOT, 'tools/commons.py'), 'rb').read())
+    for fname in sorted(os.listdir(os.path.join(ROOT, 'static/icons'))):         # новая иконка тоже обновляет приложение
+        hasher.update(fname.encode()); hasher.update(open(os.path.join(ROOT, 'static/icons', fname), 'rb').read())
+    hasher.update(open(os.path.join(ROOT, 'static/apple-touch-icon.png'), 'rb').read())
     cdir = os.path.join(ROOT, 'commons-src')
     if os.path.isdir(cdir):
         for fname in sorted(os.listdir(cdir)):
