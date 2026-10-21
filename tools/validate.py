@@ -86,6 +86,10 @@ def validate(items=None):
                 err('у онлайн-фото должны быть «imageCredit» и «imageSource»')
         elif img and not os.path.exists(os.path.join(ROOT, img)):
             err(f'файл фото {img} не найден')
+        for g in (v.get('gallery') or []):                       # дополнительные фото: файл должен быть в репозитории
+            gs = g if isinstance(g, str) else (g.get('src') if isinstance(g, dict) else None)
+            if gs and not str(gs).startswith(('http', 'data:')) and not os.path.exists(os.path.join(ROOT, gs)):
+                err(f'файл фото {gs} из галереи не найден: загрузите его в папку photos')
         c = v.get('commons')
         if c is not None and (not isinstance(c, dict) or not c.get('file')):
             err('«commons» должен содержать имя файла file (автор и лицензия подставятся при сборке; можно указать author и license вручную)')

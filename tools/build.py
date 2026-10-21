@@ -68,6 +68,19 @@ def main():
             hasher.update(fname.encode()); hasher.update(open(os.path.join(pdir, fname), 'rb').read())
     data_hash = hasher.hexdigest()[:8]
 
+    # контрольные суммы входных файлов: если версия на сайте не совпадает с ожидаемой, по ним видно, какой файл отличается
+    def _h(data):
+        return hashlib.sha1(data if isinstance(data, bytes) else data.encode()).hexdigest()[:8]
+    print('  контрольные суммы файлов (для сверки версий):')
+    for fname in sorted(os.listdir(os.path.join(ROOT, 'data'))):
+        arr = json.load(open(os.path.join(ROOT, 'data', fname), encoding='utf-8'))
+        print('    data/%s  %s' % (fname, _h(json.dumps(arr, ensure_ascii=False, sort_keys=True))))
+    print('    app/template.html  ' + _h(template))
+    print('    static/sw.template.js  ' + _h(open(os.path.join(ROOT, 'static/sw.template.js'), encoding='utf-8').read()))
+    if os.path.isdir(pdir):
+        for fname in sorted(os.listdir(pdir)):
+            print('    photos/%s  %s' % (fname, _h(open(os.path.join(pdir, fname), 'rb').read())))
+
     dist = os.path.join(ROOT, 'dist')
     shutil.rmtree(dist, ignore_errors=True)
     site, single = os.path.join(dist, 'site'), os.path.join(dist, 'single')
