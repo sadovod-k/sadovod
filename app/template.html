@@ -34,6 +34,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hero-home h1,.hero-home p{position:relative;z-index:1}
 .hero-home h1{font-size:30px;line-height:1.08;font-weight:780;letter-spacing:-.045em;margin-bottom:7px}
 .hero-home p{font-size:14px;color:var(--muted);opacity:1}
+.search input::-webkit-search-cancel-button,.search input::-webkit-search-decoration{-webkit-appearance:none;appearance:none}
+.search input{padding-right:44px!important}
+.search-x{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:30px;height:30px;padding:0;border:0;border-radius:50%;background:#C9D1C8;color:#3E463F;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.search-x svg{width:14px;height:14px;display:block}
+.search input:placeholder-shown + .search-x{display:none}
+:root[data-theme="dark"] .search-x{background:#3A423B;color:#D8DED7}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .search-x{background:#3A423B;color:#D8DED7}}
 .search{position:relative;margin:0 0 12px}
 .row[hidden]{display:none!important}
 .search.cq{margin:2px 0 12px}
@@ -744,7 +751,7 @@ function home(){
   }
   return `<div class="view">
     <div class="hero-home"><h1>Садовод</h1><p>Практический справочник для вашего сада</p>${themeBtn('home-theme')}</div>
-    <div class="search"><input id="q" type="search" placeholder="Найти сорт, болезнь, тему или дело…" value="${state.query.replace(/"/g,'&quot;')}" aria-label="Поиск по справочнику"></div>
+    <div class="search"><input id="q" type="search" placeholder="Найти сорт, болезнь, тему или дело…" value="${state.query.replace(/"/g,'&quot;')}" aria-label="Поиск по справочнику"><button class="search-x" type="button" data-clear="q" aria-label="Очистить поиск"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg></button></div>
     ${body}
   </div>`;
 }
@@ -754,7 +761,7 @@ function catalogScreen(){
   const found = q ? VARIETIES.filter(v => v.name.toLowerCase().includes(q) || catById[v.cat].title.toLowerCase().includes(q)) : [];
   return `<div class="view">
     <div class="hero-home" style="min-height:78px"><h1>Справочник</h1><p>Культуры, сорта и уход</p></div>
-    <div class="search"><input id="q" type="search" placeholder="Найти сорт, болезнь, тему или дело…" value="${state.query.replace(/"/g,'&quot;')}" aria-label="Поиск по каталогу"></div>
+    <div class="search"><input id="q" type="search" placeholder="Найти сорт, болезнь, тему или дело…" value="${state.query.replace(/"/g,'&quot;')}" aria-label="Поиск по каталогу"><button class="search-x" type="button" data-clear="q" aria-label="Очистить поиск"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg></button></div>
     ${q ? searchResultsHtml(state.query) : `<div class="section-heading"><h2>Культуры</h2></div><div class="grid">${CATEGORIES.filter(c=>['apple','pear','orn','stone','grape','berry','veg'].includes(c.id)).map(c=>{const n=count(c.id);if(CAT_PHOTOS[c.id] && !c.soon) return photoTile(c.id, c.title, n+' '+plural(n));return `<button class="tile ${c.soon?'soon':''}" style="--c:${c.color}" ${c.soon?'disabled':`data-cat="${c.id}"`}><span class="emoji">${c.emoji}</span><span class="t">${c.title}</span><span class="n">${c.soon?'Скоро':n+' '+(c.id==='orn'?plantWord(n):plural(n))}</span></button>`}).join('')}</div><div style="height:18px"></div><div class="section-heading"><h2>Другие разделы</h2></div><div class="grid"><button class="tile" data-go="pests"><span class="emoji">🍃</span><span class="t">Болезни и вредители</span><span class="n">${PESTS.length} статей</span></button><button class="tile" data-go="basics"><span class="emoji">🌱</span><span class="t">Основы</span><span class="n">${BASICS.length} тем</span></button></div>`}
   </div>`;
 }
@@ -789,7 +796,7 @@ function category(){
   return `<div class="view">
     <div class="bar"><button class="back" data-back="home">Назад</button><h2 class="serif">${c.title}</h2></div>
     ${CAT_PHOTOS[c.id] ? `<div class="cat-hero"><img src="${CAT_PHOTOS[c.id].src}" alt="" decoding="sync" style="object-position:${CAT_PHOTOS[c.id].pos}" onerror="this.style.display='none'"><div class="cat-hero-shade"></div><div class="cat-hero-t"><b>${c.title}</b><span>${list.length} ${plural(list.length)}</span></div></div>` : ''}
-    <div class="search cq"><input id="cq" type="search" enterkeyhint="search" autocomplete="off" placeholder="Найти: ${c.title.toLowerCase()}…" value="${(state.cq || '').replace(/"/g,'&quot;')}" aria-label="Поиск в разделе ${c.title}"></div>
+    <div class="search cq"><input id="cq" type="search" enterkeyhint="search" autocomplete="off" placeholder="Найти: ${c.title.toLowerCase()}…" value="${(state.cq || '').replace(/"/g,'&quot;')}" aria-label="Поиск в разделе ${c.title}"><button class="search-x" type="button" data-clear="cq" aria-label="Очистить поиск"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg></button></div>
     <div class="filters" role="group" aria-label="Срок созревания">
       ${filters.map(f => `<button class="chip" data-filter="${f}" aria-pressed="${state.filter===f}">${f}</button>`).join('')}
     </div>
@@ -1497,6 +1504,10 @@ app.addEventListener('click', e => {
   }
   
 // Для определителя
+  if(d.clear){
+    if(d.clear === 'cq'){ state.cq = ''; const i = document.getElementById('cq'); if(i){ i.value = ''; i.focus(); } applyCq(); return; }
+    state.query = ''; render(); const i = document.getElementById('q'); if(i) i.focus(); return;
+  }
   if(d.rate){ const n = +d.stars || 0; if(myRates[d.rate] === n) delete myRates[d.rate]; else myRates[d.rate] = n; saveRates(); render(); return; }
   if(d.diagCrop){ diagState.crop = d.diagCrop; diagState.symptom = null; render(); return; }
   if(d.diagSymptom){ diagState.symptom = d.diagSymptom; render(); return; }
