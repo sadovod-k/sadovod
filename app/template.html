@@ -470,14 +470,17 @@ input,select,textarea,.search input,.form-group input,.form-group select{font-si
 .zoom-btn{position:absolute;inset:0;z-index:2;border:0;background:transparent;padding:0;cursor:zoom-in;-webkit-tap-highlight-color:transparent}
 .zoom-badge{position:absolute;right:12px;bottom:12px;width:32px;height:32px;display:grid;place-items:center;border-radius:99px;background:rgba(0,0,0,.38);color:#fff;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .zoom-badge .ico,.zoom-badge svg{width:16px;height:16px}
-.zoomer{position:fixed;inset:0;z-index:10000;background:rgba(8,10,8,.97);display:flex;flex-direction:column}
+.zoomer{position:fixed;inset:0;z-index:10000;background:#0B0D0B;display:flex;flex-direction:column}
 .zoom-stage{position:relative;flex:1;overflow:hidden;touch-action:none}
 .zoom-img{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;transform-origin:0 0;will-change:transform;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .zoom-img.anim{transition:transform .22s ease}
 .zoomer{animation:zoomIn .18s ease}
 @keyframes zoomIn{from{opacity:0}to{opacity:1}}
-.zoom-x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:14px;width:44px;height:44px;border-radius:99px;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:26px;line-height:1}
-.zoom-tip{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);text-align:center;color:rgba(255,255,255,.7);font-size:12px;pointer-events:none}
+.zoom-x{position:absolute;z-index:3;top:calc(env(safe-area-inset-top,0px) + 12px);right:16px;width:40px;height:40px;padding:0;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
+.zoom-x svg{width:18px;height:18px;display:block}
+.zoom-count{position:absolute;z-index:3;top:calc(env(safe-area-inset-top,0px) + 22px);left:18px;color:rgba(255,255,255,.85);font-size:14px;font-weight:600;pointer-events:none}
+.zoom-tip{position:absolute;z-index:3;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);text-align:center;color:rgba(255,255,255,.62);font-size:12px;line-height:1.4;pointer-events:none}
+.zoom-tip b{display:block;color:rgba(255,255,255,.9);font-size:13px;font-weight:600;margin-bottom:3px}
 </style>
 </head>
 <body>
@@ -1289,21 +1292,44 @@ function closeZoom(){ try { document.querySelectorAll('.zoomer').forEach(n => { 
 function openZoom(src, alt){
   if(typeof document.createElement !== 'function' || !document.body || typeof document.body.appendChild !== 'function') return;
   closeZoom();
+  // все фото галереи текущей карточки: в просмотре их можно листать
+  let list = [];
+  try { list = Array.from(document.querySelectorAll('#gallery .zoom-btn')).map(b => ({src: b.dataset.zoom, alt: b.dataset.alt})); } catch(e) {}
+  let idx = list.findIndex(p => p.src === src);
+  if(idx < 0){ list = [{src, alt}]; idx = 0; }
+  const esc = t => String(t || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
   const box = document.createElement('div'); box.className = 'zoomer'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Фото крупно');
-  box.innerHTML = '<div class="zoom-stage"><img class="zoom-img" src="' + String(src).replace(/"/g, '&quot;') + '" draggable="false" alt="' + String(alt || 'Фото').replace(/"/g, '&quot;') + '"></div><button class="zoom-x" aria-label="Закрыть">×</button><span class="zoom-tip">Двумя пальцами или двойным касанием — увеличить</span>';
+  box.innerHTML = '<div class="zoom-stage"><img class="zoom-img" src="' + esc(list[idx].src) + '" draggable="false" alt="' + esc(list[idx].alt || 'Фото') + '"></div>'
+    + '<button class="zoom-x" aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+    + (list.length > 1 ? '<span class="zoom-count"></span>' : '')
+    + '<span class="zoom-tip"><b class="zoom-cap"></b>Двумя пальцами или двойным касанием — увеличить. Нажмите мимо фото, чтобы закрыть</span>';
   if(typeof box.addEventListener === 'function') box.addEventListener('click', e => {
     const tg = e.target;
     if(tg && tg.closest && tg.closest('.zoom-x')) closeZoom();
   });
   document.body.appendChild(box); zoomOpen = true;
-  const stage = box.querySelector ? box.querySelector('.zoom-stage') : null;
-  const img = box.querySelector ? box.querySelector('.zoom-img') : null;
-  if(stage && img && stage.addEventListener) setupZoom(stage, img);
+  const q = sel => box.querySelector ? box.querySelector(sel) : null;
+  const stage = q('.zoom-stage'), img = q('.zoom-img'), cnt = q('.zoom-count'), cap = q('.zoom-cap');
+  const show = i => {
+    idx = i;
+    if(img){ img.src = list[i].src; img.alt = list[i].alt || 'Фото'; }
+    if(cnt) cnt.textContent = (i + 1) + ' / ' + list.length;
+    if(cap) cap.textContent = String(list[i].alt || '').split(':')[0];
+    // карточка под просмотром листается вместе с ним
+    try { const g = document.getElementById('gallery'); if(g) g.scrollLeft = i * g.clientWidth; } catch(e) {}
+  };
+  show(idx);
+  if(stage && img && stage.addEventListener) setupZoom(stage, img, {
+    count: list.length,
+    can: d => idx + d >= 0 && idx + d < list.length,
+    go: d => show(idx + d),
+    close: closeZoom
+  });
 }
 
 // Масштаб фото: s — увеличение, x/y — сдвиг. Точка под пальцами остаётся на месте.
-function setupZoom(stage, img){
-  let s = 1, x = 0, y = 0, start = null, lastTap = 0, lastTapX = 0, lastTapY = 0, moved = false;
+function setupZoom(stage, img, ctl){
+  let s = 1, x = 0, y = 0, start = null, lastTap = 0, lastTapX = 0, lastTapY = 0, moved = false, swipe = 0, busy = false;
   const MAX = 5;
   const box = () => stage.getBoundingClientRect();
   const clamp = () => {
@@ -1317,16 +1343,37 @@ function setupZoom(stage, img){
     img.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')';
   };
   const pt = t => { const r = box(); return {x: t.clientX - r.left, y: t.clientY - r.top}; };
-  const zoomAt = (px, py, ns) => {          // увеличить до ns так, чтобы точка (px,py) осталась под пальцем
+  // где на экране сейчас само фото (без тёмных полей вокруг)
+  const inPhoto = p => {
+    const r = box(), nw = img.naturalWidth || r.width, nh = img.naturalHeight || r.height, k = nw / nh;
+    let w = r.width, h = r.height;
+    if(r.width / r.height > k) w = r.height * k; else h = r.width / k;
+    const ox = (r.width - w) / 2, oy = (r.height - h) / 2;
+    const L = x + ox * s, T = y + oy * s;
+    return p.x >= L && p.x <= L + w * s && p.y >= T && p.y <= T + h * s;
+  };
+  const zoomAt = (px, py, ns) => {
     ns = Math.max(1, Math.min(MAX, ns));
     const qx = (px - x) / s, qy = (py - y) / s;
     s = ns; x = px - qx * s; y = py - qy * s; clamp();
   };
+  // перелистывание: фото уезжает в сторону, приезжает следующее
+  const turn = d => {
+    const w = box().width;
+    busy = true; x = -d * w; apply(true);
+    setTimeout(() => {
+      ctl.go(d);
+      x = d * w; apply(false);
+      setTimeout(() => { x = 0; apply(true); busy = false; }, 20);
+    }, 200);
+  };
   stage.addEventListener('touchstart', e => {
+    if(busy) return;
     const t = e.touches;
     if(t.length === 2){
       const a = pt(t[0]), b = pt(t[1]);
       start = {pinch: true, d: Math.hypot(a.x - b.x, a.y - b.y) || 1, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2, s, x, y};
+      swipe = 0;
     } else if(t.length === 1){
       const a = pt(t[0]);
       start = {pinch: false, px: a.x, py: a.y, x, y};
@@ -1334,7 +1381,7 @@ function setupZoom(stage, img){
     moved = false;
   }, {passive: true});
   stage.addEventListener('touchmove', e => {
-    if(!start) return;
+    if(!start || busy) return;
     if(e.cancelable) e.preventDefault();
     const t = e.touches;
     if(start.pinch && t.length >= 2){
@@ -1344,25 +1391,39 @@ function setupZoom(stage, img){
       const qx = (start.cx - start.x) / start.s, qy = (start.cy - start.y) / start.s;
       s = ns; x = cx - qx * s; y = cy - qy * s; clamp(); apply(false); moved = true;
     } else if(!start.pinch && t.length === 1){
-      const a = pt(t[0]);
-      if(Math.abs(a.x - start.px) + Math.abs(a.y - start.py) > 6) moved = true;
-      if(s > 1){ x = start.x + (a.x - start.px); y = start.y + (a.y - start.py); clamp(); apply(false); }
+      const a = pt(t[0]), dx = a.x - start.px, dy = a.y - start.py;
+      if(Math.abs(dx) + Math.abs(dy) > 6) moved = true;
+      if(s > 1){ x = start.x + dx; y = start.y + dy; clamp(); apply(false); }
+      else if(ctl.count > 1 && (swipe || Math.abs(dx) > Math.abs(dy))){
+        // у первого и последнего фото сдвиг «пружинит»
+        swipe = dx; x = ctl.can(dx < 0 ? 1 : -1) ? dx : dx * 0.3; apply(false);
+      }
     }
   }, {passive: false});
   stage.addEventListener('touchend', e => {
+    if(e.cancelable && !e.touches.length) e.preventDefault();   // касание не превращается в щелчок
+    if(busy) return;
     if(e.touches.length === 1){ const a = pt(e.touches[0]); start = {pinch: false, px: a.x, py: a.y, x, y}; return; }
     if(e.touches.length) return;
     const wasPinch = start && start.pinch; start = null;
+    if(swipe){
+      const d = swipe < 0 ? 1 : -1, far = Math.abs(swipe) > Math.min(90, box().width / 4);
+      swipe = 0;
+      if(far && ctl.can(d)){ turn(d); return; }
+      x = 0; apply(true); return;
+    }
     if(wasPinch || moved) return;
     const c = e.changedTouches && e.changedTouches[0]; if(!c) return;
     const p = pt(c), now = Date.now();
+    if(!inPhoto(p)){ lastTap = 0; if(e.cancelable) e.preventDefault(); ctl.close(); return; }   // без «призрачного» нажатия по карточке под просмотром
     if(now - lastTap < 320 && Math.abs(p.x - lastTapX) < 30 && Math.abs(p.y - lastTapY) < 30){
       if(s > 1){ s = 1; x = 0; y = 0; } else zoomAt(p.x, p.y, 2.5);
       apply(true); lastTap = 0;
     } else { lastTap = now; lastTapX = p.x; lastTapY = p.y; }
   });
-  // компьютер: двойной щелчок и колёсико
-  stage.addEventListener('dblclick', e => { const p = pt(e); if(s > 1){ s = 1; x = 0; y = 0; } else zoomAt(p.x, p.y, 2.5); apply(true); });
+  // компьютер: щелчок мимо фото закрывает, двойной щелчок и колёсико увеличивают, стрелки листают
+  stage.addEventListener('click', e => { if(e.pointerType === 'touch' || (e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents)) return; if(!inPhoto(pt(e))) ctl.close(); });
+  stage.addEventListener('dblclick', e => { const p = pt(e); if(!inPhoto(p)) return; if(s > 1){ s = 1; x = 0; y = 0; } else zoomAt(p.x, p.y, 2.5); apply(true); });
   stage.addEventListener('wheel', e => { if(e.cancelable) e.preventDefault(); const p = pt(e); zoomAt(p.x, p.y, s * (e.deltaY < 0 ? 1.15 : 1 / 1.15)); apply(false); }, {passive: false});
   let drag = null;
   stage.addEventListener('mousedown', e => { if(s > 1) drag = {px: e.clientX, py: e.clientY, x, y}; });
