@@ -7,7 +7,7 @@ FILES = {'apple': 'data/apple.json', 'pear': 'data/pear.json', 'orn': 'data/orna
 PREFIX = {'a': 'apple', 'p': 'pear', 'o': 'orn'}
 REQUIRED_ORN = ['id', 'cat', 'name', 'latin', 'kind', 'y', 'season', 'origin', 'height', 'crown', 'bloom', 'light', 'soil', 'water', 'hardy', 'src', 'status']
 REQUIRED_TEXT = ['id', 'cat', 'name', 'y', 'year', 'origin', 'season', 'hardy', 'keep', 'taste', 'src']
-KNOWN = set(REQUIRED_TEXT) | {'tasting', 'yearNote', 'parents', 'facts', 'care', 'fun', 'scab', 'image', 'imageCredit',
+KNOWN = set(REQUIRED_TEXT) | {'tasting', 'kbr', 'yearNote', 'parents', 'facts', 'care', 'fun', 'scab', 'image', 'imageCredit',
                               'imageSource', 'imageFull', 'imageCaption', 'commons', 'gallery', 'photo', 'photoCredit', 'status',
                               'latin', 'kind', 'height', 'crown', 'bloom', 'light', 'soil', 'water', 'autumn', 'use', 'checked'}
 
