@@ -35,6 +35,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hero-home h1{font-size:30px;line-height:1.08;font-weight:780;letter-spacing:-.045em;margin-bottom:7px}
 .hero-home p{font-size:14px;color:var(--muted);opacity:1}
 .search{position:relative;margin:0 0 12px}
+.row[hidden]{display:none!important}
+.search.cq{margin:2px 0 12px}
 .search::before{content:'⌕';position:absolute;left:15px;top:7px;font-size:25px;line-height:1;color:#7C857D;pointer-events:none}
 .search input{width:100%;font:inherit;font-size:15px;padding:14px 15px 14px 43px;border-radius:17px;border:1px solid transparent;background:#E8ECE7;color:var(--ink);outline:none}
 .search input:focus{border-color:#A8B8AA;background:#fff}
@@ -767,8 +769,10 @@ function bottomNav(){
   </nav>`;
 }
 
+// текст для поиска внутри раздела: название, латынь, родители, происхождение
+const searchText = v => [v.name, v.latin, v.parents, v.origin].filter(Boolean).join(' ').toLowerCase().replace(/ё/g, 'е').replace(/"/g, '');
 function rowHtml(v){
-  return `<button class="row" data-id="${v.id}">
+  return `<button class="row" data-id="${v.id}" data-s="${searchText(v)}">
     ${thumb(v)}
     <div class="rtext"><div class="name serif">${v.name}</div><div class="meta">${v.season}${v.status === 'draft' ? ' · <span class="draft-tag">черновик</span>' : ''}</div></div>
     <span class="yr">${favs.has(v.id) ? '♥ ' : ''}${v.y}</span>
@@ -779,15 +783,18 @@ function category(){
   const c = catById[state.cat];
   const list = VARIETIES.filter(v => v.cat === c.id);
   const isOrn = c.id === 'orn';
-  const filters = isOrn ? ['Все','Деревья','Кустарники','Проверенные'] : ['Все','Проверенные','Летние','Осенние','Зимние','Устойчивые к парше'];
-  const shown = state.filter === 'Все' ? list : state.filter === 'Проверенные' ? list.filter(v => v.status !== 'draft') : state.filter === 'Деревья' ? list.filter(v => v.kind === 'Дерево') : state.filter === 'Кустарники' ? list.filter(v => v.kind === 'Кустарник') : state.filter === 'Устойчивые к парше' ? list.filter(v => v.scab === 'res') : list.filter(v => seasonKey(v.season) === state.filter);
+  const hasKbr = list.some(v => v.kbr);
+  const filters = isOrn ? ['Все','Деревья','Кустарники','Проверенные'] : ['Все', ...(hasKbr ? ['Сорта КБР'] : []), 'Проверенные','Летние','Осенние','Зимние','Устойчивые к парше'];
+  const shown = state.filter === 'Все' ? list : state.filter === 'Сорта КБР' ? list.filter(v => v.kbr) : state.filter === 'Проверенные' ? list.filter(v => v.status !== 'draft') : state.filter === 'Деревья' ? list.filter(v => v.kind === 'Дерево') : state.filter === 'Кустарники' ? list.filter(v => v.kind === 'Кустарник') : state.filter === 'Устойчивые к парше' ? list.filter(v => v.scab === 'res') : list.filter(v => seasonKey(v.season) === state.filter);
   return `<div class="view">
     <div class="bar"><button class="back" data-back="home">Назад</button><h2 class="serif">${c.title}</h2></div>
     ${CAT_PHOTOS[c.id] ? `<div class="cat-hero"><img src="${CAT_PHOTOS[c.id].src}" alt="" decoding="sync" style="object-position:${CAT_PHOTOS[c.id].pos}" onerror="this.style.display='none'"><div class="cat-hero-shade"></div><div class="cat-hero-t"><b>${c.title}</b><span>${list.length} ${plural(list.length)}</span></div></div>` : ''}
+    <div class="search cq"><input id="cq" type="search" enterkeyhint="search" autocomplete="off" placeholder="Найти: ${c.title.toLowerCase()}…" value="${(state.cq || '').replace(/"/g,'&quot;')}" aria-label="Поиск в разделе ${c.title}"></div>
     <div class="filters" role="group" aria-label="Срок созревания">
       ${filters.map(f => `<button class="chip" data-filter="${f}" aria-pressed="${state.filter===f}">${f}</button>`).join('')}
     </div>
-    ${shown.length ? shown.map(rowHtml).join('') : `<div class="empty">В этой группе пока нет сортов.</div>`}
+    <div id="cq-list">${shown.length ? shown.map(rowHtml).join('') : `<div class="empty">В этой группе пока нет сортов.</div>`}</div>
+    <div class="empty" id="cq-none" hidden>Ничего не найдено. Попробуйте часть названия, например «гала».</div>
   </div>`;
 }
 
@@ -1440,6 +1447,7 @@ function render(){
   app.innerHTML = screenHtml(true);
 
   if(keepFocus){ const i = document.getElementById('q'); if(i){ i.focus(); i.setSelectionRange(pos,pos); } }
+  if(scr === 'cat' && state.cq) applyCq();
   if(scr === 'detail' && document.getElementById){
     const gal = document.getElementById('gallery');
     if(gal && gal.addEventListener){
@@ -1502,7 +1510,7 @@ app.addEventListener('click', e => {
     return;
   }
 
-  if(d.cat){ state.screen='cat'; state.cat=d.cat; state.filter='Все'; }
+  if(d.cat){ state.screen='cat'; state.cat=d.cat; state.filter='Все'; state.cq=''; }
   else if(d.id){
     state.back = ['cat','favs','cal','topic','pest','catalog'].includes(state.screen) ? state.screen : 'home';
     if(state.screen === 'home') state.cat = null;
@@ -1565,7 +1573,16 @@ else if(d.go){ state.screen = d.go; if(d.go === 'quiz' && !state.quiz) newCard()
   render();
 });
 
+function applyCq(){
+  const box = document.getElementById && document.getElementById('cq-list');
+  if(!box || !box.querySelectorAll) return;
+  const q = String(state.cq || '').trim().toLowerCase().replace(/ё/g, 'е');
+  let n = 0;
+  box.querySelectorAll('.row').forEach(r => { const ok = !q || String(r.getAttribute('data-s') || '').includes(q); r.hidden = !ok; if(ok) n++; });
+  const none = document.getElementById('cq-none'); if(none) none.hidden = !(q && n === 0);
+}
 app.addEventListener('input', e => {
+  if(e.target.id === 'cq'){ state.cq = e.target.value; applyCq(); return; }
   if(e.target.id === 'q'){ state.query = e.target.value; render(); }
 });
 
