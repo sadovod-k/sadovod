@@ -785,7 +785,7 @@ function rowHtml(v){
   return `<button class="row" data-id="${v.id}" data-s="${searchText(v)}">
     ${thumb(v)}
     <div class="rtext"><div class="name serif">${v.name}</div><div class="meta">${v.season}${v.status === 'draft' ? ' · <span class="draft-tag">черновик</span>' : ''}</div></div>
-    <span class="yr">${favs.has(v.id) ? '♥ ' : ''}${v.y}</span>
+    <span class="yr">${favs.has(v.id) ? '♥ ' : ''}${/^уточнить/i.test(String(v.y || '')) ? (v.kbr ? 'КБР' : '') : v.y}</span>
   </button>`;
 }
 
