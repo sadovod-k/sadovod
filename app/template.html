@@ -9,10 +9,10 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
-<meta name="apple-mobile-web-app-title" content="Сад">
+<meta name="apple-mobile-web-app-title" content="Крона">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#F2F4F1">
-<title>Справочник садовода</title>
+<title>Крона — справочник садовода</title>
 <style>
 :root{
   --bg:#F2F4F1; --surface:#FFFFFF; --ink:#1A1D1A; --muted:#586159; --line:#E4E8E2;
@@ -753,7 +753,7 @@ function home(){
       <p class="ver">Версия: ${APP_VERSION}</p>`;
   }
   return `<div class="view">
-    <div class="hero-home"><h1>Садовод</h1><p>Практический справочник для вашего сада</p>${themeBtn('home-theme')}</div>
+    <div class="hero-home"><h1>Крона</h1><p>Справочник садовода Кабардино-Балкарской Республики</p>${themeBtn('home-theme')}</div>
     <div class="search"><input id="q" type="search" placeholder="Найти сорт, болезнь, тему или дело…" value="${state.query.replace(/"/g,'&quot;')}" aria-label="Поиск по справочнику"><button class="search-x" type="button" data-clear="q" aria-label="Очистить поиск"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg></button></div>
     ${body}
   </div>`;
