@@ -902,11 +902,11 @@ const commonsPhoto = c => {
   return {src:`https://commons.wikimedia.org/wiki/Special:FilePath/${f}?width=960`,
           credit:[c.author, c.license, 'Wikimedia Commons'].filter(Boolean).join(', '),
           source:`https://commons.wikimedia.org/wiki/File:${f}`,
-          caption:c.caption || 'Плод'};
+          caption:c.caption || ''};
 };
 const photoList = v => {
   const first = v.commons ? [{...commonsPhoto(v.commons), fit: v.cat === 'orn'}]
-              : v.image ? [{src:v.image, credit:v.imageCredit, source:v.imageSource, caption:v.imageCaption || 'Плод', full:!!v.imageFull, fit:!!v.imageFit}] : [];
+              : v.image ? [{src:v.image, credit:v.imageCredit, source:v.imageSource, caption:v.imageCaption || (v.cat === 'orn' ? '' : 'Плод'), full:!!v.imageFull, fit:!!v.imageFit}] : [];
   const more = (v.gallery || []).map(x => typeof x === 'string' ? {src:x} : x.file ? {...commonsPhoto(x), fit: v.cat === 'orn'} : x);
   return [...first, ...more];
 };
@@ -927,7 +927,7 @@ function detail(){
   return `<div class="view detail-view">
     <div class="hero-photo" style="--c:${c.color}">
       ${shown.length
-        ? `<div class="gallery" id="gallery" aria-label="Фотографии сорта">${shown.map((p,i) => `<div class="slide${p.fit ? ' fit' : ''}"><span class="slide-ph" aria-hidden="true">${c.emoji}</span>${p.fit ? `<img class="fit-bg" src="${p.src}" alt="" aria-hidden="true" decoding="sync">` : ''}<img src="${p.src}" style="${p.pos ? 'object-position:' + p.pos : ''}" alt="${p.caption ? p.caption + ': ' : 'Плод сорта '}${v.name}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="sync" onerror="this.style.display='none'"><button class="zoom-btn" data-zoom="${p.src}" data-alt="${(p.caption || 'Фото') + ': ' + v.name}" aria-label="Открыть фото крупно"><span class="zoom-badge" aria-hidden="true">${svgIcon('search')}</span></button></div>`).join('')}</div>`
+        ? `<div class="gallery" id="gallery" aria-label="Фотографии сорта">${shown.map((p,i) => `<div class="slide${p.fit ? ' fit' : ''}"><span class="slide-ph" aria-hidden="true">${c.emoji}</span>${p.fit ? `<img class="fit-bg" src="${p.src}" alt="" aria-hidden="true" decoding="sync">` : ''}<img src="${p.src}" style="${p.pos ? 'object-position:' + p.pos : ''}" alt="${p.caption ? p.caption + ': ' : (v.cat === 'orn' ? '' : 'Плод сорта ')}${v.name}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="sync" onerror="this.style.display='none'"><button class="zoom-btn" data-zoom="${p.src}" data-alt="${(p.caption || 'Фото') + ': ' + v.name}" aria-label="Открыть фото крупно"><span class="zoom-badge" aria-hidden="true">${svgIcon('search')}</span></button></div>`).join('')}</div>`
         : `<div class="hero-emoji" aria-hidden="true">${c.emoji}</div>`}
       ${illus.length ? '<span class="illus-badge">Иллюстрация · не этот сорт</span>' : ''}
       <div class="hero-bar">
