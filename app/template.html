@@ -358,6 +358,8 @@ input,select,textarea{font-family:var(--font-sans)}
 .slide{position:relative;flex:0 0 100%;height:100%;scroll-snap-align:center;scroll-snap-stop:always;background:var(--c)}
 .slide::before{content:attr(data-e);position:absolute;inset:0;display:grid;place-items:center;font-size:96px}
 .slide img{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:cover}
+.slide.fit img{object-fit:contain}
+.slide.fit img.fit-bg{position:absolute;inset:0;z-index:0;object-fit:cover;filter:blur(22px) brightness(.8) saturate(1.1);transform:scale(1.15)}
 .hero-emoji{height:100%;display:grid;place-items:center;font-size:104px}
 .hero-bar{position:absolute;z-index:3;left:14px;right:14px;top:12px;display:flex;align-items:center;justify-content:space-between}
 .hero-actions{display:flex;align-items:center;gap:8px}
@@ -903,9 +905,9 @@ const commonsPhoto = c => {
           caption:c.caption || 'Плод'};
 };
 const photoList = v => {
-  const first = v.commons ? [commonsPhoto(v.commons)]
-              : v.image ? [{src:v.image, credit:v.imageCredit, source:v.imageSource, caption:v.imageCaption || 'Плод', full:!!v.imageFull}] : [];
-  const more = (v.gallery || []).map(x => typeof x === 'string' ? {src:x} : x.file ? commonsPhoto(x) : x);
+  const first = v.commons ? [{...commonsPhoto(v.commons), fit: v.cat === 'orn'}]
+              : v.image ? [{src:v.image, credit:v.imageCredit, source:v.imageSource, caption:v.imageCaption || 'Плод', full:!!v.imageFull, fit:!!v.imageFit}] : [];
+  const more = (v.gallery || []).map(x => typeof x === 'string' ? {src:x} : x.file ? {...commonsPhoto(x), fit: v.cat === 'orn'} : x);
   return [...first, ...more];
 };
 const photoCredits = ps => ps.filter(p => p.credit || p.source).map((p,i) =>
@@ -925,7 +927,7 @@ function detail(){
   return `<div class="view detail-view">
     <div class="hero-photo" style="--c:${c.color}">
       ${shown.length
-        ? `<div class="gallery" id="gallery" aria-label="Фотографии сорта">${shown.map((p,i) => `<div class="slide"><span class="slide-ph" aria-hidden="true">${c.emoji}</span><img src="${p.src}" style="${p.pos ? 'object-position:' + p.pos : ''}" alt="${p.caption ? p.caption + ': ' : 'Плод сорта '}${v.name}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="sync" onerror="this.style.display='none'"><button class="zoom-btn" data-zoom="${p.src}" data-alt="${(p.caption || 'Фото') + ': ' + v.name}" aria-label="Открыть фото крупно"><span class="zoom-badge" aria-hidden="true">${svgIcon('search')}</span></button></div>`).join('')}</div>`
+        ? `<div class="gallery" id="gallery" aria-label="Фотографии сорта">${shown.map((p,i) => `<div class="slide${p.fit ? ' fit' : ''}"><span class="slide-ph" aria-hidden="true">${c.emoji}</span>${p.fit ? `<img class="fit-bg" src="${p.src}" alt="" aria-hidden="true" decoding="sync">` : ''}<img src="${p.src}" style="${p.pos ? 'object-position:' + p.pos : ''}" alt="${p.caption ? p.caption + ': ' : 'Плод сорта '}${v.name}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="sync" onerror="this.style.display='none'"><button class="zoom-btn" data-zoom="${p.src}" data-alt="${(p.caption || 'Фото') + ': ' + v.name}" aria-label="Открыть фото крупно"><span class="zoom-badge" aria-hidden="true">${svgIcon('search')}</span></button></div>`).join('')}</div>`
         : `<div class="hero-emoji" aria-hidden="true">${c.emoji}</div>`}
       ${illus.length ? '<span class="illus-badge">Иллюстрация · не этот сорт</span>' : ''}
       <div class="hero-bar">
