@@ -10,16 +10,19 @@ UA = 'SadovodApp/1.0 (https://github.com/sadovod-k/sadovod; student project)'   
 W, H = 1080, 810
 
 
-def prepare(data):
-    """Обрезка по центру до 4:3, размер 1080x810, WebP (обычно 60–140 КБ)."""
+def prepare(data, fit=False):
+    """Обрезка по центру до 4:3, размер 1080x810, WebP (обычно 60–140 КБ).
+    fit=True — без обрезки: всё растение целиком, длинная сторона до 1080."""
     from PIL import Image, ImageOps
     im = ImageOps.exif_transpose(Image.open(io.BytesIO(data))).convert('RGB')
     w, h = im.size
-    if w * 3 > h * 4:
+    if fit:
+        k = min(1, 1080 / max(w, h)); im = im.resize((max(1, round(w * k)), max(1, round(h * k))), Image.LANCZOS)
+    elif w * 3 > h * 4:
         nw = round(h * 4 / 3); x0 = (w - nw) // 2; im = im.crop((x0, 0, x0 + nw, h))
     elif w * 3 < h * 4:
         nh = round(w * 3 / 4); y0 = (h - nh) // 2; im = im.crop((0, y0, w, y0 + nh))
-    im = im.resize((W, H), Image.LANCZOS)
+    if not fit: im = im.resize((W, H), Image.LANCZOS)
     out = b''
     for q in (80, 74, 68, 60):
         buf = io.BytesIO(); im.save(buf, 'WEBP', quality=q, method=6); out = buf.getvalue()
@@ -146,10 +149,10 @@ def _save(site, rel, data):
     with open(os.path.join(site, rel), 'wb') as f: f.write(data)
 
 
-def _credit(c):
+def _credit(c, fit=False):
     s = f"{c['author']}, {c['license']}, Wikimedia Commons"
     if str(c['license']).upper().startswith('CC') and 'BY' in str(c['license']).upper():      # лицензии CC BY требуют указать, что изображение изменено
-        s += ' (обрезано и сжато)'
+        s += ' (уменьшено и сжато)' if fit else ' (обрезано и сжато)'
     return s
 
 
@@ -162,7 +165,7 @@ def localize(items, site, root):
     local_dir = os.environ.get('SADOVOD_COMMONS_DIR') or os.path.join(root, 'commons-src')
     done = failed = rejected = 0
 
-    def prepare_one(c, owner):
+    def prepare_one(c, owner, fit=False):
         """-> (данные картинки или None, полные сведения или None)"""
         nonlocal failed, rejected
         rc = resolve(c, owner)
@@ -170,7 +173,7 @@ def localize(items, site, root):
             rejected += 1
             return None, None
         try:
-            return prepare(download(rc['file'], local_dir)), rc
+            return prepare(download(rc['file'], local_dir), fit), rc
         except Exception as e:
             print(f"  предупреждение: фото «{rc['file']}» не скачалось ({e}); карточка {owner} покажет его только при интернете")
             failed += 1
@@ -178,12 +181,14 @@ def localize(items, site, root):
 
     for v in items:
         c = v.get('commons')
+        fit = v.get('cat') == 'orn'              # декоративные растения: фото целиком, без обрезки
         if c and not v.get('image'):
-            data, rc = prepare_one(c, v['id'])
+            data, rc = prepare_one(c, v['id'], fit or bool(c.get('fit')))
             if data:
                 rel = f"photos/c-{v['id']}.webp"
                 _save(site, rel, data)
-                v['image'] = rel; v['imageCredit'] = _credit(rc); v['imageSource'] = _source(rc)
+                v['image'] = rel; v['imageCredit'] = _credit(rc, fit or bool(c.get('fit'))); v['imageSource'] = _source(rc)
+                if fit or c.get('fit'): v['imageFit'] = True
                 del v['commons']; done += 1
             elif rc:
                 v['commons'] = rc            # не скачалось: останется ссылка на фото в интернете, уже с автором
@@ -195,11 +200,11 @@ def localize(items, site, root):
             for n, g in enumerate(gal, 1):
                 if not (isinstance(g, dict) and g.get('file') and not g.get('src')):
                     out.append(g); continue
-                data, rc = prepare_one(g, v['id'])
+                data, rc = prepare_one(g, v['id'], fit or bool(g.get('fit')))
                 if data:
                     rel = f"photos/c-{v['id']}-{n}.webp"
                     _save(site, rel, data)
-                    out.append({'src': rel, 'credit': _credit(rc), 'source': _source(rc), 'caption': g.get('caption') or 'Плод'}); done += 1
+                    out.append({'src': rel, 'credit': _credit(rc, fit or bool(g.get('fit'))), 'source': _source(rc), 'caption': g.get('caption') or 'Плод', **({'fit': True} if fit or g.get('fit') else {})}); done += 1
                 elif rc:
                     out.append(dict(g, **{k: rc[k] for k in ('author', 'license')}))
             v['gallery'] = out
