@@ -36,8 +36,8 @@ def validate(items=None):
         for k in (REQUIRED_ORN if is_orn else REQUIRED_TEXT):
             if not isinstance(v.get(k), str) or not v.get(k).strip():
                 err(f'нет обязательного поля «{k}»')
-        if is_orn and v.get('kind') not in ('Дерево', 'Кустарник'):
-            err('«kind» должно быть «Дерево» или «Кустарник»')
+        if is_orn and v.get('kind') not in ('Дерево', 'Кустарник', 'Лиана'):
+            err('«kind» должно быть «Дерево», «Кустарник» или «Лиана»')
         if v.get('id') and not re.fullmatch(r'[apo]\d+', v['id']):
             err('id должен быть вида a12 (яблоня), p3 (груша) или o2 (декоративные)')
         elif v.get('id'):
