@@ -166,6 +166,31 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .heart.on{color:#D1304A;border-color:#D1304A}
 
 /* quiz */
+.gsum{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:18px;margin:0 0 14px;box-shadow:0 8px 26px rgba(22,40,25,.05)}
+.gstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin-bottom:6px}
+.gstat{background:var(--bg);border-radius:16px;padding:12px}
+.gstat b{display:block;font-size:24px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.gstat span{font-size:12px;color:var(--muted)}
+.gnote{font-size:14px;color:var(--muted);margin:8px 0 4px;line-height:1.4}
+.gsum-h{font-size:17px;font-weight:750;margin:16px 0 8px;letter-spacing:-.01em}
+.gharv{display:grid;gap:6px}
+.gharv-row{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:center;text-align:left;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.gharv-tag{grid-row:1 / 3;font-size:12px;font-weight:700;padding:5px 9px;border-radius:99px;background:var(--bg)}
+.gharv-tag.g-sum{color:#B7791F}.gharv-tag.g-aut{color:#C05621}.gharv-tag.g-win{color:#2B6CB0}
+.gharv-name{font-weight:700;font-size:15px}
+.gharv-s{font-size:13px;color:var(--muted);line-height:1.3}
+.gtasks{margin:4px 0 12px 18px;font-size:14px;line-height:1.45}
+.gtasks li{margin-bottom:6px}
+.gpick-list{max-height:320px;overflow:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:16px;padding:6px;background:var(--surface)}
+.gpick{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:6px;border:0;border-radius:12px;background:transparent;color:var(--ink)}
+.gpick[hidden]{display:none!important}
+.gpick .thumb,.gpicked .thumb{width:40px;height:40px;border-radius:10px;flex:none;font-size:20px}
+.gpick .info,.gpicked .info{display:flex;flex-direction:column;min-width:0;flex:1}
+.gpick .name,.gpicked .name{font-weight:650;font-size:15px}
+.gpick .meta,.gpicked .meta{font-size:12px;color:var(--muted)}
+.gpicked{display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid var(--basics);border-radius:16px;background:var(--surface)}
+.gsearch{margin:0 0 8px}
+.gsearch input{padding-left:44px!important}
 .qprog{height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin:-4px 0 10px}
 .qprog span{display:block;height:100%;background:var(--basics);border-radius:99px;transition:width .3s}
 .q-text{font-size:19px;font-weight:650;line-height:1.35;margin:4px 0 16px;letter-spacing:-.01em}
@@ -1011,53 +1036,86 @@ function saveGarden(garden) {
   try { localStorage.setItem('sad_garden', JSON.stringify(garden)); } catch(e) {}
 }
 
+const ROOTS = ['Не знаю','М9','ММ106','М26','54-118','Семенной','Другой'];
+const yearsWord = n => { const m10 = n % 10, m100 = n % 100; return (m10 === 1 && m100 !== 11) ? 'год' : (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) ? 'года' : 'лет'; };
+const treesWord = n => { const m10 = n % 10, m100 = n % 100; return (m10 === 1 && m100 !== 11) ? 'дерево' : (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) ? 'дерева' : 'деревьев'; };
+const sortsWord = n => plural(n);
+const escH = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+
+// Сводка сада: сколько деревьев, когда снимать урожай, что делать в этом месяце
+function gardenSummary(garden){
+  const trees = garden.map(t => ({t, v: VARIETIES.find(x => x.id === t.sortId)}));
+  const known = trees.filter(x => x.v);
+  const uniq = [...new Map(known.map(x => [x.v.id, x.v])).values()];
+  const apples = known.filter(x => x.v.cat === 'apple');
+  const res = apples.filter(x => x.v.scab === 'res').length;
+  const order = {'Летние': 0, 'Осенние': 1, 'Зимние': 2};
+  const harvest = uniq.filter(v => v.cat !== 'orn').sort((a, b) => order[seasonKey(a.season)] - order[seasonKey(b.season)]);
+  const cal = CAL.find(x => x.m === nowMonth);
+  const myIds = new Set(uniq.map(v => v.id));
+  const mine = cal ? cal.tasks.filter(t => (t.v || []).some(id => myIds.has(id))) : [];
+  const show = cal ? (mine.length ? mine : cal.tasks).slice(0, 3) : [];
+  const stat = (n, l) => `<div class="gstat"><b>${n}</b><span>${l}</span></div>`;
+  return `<section class="gsum">
+    <div class="gstats">${stat(garden.length, treesWord(garden.length))}${stat(uniq.length, sortsWord(uniq.length))}${apples.length ? stat(res + ' из ' + apples.length, 'яблонь устойчивы к парше') : ''}</div>
+    ${apples.length && res < apples.length ? `<p class="gnote">У ${apples.length - res} ${((apples.length - res) % 10 === 1 && (apples.length - res) % 100 !== 11) ? 'яблони' : 'яблонь'} нет устойчивости к парше. Таким деревьям весной нужны защитные обработки.</p>` : ''}
+    ${harvest.length ? `<h3 class="gsum-h">Когда снимать урожай</h3>
+      <div class="gharv">${harvest.map(v => `<button class="gharv-row" data-id="${v.id}"><span class="gharv-tag g-${seasonKey(v.season) === 'Летние' ? 'sum' : seasonKey(v.season) === 'Осенние' ? 'aut' : 'win'}">${{'Летние':'Летний','Осенние':'Осенний','Зимние':'Зимний'}[seasonKey(v.season)]}</span><span class="gharv-name">${escH(v.name.replace(/\s*\(.*?\)\s*/g, ' ').trim())}</span><span class="gharv-s">${escH(v.season)}</span></button>`).join('')}</div>` : ''}
+    ${cal ? `<h3 class="gsum-h">Сейчас в саду · ${MONTHS[nowMonth - 1]}</h3>
+      <p class="gnote">${escH(cal.phase)}${mine.length ? ' · дела для ваших сортов' : ''}</p>
+      <ul class="gtasks">${show.map(t => `<li><b>${escH(t.s)}.</b> ${escH(t.t)}</li>`).join('')}</ul>
+      <button class="vlink" data-go="cal">Весь календарь ›</button>` : ''}
+  </section>`;
+}
+
 function gardenScreen(){
   const garden = getGarden();
   const currentYear = new Date().getFullYear();
   const editing = state.editTree ? garden.find(x => x.id === state.editTree) : null;
 
   if (state.formOpen) {
-    const cur = editing || {sortId: '', customName: '', year: currentYear, place: ''};
-    const esc = s => String(s || '').replace(/"/g, '&quot;');
+    const cur = editing || {sortId: '', customName: '', year: currentYear, place: '', root: ''};
+    if(!state.gdraft) state.gdraft = {sortId: cur.sortId || '', customName: cur.customName || '', year: cur.year, place: cur.place || '', root: cur.root || ''};
+    const D = state.gdraft;
+    const sel = D.sortId ? VARIETIES.find(v => v.id === D.sortId) : null;
+    const list = VARIETIES.slice().sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+    const picker = sel
+      ? `<div class="gpicked">${thumb(sel)}<div class="info"><div class="name">${sel.name}</div><div class="meta">${catById[sel.cat].title}</div></div><button class="g-btn" data-gpick-clear="1">Изменить</button></div>`
+      : `<div class="search gsearch"><input id="f-search" type="search" autocomplete="off" placeholder="Начните вводить: флорина, нарт…" aria-label="Поиск сорта"></div>
+         <div class="gpick-list" id="f-list">${list.map(v => `<button class="gpick" data-gpick="${v.id}" data-s="${searchText(v)}">${thumb(v)}<span class="info"><span class="name">${v.name}</span><span class="meta">${catById[v.cat].title}</span></span></button>`).join('')}<div class="empty" id="f-none" hidden>Не нашли? Впишите название ниже.</div></div>`;
     return `<div class="view">
       <div class="bar"><button class="back" data-back="garden">‹ Назад</button><h2 class="serif">${editing ? 'Изменить дерево' : 'Новое дерево'}</h2></div>
-      <div class="form-group"><label>Сорт</label><select id="f-sort"><option value="">Выберите сорт...</option>${VARIETIES.map(v => `<option value="${v.id}" ${v.id === cur.sortId ? 'selected' : ''}>${v.name} (${catById[v.cat].title})</option>`).join('')}</select></div>
-      <div class="form-group"><label>Или впишите свой сорт, если его нет в списке</label><input type="text" id="f-custom" placeholder="Например, Уэлси из бабушкиного сада" value="${esc(cur.customName)}"></div>
-      <div class="form-group"><label>Год посадки</label><input type="number" id="f-year" min="1900" max="${currentYear}" value="${cur.year}"></div>
-      <div class="form-group"><label>Место в саду</label><input type="text" id="f-place" placeholder="Например, у забора" value="${esc(cur.place)}"></div>
+      <div class="form-group"><label>Сорт</label>${picker}</div>
+      ${sel ? '' : `<div class="form-group"><label>Или впишите свой сорт, если его нет в списке</label><input type="text" id="f-custom" placeholder="Например, Уэлси из бабушкиного сада" value="${escH(D.customName)}"></div>`}
+      <div class="form-group"><label>Год посадки</label><input type="number" id="f-year" inputmode="numeric" min="1900" max="${currentYear}" value="${escH(D.year)}"></div>
+      <div class="form-group"><label>Подвой</label><select id="f-root">${ROOTS.map(r => `<option value="${r === 'Не знаю' ? '' : r}" ${(D.root || '') === (r === 'Не знаю' ? '' : r) ? 'selected' : ''}>${r}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Место в саду</label><input type="text" id="f-place" placeholder="Например, у забора" value="${escH(D.place)}"></div>
       ${state.formError ? `<p class="form-error">${state.formError}</p>` : ''}
       <button class="add-btn" data-save-tree>${editing ? 'Сохранить изменения' : 'Сохранить дерево'}</button>
     </div>`;
   }
 
+  const item = t => {
+    const v = VARIETIES.find(x => x.id === t.sortId);
+    const age = currentYear - t.year;
+    const acts = state.confirmDel === t.id
+      ? `<span class="g-ask">Удалить это дерево?</span><button class="g-btn danger" data-del-tree-yes="${t.id}">Удалить</button><button class="g-btn" data-del-tree-no="1">Отмена</button>`
+      : `<button class="g-btn" data-edit-tree="${t.id}">Изменить</button><button class="g-btn danger" data-del-tree="${t.id}">Удалить</button>`;
+    const meta = [escH(t.place || 'Без места'), `<span class="age">${age} ${yearsWord(age)}</span>`, t.root ? 'подвой ' + escH(t.root) : ''].filter(Boolean).join(' · ');
+    if(!v && t.customName)
+      return `<div class="garden-item"><div class="garden-card"><div class="thumb" style="--c:var(--basics)">🌳</div><div class="info"><div class="name">${escH(t.customName)}</div><div class="meta">${meta} · свой сорт</div></div></div><div class="garden-actions">${acts}</div></div>`;
+    if(!v) return `<div class="garden-item"><div class="garden-card"><div class="info"><div class="name">Сорт удалён из базы</div><div class="meta">${escH(t.place || 'Без места')}</div></div></div><div class="garden-actions"><button class="g-btn danger" data-del-tree-yes="${t.id}">Убрать из сада</button></div></div>`;
+    return `<div class="garden-item">
+      <button class="garden-card" data-tree-id="${t.id}" data-id="${v.id}">${thumb(v)}<div class="info"><div class="name">${v.name}</div><div class="meta">${meta}</div></div></button>
+      <div class="garden-actions">${acts}</div>
+    </div>`;
+  };
+
   return `<div class="view">
     <div class="bar"><button class="back" data-back="home">‹ Назад</button><h2 class="serif">Мой сад</h2></div>
+    ${garden.length ? gardenSummary(garden) : ''}
     <button class="add-btn" data-add-tree>+ Добавить дерево</button>
-    ${garden.length ? `<div class="my-garden-list">${garden.map(t => {
-        const v = VARIETIES.find(x => x.id === t.sortId);
-        if (!v && t.customName){
-          const age0 = currentYear - t.year;
-          const acts = state.confirmDel === t.id
-            ? `<span class="g-ask">Удалить это дерево?</span><button class="g-btn danger" data-del-tree-yes="${t.id}">Удалить</button><button class="g-btn" data-del-tree-no="1">Отмена</button>`
-            : `<button class="g-btn" data-edit-tree="${t.id}">Изменить</button><button class="g-btn danger" data-del-tree="${t.id}">Удалить</button>`;
-          const nm = String(t.customName).replace(/&/g, '&amp;').replace(/</g, '&lt;');
-          const pl = String(t.place || 'Без места').replace(/&/g, '&amp;').replace(/</g, '&lt;');
-          return `<div class="garden-item"><div class="garden-card"><div class="thumb" style="--c:var(--basics)">🌳</div><div class="info"><div class="name">${nm}</div><div class="meta">${pl} · <span class="age">${age0} ${age0 === 1 ? 'год' : age0 > 1 && age0 < 5 ? 'года' : 'лет'}</span> · свой сорт</div></div></div><div class="garden-actions">${acts}</div></div>`;
-        }
-        if (!v) return `<div class="garden-item"><div class="garden-card"><div class="info"><div class="name">Сорт удалён из базы</div><div class="meta">${t.place || 'Без места'}</div></div></div><div class="garden-actions"><button class="g-btn danger" data-del-tree-yes="${t.id}">Убрать из сада</button></div></div>`;
-        const c = catById[v.cat];
-        const age = currentYear - t.year;
-        const actions = state.confirmDel === t.id
-          ? `<span class="g-ask">Удалить это дерево?</span><button class="g-btn danger" data-del-tree-yes="${t.id}">Удалить</button><button class="g-btn" data-del-tree-no="1">Отмена</button>`
-          : `<button class="g-btn" data-edit-tree="${t.id}">Изменить</button><button class="g-btn danger" data-del-tree="${t.id}">Удалить</button>`;
-        return `<div class="garden-item">
-          <button class="garden-card" data-tree-id="${t.id}" data-id="${v.id}">
-            <div class="thumb" style="--c:${c.color}">${c.emoji}</div>
-            <div class="info"><div class="name">${v.name}</div><div class="meta">${t.place || 'Без места'} · <span class="age">${age} ${age === 1 ? 'год' : age > 1 && age < 5 ? 'года' : 'лет'}</span></div></div>
-          </button>
-          <div class="garden-actions">${actions}</div>
-        </div>`;
-      }).join('')}</div>` : `<div class="empty-garden"><h3>Тут пока пусто</h3><p>Добавьте свои деревья, чтобы приложение считало их возраст.</p></div>`}
+    ${garden.length ? `<div class="my-garden-list">${garden.map(item).join('')}</div>` : `<div class="empty-garden"><h3>Тут пока пусто</h3><p>Добавьте свои деревья: приложение посчитает их возраст, подскажет сроки съёма и работы на этот месяц.</p></div>`}
   </div>`;
 }
 
@@ -1617,7 +1675,9 @@ app.addEventListener('click', e => {
   if(d.zoom !== undefined){ openZoom(d.zoom, d.alt); return; }
   if(d.themeToggle !== undefined){ toggleTheme(); render(); return; }
   if(d.q !== undefined){ state.query = d.q; render(); return; }
-  if(d.editTree !== undefined){ state.editTree = d.editTree; state.formOpen = true; state.formError = ''; state.confirmDel = null; render(); return; }
+  if(d.editTree !== undefined){ state.editTree = d.editTree; state.formOpen = true; state.formError = ''; state.confirmDel = null; state.gdraft = null; render(); return; }
+  if(d.gpick !== undefined){ if(state.gdraft){ state.gdraft.sortId = d.gpick; state.gdraft.customName = ''; } state.formError = ''; render(); return; }
+  if(d.gpickClear !== undefined){ if(state.gdraft) state.gdraft.sortId = ''; render(); return; }
   if(d.delTree !== undefined){ state.confirmDel = d.delTree; render(); return; }
   if(d.delTreeNo !== undefined){ state.confirmDel = null; render(); return; }
   if(d.delTreeYes !== undefined){ saveGarden(getGarden().filter(x => x.id !== d.delTreeYes)); state.confirmDel = null; render(); return; }
@@ -1680,22 +1740,24 @@ else if(d.go){ state.screen = d.go; if(d.go === 'quiz') startQuiz(); if(d.go ===
     render();
   }
   else if (d.addTree !== undefined) {
-    state.editTree = null; state.formError = ''; state.formOpen = true;
+    state.editTree = null; state.formError = ''; state.formOpen = true; state.gdraft = null;
     render();
   }
   else if (d.saveTree !== undefined) {
-    const sortId = document.getElementById('f-sort').value;
-    const customEl = document.getElementById('f-custom');
-    const customName = sortId ? '' : ((customEl && customEl.value) || '').trim();
-    const year = parseInt(document.getElementById('f-year').value);
-    const place = document.getElementById('f-place').value.trim();
+    const D = state.gdraft || {};
+    const val = id => { const el = document.getElementById(id); return el ? el.value : undefined; };
+    const sortId = D.sortId || '';
+    const customName = sortId ? '' : String(val('f-custom') ?? D.customName ?? '').trim();
+    const year = parseInt(val('f-year') ?? D.year);
+    const place = String(val('f-place') ?? D.place ?? '').trim();
+    const root = String(val('f-root') ?? D.root ?? '');
     if ((!sortId && !customName) || !year || year < 1900 || year > new Date().getFullYear()) { state.formError = 'Выберите сорт из списка или впишите своё название и укажите год посадки (от 1900 до текущего).'; render(); return; }
     const garden = getGarden();
     if (state.editTree) {
       const i = garden.findIndex(x => x.id === state.editTree);
-      if (i >= 0) garden[i] = {...garden[i], sortId, customName, year, place};
+      if (i >= 0) garden[i] = {...garden[i], sortId, customName, year, place, root};
     } else {
-      garden.push({ id: Date.now().toString(), sortId, customName, year, place });
+      garden.push({ id: Date.now().toString(), sortId, customName, year, place, root });
     }
     saveGarden(garden);
     state.formOpen = false; state.editTree = null; state.formError = '';
@@ -1732,7 +1794,17 @@ function applyCq(){
   box.querySelectorAll('.row').forEach(r => { const ok = !q || String(r.getAttribute('data-s') || '').includes(q); r.hidden = !ok; if(ok) n++; });
   const none = document.getElementById('cq-none'); if(none) none.hidden = !(q && n === 0);
 }
+function applyGpick(q){
+  const box = document.getElementById && document.getElementById('f-list'); if(!box || !box.querySelectorAll) return;
+  q = String(q || '').trim().toLowerCase().replace(/ё/g, 'е'); let n = 0;
+  box.querySelectorAll('.gpick').forEach(r => { const ok = !q || String(r.getAttribute('data-s') || '').includes(q); r.hidden = !ok; if(ok) n++; });
+  const none = document.getElementById('f-none'); if(none) none.hidden = n > 0;
+}
+const gdraftField = {'f-custom': 'customName', 'f-year': 'year', 'f-place': 'place', 'f-root': 'root'};
+app.addEventListener('change', e => { const k = gdraftField[e.target && e.target.id]; if(k && state.gdraft) state.gdraft[k] = e.target.value; });
 app.addEventListener('input', e => {
+  if(e.target.id === 'f-search'){ applyGpick(e.target.value); return; }
+  if(gdraftField[e.target.id]){ if(state.gdraft) state.gdraft[gdraftField[e.target.id]] = e.target.value; return; }
   if(e.target.id === 'cq'){ state.cq = e.target.value; applyCq(); return; }
   if(e.target.id === 'q'){ state.query = e.target.value; render(); }
 });
