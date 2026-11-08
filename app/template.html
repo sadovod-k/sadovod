@@ -214,6 +214,20 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .cmp-vt .unk{color:var(--muted);font-size:14px}
 .cmp-best{color:#2E8B57}
 .cmp-open{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.fchips{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 8px}
+.fchip{padding:9px 13px;border-radius:99px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font-size:14px;font-weight:650}
+.fchip.on{border-color:var(--basics);background:var(--basics);color:var(--surface)}
+.fchips.seg .fchip{flex:1;text-align:center}
+.f-in{width:100%;font:inherit;font-size:15px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.form-group .opt{font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted)}
+.gsum-line{font-size:18px;font-weight:750;margin:0 0 4px;letter-spacing:-.01em}
+.gsum-sub{font-size:13px;color:var(--muted);margin:10px 0 6px}
+.gharv{display:flex;flex-wrap:wrap;gap:6px}
+.gh-chip{padding:7px 11px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:13.5px;font-weight:650}
+.gh-chip.g-sum{border-color:#E6C27A}.gh-chip.g-aut{border-color:#E8A27A}.gh-chip.g-win{border-color:#8DB4E2}
+.gnow{width:100%;margin-top:12px}
+.term{display:inline;padding:0;margin:0;border:0;background:none;color:inherit;font:inherit;text-decoration:underline dotted;text-decoration-color:var(--basics);text-decoration-thickness:2px;text-underline-offset:3px;cursor:pointer}
+.term-hint{font-size:13px;color:var(--muted);margin:-4px 0 12px}
 .qprog{height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin:-4px 0 10px}
 .qprog span{display:block;height:100%;background:var(--basics);border-radius:99px;transition:width .3s}
 .q-text{font-size:19px;font-weight:650;line-height:1.35;margin:4px 0 16px;letter-spacing:-.01em}
@@ -977,12 +991,71 @@ function rateHtml(v){
     </div>`;
 }
 
+/* ---------- Словарь календаря: подчёркнутые слова объясняются простыми словами ---------- */
+const CAL_TERMS = {
+  vlaga: ['Влагозарядковый полив', 'Обильный полив осенью, после листопада и до заморозков: землю промачивают глубоко, на всю глубину корней. Запас влаги помогает дереву лучше перезимовать.'],
+  cone: ['Зелёный конус', 'Самое начало весны для дерева: почки раскрылись, и из них показались зелёные кончики листьев.'],
+  bud: ['Розовый бутон', 'Фаза перед самым цветением: бутоны уже окрасились в розовый цвет, но ещё не раскрылись.'],
+  tramp: ['Бродяжки', 'Подвижные личинки щитовки. Только в это короткое время они ползают без защитного щитка, поэтому обработка против них действует лучше всего.'],
+  sap: ['Сокодвижение', 'Весеннее пробуждение дерева после зимы: по стволу и веткам начинает идти сок, почки набухают.'],
+  veg: ['Вегетация', 'Время активного роста дерева: от распускания почек весной до листопада осенью.'],
+  sanit: ['Санитарная обрезка', 'Вырезка сухих, сломанных и больных ветвей.'],
+  thin: ['Прореживающая обрезка', 'Вырезка лишних ветвей, которые загущают крону, чтобы внутрь попадали свет и воздух.'],
+  mummy: ['Мумифицированные плоды', 'Сгнившие и высохшие плоды, которые остались висеть на дереве или лежат на земле. В них зимует плодовая гниль.'],
+  wait: ['Срок ожидания', 'Сколько дней должно пройти от последней обработки препаратом до сбора урожая. Указан в инструкции к препарату.'],
+  white: ['Побелка', 'Покраска стволов известковым раствором или садовой краской. Защищает кору от солнечных ожогов и резких перепадов температуры.'],
+  circle: ['Приствольный круг', 'Земля вокруг ствола под кроной дерева.'],
+  foliar: ['Внекорневая подкормка', 'Подкормка через листья: дерево опрыскивают раствором удобрения.'],
+  fallen: ['Падалица', 'Плоды, которые сами упали с дерева.'],
+  ovary: ['Завязь', 'Молодые плоды, которые образуются после цветения.'],
+  fung: ['Фунгициды', 'Препараты против грибных болезней (например, парши). Контактные действуют на поверхности листьев и плодов.'],
+  copper: ['Медьсодержащий препарат', 'Препарат на основе меди против грибных болезней. Весной его применяют только до распускания почек.'],
+  cutting: ['Черенки для прививки', 'Однолетние побеги нужного сорта. Их заготавливают зимой и весной прививают на подвой.'],
+  pollin: ['Опылители', 'Насекомые, прежде всего пчёлы, которые переносят пыльцу с цветка на цветок. Без них не будет урожая.'],
+  nitro: ['Азотная подкормка', 'Удобрение с азотом. Усиливает рост побегов и листьев, поэтому его вносят весной.'],
+  potash: ['Калий', 'Элемент питания, который помогает побегам вызреть, а дереву — лучше перезимовать. Его вносят осенью.'],
+  scab: ['Парша', 'Самая опасная грибная болезнь яблони и груши: бурые пятна на листьях и плодах.'],
+  mildew: ['Мучнистая роса', 'Грибная болезнь: белый мучнистый налёт на молодых листьях и побегах.'],
+  rodent: ['Грызуны', 'Мыши и зайцы, которые зимой обгрызают кору молодых деревьев.']
+};
+const CAL_TERM_RX = [
+  [/влагозарядков\S*\s+полив\S*/i, 'vlaga'], [/влагозарядк\S*/i, 'vlaga'], [/зел[её]н\S*\s+конус\S*/i, 'cone'], [/розов\S*\s+бутон\S*/i, 'bud'],
+  [/бродяжк\S*/i, 'tramp'], [/сокодвижени\S*/i, 'sap'], [/вегетаци\S*|вегетационн\S*/i, 'veg'], [/санитарн\S*/i, 'sanit'], [/прореживающ\S*/i, 'thin'],
+  [/мумифицированн\S*\s+плод\S*/i, 'mummy'], [/срок\S*\s+ожидания/i, 'wait'], [/побел\S*/i, 'white'], [/приствольн\S*\s+круг\S*/i, 'circle'],
+  [/внекорнев\S*\s+подкормк\S*/i, 'foliar'], [/падалиц\S*/i, 'fallen'], [/завяз[ьиюе](?![а-яё])/i, 'ovary'], [/фунгицид\S*/i, 'fung'], [/медьсодержащ\S*\s+препарат\S*/i, 'copper'],
+  [/черенк\S*/i, 'cutting'], [/опылител\S*/i, 'pollin'], [/азотн\S*\s+подкормк\S*/i, 'nitro'], [/кали[йя](?![а-яё])/i, 'potash'], [/мучнист\S*\s+рос\S*/i, 'mildew'], [/грызун\S*/i, 'rodent']
+];
+// подчёркиваем каждый термин один раз в задаче
+function termify(text, used){
+  let out = String(text || '');
+  CAL_TERM_RX.forEach(([rx, key]) => {
+    if(used.has(key)) return;
+    const m = out.match(rx); if(!m) return;
+    const before = out.slice(0, m.index);
+    if((before.match(/</g) || []).length !== (before.match(/>/g) || []).length) return;   // не внутри тега
+    used.add(key);
+    const word = m[0].replace(/[.,;:»"')]+$/, ''), tail = m[0].slice(word.length);
+    out = before + `<button class="term" data-term="${key}">${word}</button>` + tail + out.slice(m.index + m[0].length);
+  });
+  return out;
+}
+function termSheet(){
+  const t = state.term && CAL_TERMS[state.term]; if(!t) return '';
+  return `<button class="sheet-backdrop" data-term-close="1" aria-label="Закрыть"></button>
+  <div class="sheet" role="dialog" aria-label="${t[0]}"><div class="sheet-grab" aria-hidden="true"></div>
+    <p class="detail-kicker" style="margin-bottom:5px">Простыми словами</p>
+    <h3 class="result-title">${t[0]}</h3>
+    <p class="result-desc">${t[1]}</p>
+    <div class="sheet-btns"><button class="vlink wide ghost" data-term-close="1">Понятно</button></div>
+  </div>`;
+}
+
 function taskHtml(mm, t){
   const on = doneSet.has(doneKey(mm, t.id));
   const links = (t.v || []).map(id => { const v = VARIETIES.find(x => x.id === id); return v ? `<button class="vlink" data-id="${id}">${v.name}</button>` : ''; }).join('');
   return `<div class="task ${on ? 'done' : ''}">
     <button class="cb" data-task="${mm}:${t.id}" aria-pressed="${on}" aria-label="Отметить выполненным">${on ? '✓' : ''}</button>
-    <div class="tb"><span class="tg">${t.tag}</span><p class="tt">${t.t}</p>${t.note ? `<p class="tn">${t.note}</p>` : ''}${links ? `<div class="vl">${links}</div>` : ''}</div>
+    <div class="tb"><span class="tg">${t.tag}</span>${(() => { const used = new Set(); return `<p class="tt">${termify(t.t, used)}</p>${t.note ? `<p class="tn">${termify(t.note, used)}</p>` : ''}`; })()}${links ? `<div class="vl">${links}</div>` : ''}</div>
   </div>`;
 }
 function calScreen(){
@@ -997,9 +1070,10 @@ function calScreen(){
     <h3 class="m-title serif">${MONTHS[m.m - 1]}</h3>
     <div class="prog" aria-hidden="true"><div style="width:${pct}%"></div></div>
     <p class="prog-t">Сделано ${done} из ${m.tasks.length}</p>
+    <p class="term-hint">Подчёркнутые слова можно нажать: объясним простыми словами.</p>
     ${m.tasks.map(t => taskHtml(m.m, t)).join('')}
     <p class="note">Календарь для яблони и груши. Сроки ориентировочные для юга России: ориентируйтесь на фазу развития дерева и погоду, а не на дату. Препараты и дозы подбирайте по актуальному Госкаталогу пестицидов и агрохимикатов, соблюдайте срок ожидания из инструкции.</p>
-  </div>`;
+  </div>${termSheet()}`;
 }
 
 function basicsScreen(){
@@ -1064,36 +1138,38 @@ function saveGarden(garden) {
 }
 
 const ROOTS = ['Не знаю','М9','ММ106','М26','54-118','Семенной','Другой'];
+const PLACES = ['У дома','В саду','На участке','В поле'];
+const COUNTS = {trees: [1, 5, 10, 50, 100, 500], ha: [0.5, 1, 2, 5, 10]};
 const yearsWord = n => { const m10 = n % 10, m100 = n % 100; return (m10 === 1 && m100 !== 11) ? 'год' : (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) ? 'года' : 'лет'; };
 const treesWord = n => { const m10 = n % 10, m100 = n % 100; return (m10 === 1 && m100 !== 11) ? 'дерево' : (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) ? 'дерева' : 'деревьев'; };
 const sortsWord = n => plural(n);
 const escH = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+const numRu = n => String(Math.round(n * 100) / 100).replace('.', ',');
+// сколько в посадке: «120 деревьев» или «1,5 га»; у старых записей без количества — одно дерево
+const plantAmount = t => t.unit === 'ha' ? numRu(Number(t.count) || 0) + ' га' : (Number(t.count) || 1) + ' ' + treesWord(Number(t.count) || 1);
 
-// Сводка сада: сколько деревьев, когда снимать урожай, что делать в этом месяце
+// Короткая сводка сада: сколько посадок, когда снимать урожай, что делать сейчас
 function gardenSummary(garden){
-  const trees = garden.map(t => ({t, v: VARIETIES.find(x => x.id === t.sortId)}));
-  const known = trees.filter(x => x.v);
-  const uniq = [...new Map(known.map(x => [x.v.id, x.v])).values()];
-  const apples = known.filter(x => x.v.cat === 'apple');
-  const res = apples.filter(x => x.v.scab === 'res').length;
-  const order = {'Летние': 0, 'Осенние': 1, 'Зимние': 2};
-  const harvest = uniq.filter(v => v.cat !== 'orn').sort((a, b) => order[seasonKey(a.season)] - order[seasonKey(b.season)]);
+  const known = garden.map(t => VARIETIES.find(x => x.id === t.sortId)).filter(Boolean);
+  const uniq = [...new Map(known.map(v => [v.id, v])).values()].filter(v => v.cat !== 'orn');
+  const trees = garden.filter(t => t.unit !== 'ha').reduce((a, t) => a + (Number(t.count) || 1), 0);
+  const ha = garden.filter(t => t.unit === 'ha').reduce((a, t) => a + (Number(t.count) || 0), 0);
+  const sorts = new Set(garden.map(t => t.sortId || ('c:' + t.customName))).size;
+  const parts = [sorts + ' ' + sortsWord(sorts), trees ? trees + ' ' + treesWord(trees) : '', ha ? numRu(ha) + ' га' : ''].filter(Boolean);
+  const order = {'Летние': 0, 'Осенние': 1, 'Зимние': 2}, one = {'Летние': 'летний', 'Осенние': 'осенний', 'Зимние': 'зимний'};
+  const harvest = uniq.slice().sort((a, b) => order[seasonKey(a.season)] - order[seasonKey(b.season)]);
   const cal = CAL.find(x => x.m === nowMonth);
   const myIds = new Set(uniq.map(v => v.id));
-  const mine = cal ? cal.tasks.filter(t => (t.v || []).some(id => myIds.has(id))) : [];
-  const show = cal ? (mine.length ? mine : cal.tasks).slice(0, 3) : [];
-  const stat = (n, l) => `<div class="gstat"><b>${n}</b><span>${l}</span></div>`;
+  const mine = cal ? cal.tasks.find(t => (t.v || []).some(id => myIds.has(id))) : null;
+  const first = cal ? (mine || cal.tasks[0]) : null;
   return `<section class="gsum">
-    <div class="gstats">${stat(garden.length, treesWord(garden.length))}${stat(uniq.length, sortsWord(uniq.length))}${apples.length ? stat(res + ' из ' + apples.length, 'яблонь устойчивы к парше') : ''}</div>
-    ${apples.length && res < apples.length ? `<p class="gnote">У ${apples.length - res} ${((apples.length - res) % 10 === 1 && (apples.length - res) % 100 !== 11) ? 'яблони' : 'яблонь'} нет устойчивости к парше. Таким деревьям весной нужны защитные обработки.</p>` : ''}
-    ${harvest.length ? `<h3 class="gsum-h">Когда снимать урожай</h3>
-      <div class="gharv">${harvest.map(v => `<button class="gharv-row" data-id="${v.id}"><span class="gharv-tag g-${seasonKey(v.season) === 'Летние' ? 'sum' : seasonKey(v.season) === 'Осенние' ? 'aut' : 'win'}">${{'Летние':'Летний','Осенние':'Осенний','Зимние':'Зимний'}[seasonKey(v.season)]}</span><span class="gharv-name">${escH(v.name.replace(/\s*\(.*?\)\s*/g, ' ').trim())}</span><span class="gharv-s">${escH(v.season)}</span></button>`).join('')}</div>` : ''}
-    ${cal ? `<h3 class="gsum-h">Сейчас в саду · ${MONTHS[nowMonth - 1]}</h3>
-      <p class="gnote">${escH(cal.phase)}${mine.length ? ' · дела для ваших сортов' : ''}</p>
-      <ul class="gtasks">${show.map(t => `<li><b>${escH(t.s)}.</b> ${escH(t.t)}</li>`).join('')}</ul>
-      <button class="vlink" data-go="cal">Весь календарь ›</button>` : ''}
+    <p class="gsum-line">${parts.join(' · ')}</p>
+    ${harvest.length ? `<p class="gsum-sub">Когда снимать урожай</p><div class="gharv">${harvest.map(v => `<button class="gh-chip g-${seasonKey(v.season) === 'Летние' ? 'sum' : seasonKey(v.season) === 'Осенние' ? 'aut' : 'win'}" data-id="${v.id}">${escH(v.name.replace(/\s*\(.*?\)\s*/g, ' ').trim())} · ${one[seasonKey(v.season)]}</button>`).join('')}</div>` : ''}
+    ${first ? `<button class="slim-btn gnow" data-go="cal">${svgIcon('calendar')}<span><b>Сейчас в саду · ${MONTHS[nowMonth - 1]}</b><small>${escH(first.s)}</small></span><i>›</i></button>` : ''}
   </section>`;
 }
+
+const chip = (field, value, label, on) => `<button class="fchip ${on ? 'on' : ''}" data-gset="${field}" data-gval="${escH(value)}" aria-pressed="${on}">${label}</button>`;
 
 function gardenScreen(){
   const garden = getGarden();
@@ -1101,24 +1177,35 @@ function gardenScreen(){
   const editing = state.editTree ? garden.find(x => x.id === state.editTree) : null;
 
   if (state.formOpen) {
-    const cur = editing || {sortId: '', customName: '', year: currentYear, place: '', root: ''};
-    if(!state.gdraft) state.gdraft = {sortId: cur.sortId || '', customName: cur.customName || '', year: cur.year, place: cur.place || '', root: cur.root || ''};
+    const cur = editing || {};
+    if(!state.gdraft) state.gdraft = {sortId: cur.sortId || '', customName: cur.customName || '', year: cur.year || currentYear, place: cur.place || '', root: cur.root || '', unit: cur.unit || 'trees', count: cur.count || (editing ? 1 : '')};
     const D = state.gdraft;
     const sel = D.sortId ? VARIETIES.find(v => v.id === D.sortId) : null;
     const list = VARIETIES.slice().sort((a, b) => a.name.localeCompare(b.name, 'ru'));
     const picker = sel
       ? `<div class="gpicked">${thumb(sel)}<div class="info"><div class="name">${sel.name}</div><div class="meta">${catById[sel.cat].title}</div></div><button class="g-btn" data-gpick-clear="1">Изменить</button></div>`
       : `<div class="search gsearch"><input id="f-search" type="search" autocomplete="off" placeholder="Начните вводить: флорина, нарт…" aria-label="Поиск сорта"></div>
-         <div class="gpick-list" id="f-list">${list.map(v => `<button class="gpick" data-gpick="${v.id}" data-s="${searchText(v)}">${thumb(v)}<span class="info"><span class="name">${v.name}</span><span class="meta">${catById[v.cat].title}</span></span></button>`).join('')}<div class="empty" id="f-none" hidden>Не нашли? Впишите название ниже.</div></div>`;
+         <div class="gpick-list" id="f-list">${list.map(v => `<button class="gpick" data-gpick="${v.id}" data-s="${searchText(v)}">${thumb(v)}<span class="info"><span class="name">${v.name}</span><span class="meta">${catById[v.cat].title}</span></span></button>`).join('')}<div class="empty" id="f-none" hidden>Не нашли? Впишите название ниже.</div></div>
+         <input type="text" id="f-custom" class="f-in" placeholder="Или впишите свой сорт" value="${escH(D.customName)}">`;
+    const years = [0, 1, 2, 3, 5, 10].map(k => currentYear - k);
+    const counts = COUNTS[D.unit === 'ha' ? 'ha' : 'trees'];
     return `<div class="view">
-      <div class="bar"><button class="back" data-back="garden">‹ Назад</button><h2 class="serif">${editing ? 'Изменить дерево' : 'Новое дерево'}</h2></div>
+      <div class="bar"><button class="back" data-back="garden">‹ Назад</button><h2 class="serif">${editing ? 'Изменить посадку' : 'Новая посадка'}</h2></div>
       <div class="form-group"><label>Сорт</label>${picker}</div>
-      ${sel ? '' : `<div class="form-group"><label>Или впишите свой сорт, если его нет в списке</label><input type="text" id="f-custom" placeholder="Например, Уэлси из бабушкиного сада" value="${escH(D.customName)}"></div>`}
-      <div class="form-group"><label>Год посадки</label><input type="number" id="f-year" inputmode="numeric" min="1900" max="${currentYear}" value="${escH(D.year)}"></div>
-      <div class="form-group"><label>Подвой</label><select id="f-root">${ROOTS.map(r => `<option value="${r === 'Не знаю' ? '' : r}" ${(D.root || '') === (r === 'Не знаю' ? '' : r) ? 'selected' : ''}>${r}</option>`).join('')}</select></div>
-      <div class="form-group"><label>Место в саду</label><input type="text" id="f-place" placeholder="Например, у забора" value="${escH(D.place)}"></div>
+      <div class="form-group"><label>Сколько</label>
+        <div class="fchips seg">${chip('unit', 'trees', 'Деревья', D.unit !== 'ha')}${chip('unit', 'ha', 'Гектары', D.unit === 'ha')}</div>
+        <div class="fchips">${counts.map(n => chip('count', n, D.unit === 'ha' ? numRu(n) + ' га' : String(n), Number(D.count) === n)).join('')}</div>
+        <input type="text" id="f-count" class="f-in" inputmode="decimal" autocomplete="off" placeholder="${D.unit === 'ha' ? 'Другая площадь, га' : 'Другое число деревьев'}" value="${counts.includes(Number(D.count)) ? '' : escH(D.count)}"></div>
+      <div class="form-group"><label>Год посадки</label>
+        <div class="fchips">${years.map(y => chip('year', y, String(y), Number(D.year) === y)).join('')}</div>
+        <input type="number" id="f-year" class="f-in" inputmode="numeric" min="1900" max="${currentYear}" placeholder="Другой год" value="${years.includes(Number(D.year)) ? '' : escH(D.year)}"></div>
+      <div class="form-group"><label>Подвой</label>
+        <div class="fchips">${ROOTS.map(r => chip('root', r === 'Не знаю' ? '' : r, r, (D.root || '') === (r === 'Не знаю' ? '' : r))).join('')}</div></div>
+      <div class="form-group"><label>Где растёт <span class="opt">(необязательно)</span></label>
+        <div class="fchips">${PLACES.map(pl => chip('place', pl, pl, D.place === pl)).join('')}</div>
+        <input type="text" id="f-place" class="f-in" placeholder="Или своё: например, у забора" value="${PLACES.includes(D.place) ? '' : escH(D.place)}"></div>
       ${state.formError ? `<p class="form-error">${state.formError}</p>` : ''}
-      <button class="add-btn" data-save-tree>${editing ? 'Сохранить изменения' : 'Сохранить дерево'}</button>
+      <button class="add-btn" data-save-tree>${editing ? 'Сохранить изменения' : 'Сохранить'}</button>
     </div>`;
   }
 
@@ -1126,12 +1213,12 @@ function gardenScreen(){
     const v = VARIETIES.find(x => x.id === t.sortId);
     const age = currentYear - t.year;
     const acts = state.confirmDel === t.id
-      ? `<span class="g-ask">Удалить это дерево?</span><button class="g-btn danger" data-del-tree-yes="${t.id}">Удалить</button><button class="g-btn" data-del-tree-no="1">Отмена</button>`
+      ? `<span class="g-ask">Удалить эту посадку?</span><button class="g-btn danger" data-del-tree-yes="${t.id}">Удалить</button><button class="g-btn" data-del-tree-no="1">Отмена</button>`
       : `<button class="g-btn" data-edit-tree="${t.id}">Изменить</button><button class="g-btn danger" data-del-tree="${t.id}">Удалить</button>`;
-    const meta = [escH(t.place || 'Без места'), `<span class="age">${age} ${yearsWord(age)}</span>`, t.root ? 'подвой ' + escH(t.root) : ''].filter(Boolean).join(' · ');
+    const meta = [`<b>${plantAmount(t)}</b>`, `${age} ${yearsWord(age)}`, t.root ? escH(t.root) : '', t.place ? escH(t.place) : ''].filter(Boolean).join(' · ');
     if(!v && t.customName)
-      return `<div class="garden-item"><div class="garden-card"><div class="thumb" style="--c:var(--basics)">🌳</div><div class="info"><div class="name">${escH(t.customName)}</div><div class="meta">${meta} · свой сорт</div></div></div><div class="garden-actions">${acts}</div></div>`;
-    if(!v) return `<div class="garden-item"><div class="garden-card"><div class="info"><div class="name">Сорт удалён из базы</div><div class="meta">${escH(t.place || 'Без места')}</div></div></div><div class="garden-actions"><button class="g-btn danger" data-del-tree-yes="${t.id}">Убрать из сада</button></div></div>`;
+      return `<div class="garden-item"><div class="garden-card"><div class="thumb" style="--c:var(--basics)">🌳</div><div class="info"><div class="name">${escH(t.customName)}</div><div class="meta">${meta}</div></div></div><div class="garden-actions">${acts}</div></div>`;
+    if(!v) return `<div class="garden-item"><div class="garden-card"><div class="info"><div class="name">Сорт удалён из базы</div><div class="meta">${meta}</div></div></div><div class="garden-actions"><button class="g-btn danger" data-del-tree-yes="${t.id}">Убрать из сада</button></div></div>`;
     return `<div class="garden-item">
       <button class="garden-card" data-tree-id="${t.id}" data-id="${v.id}">${thumb(v)}<div class="info"><div class="name">${v.name}</div><div class="meta">${meta}</div></div></button>
       <div class="garden-actions">${acts}</div>
@@ -1141,8 +1228,8 @@ function gardenScreen(){
   return `<div class="view">
     <div class="bar"><button class="back" data-back="home">‹ Назад</button><h2 class="serif">Мой сад</h2></div>
     ${garden.length ? gardenSummary(garden) : ''}
-    <button class="add-btn" data-add-tree>+ Добавить дерево</button>
-    ${garden.length ? `<div class="my-garden-list">${garden.map(item).join('')}</div>` : `<div class="empty-garden"><h3>Тут пока пусто</h3><p>Добавьте свои деревья: приложение посчитает их возраст, подскажет сроки съёма и работы на этот месяц.</p></div>`}
+    <button class="add-btn" data-add-tree>+ Добавить посадку</button>
+    ${garden.length ? `<div class="my-garden-list">${garden.map(item).join('')}</div>` : `<div class="empty-garden"><h3>Тут пока пусто</h3><p>Добавьте свои посадки: сорт и сколько деревьев или гектаров. Приложение подскажет сроки съёма и работы на этот месяц.</p></div>`}
   </div>`;
 }
 
@@ -1418,7 +1505,8 @@ function diagScreen(){
       </button>`).join('')}
     </div>
 
-    ${result ? `<button class="sheet-backdrop" data-diag-close="1" aria-label="Закрыть"></button>
+
+  </div>${result ? `<button class="sheet-backdrop" data-diag-close="1" aria-label="Закрыть"></button>
     <div class="sheet" role="dialog" aria-label="Результат определителя">
       <div class="sheet-grab" aria-hidden="true"></div>
       <p class="detail-kicker" style="margin-bottom: 5px;">Вероятный диагноз</p>
@@ -1432,8 +1520,7 @@ function diagScreen(){
         <button class="vlink wide" data-pest="${result.id}">Открыть полную статью ›</button>
         <button class="vlink wide ghost" data-diag-close="1">Закрыть</button>
       </div>
-    </div>` : ''}
-  </div>`;
+    </div>` : ''}`;
 }
 
 /* ---------- Render & Events ---------- */
@@ -1801,6 +1888,7 @@ function render(){
 app.addEventListener('click', e => {
   const t = e.target.closest('button'); if(!t) return;
   const d = t.dataset;
+  if(d.term === undefined) state.term = null;
   rememberScroll(); navMode = d.back !== undefined ? 'back' : 'forward';
   if(d.zoom !== undefined){ openZoom(d.zoom, d.alt); return; }
   if(d.themeToggle !== undefined){ toggleTheme(); render(); return; }
@@ -1808,11 +1896,22 @@ app.addEventListener('click', e => {
   if(d.editTree !== undefined){ state.editTree = d.editTree; state.formOpen = true; state.formError = ''; state.confirmDel = null; state.gdraft = null; render(); return; }
   if(d.cmpToggle !== undefined){ cmpToggle(d.cmpToggle); render(); return; }
   if(d.cmpAdd !== undefined){ if(!cmpList.includes(d.cmpAdd)) cmpToggle(d.cmpAdd); render(); return; }
+  if(d.gset !== undefined && state.gdraft){
+    const D = state.gdraft, f = d.gset, val = d.gval;
+    if(f === 'unit'){ if(D.unit !== val){ D.unit = val; D.count = ''; } }
+    else if(f === 'count' || f === 'year') D[f] = Number(val);
+    else D[f] = D[f] === val && f === 'place' ? '' : val;
+    ['f-count','f-year','f-place'].forEach(id => { const el = document.getElementById(id); if(el && ((f === 'count' && id === 'f-count') || (f === 'year' && id === 'f-year') || (f === 'place' && id === 'f-place'))) el.value = ''; });
+    const cu = document.getElementById('f-custom'); if(cu) D.customName = cu.value;
+    state.formError = ''; render(); return;
+  }
   if(d.gpick !== undefined){ if(state.gdraft){ state.gdraft.sortId = d.gpick; state.gdraft.customName = ''; } state.formError = ''; render(); return; }
   if(d.gpickClear !== undefined){ if(state.gdraft) state.gdraft.sortId = ''; render(); return; }
   if(d.delTree !== undefined){ state.confirmDel = d.delTree; render(); return; }
   if(d.delTreeNo !== undefined){ state.confirmDel = null; render(); return; }
   if(d.delTreeYes !== undefined){ saveGarden(getGarden().filter(x => x.id !== d.delTreeYes)); state.confirmDel = null; render(); return; }
+  if(d.term !== undefined){ state.term = d.term; render(); return; }
+  if(d.termClose !== undefined){ state.term = null; render(); return; }
   if(d.diagClose !== undefined){ diagState.symptom = null; render(); return; }
   if(d.tab){
     const applyTab = () => {
@@ -1880,16 +1979,18 @@ else if(d.go){ state.screen = d.go; if(d.go === 'quiz') startQuiz(); if(d.go ===
     const val = id => { const el = document.getElementById(id); return el ? el.value : undefined; };
     const sortId = D.sortId || '';
     const customName = sortId ? '' : String(val('f-custom') ?? D.customName ?? '').trim();
-    const year = parseInt(val('f-year') ?? D.year);
-    const place = String(val('f-place') ?? D.place ?? '').trim();
-    const root = String(val('f-root') ?? D.root ?? '');
-    if ((!sortId && !customName) || !year || year < 1900 || year > new Date().getFullYear()) { state.formError = 'Выберите сорт из списка или впишите своё название и укажите год посадки (от 1900 до текущего).'; render(); return; }
+    const year = parseInt(val('f-year') || D.year);
+    const place = String(val('f-place') || D.place || '').trim();
+    const root = String(D.root ?? '');
+    const unit = D.unit === 'ha' ? 'ha' : 'trees';
+    const count = parseFloat(String(val('f-count') || D.count || '').replace(',', '.'));
+    if ((!sortId && !customName) || !year || year < 1900 || year > new Date().getFullYear() || !(count > 0)) { state.formError = 'Выберите сорт (или впишите свой), укажите сколько деревьев или гектаров и год посадки.'; render(); return; }
     const garden = getGarden();
     if (state.editTree) {
       const i = garden.findIndex(x => x.id === state.editTree);
-      if (i >= 0) garden[i] = {...garden[i], sortId, customName, year, place, root};
+      if (i >= 0) garden[i] = {...garden[i], sortId, customName, year, place, root, unit, count};
     } else {
-      garden.push({ id: Date.now().toString(), sortId, customName, year, place, root });
+      garden.push({ id: Date.now().toString(), sortId, customName, year, place, root, unit, count });
     }
     saveGarden(garden);
     state.formOpen = false; state.editTree = null; state.formError = '';
@@ -1932,7 +2033,7 @@ function applyGpick(q, listId = 'f-list', noneId = 'f-none', sel = '.gpick'){
   box.querySelectorAll(sel).forEach(r => { const ok = !q || String(r.getAttribute('data-s') || '').includes(q); r.hidden = !ok; if(ok) n++; });
   const none = document.getElementById(noneId); if(none) none.hidden = n > 0;
 }
-const gdraftField = {'f-custom': 'customName', 'f-year': 'year', 'f-place': 'place', 'f-root': 'root'};
+const gdraftField = {'f-custom': 'customName', 'f-year': 'year', 'f-place': 'place', 'f-count': 'count'};
 app.addEventListener('change', e => { const k = gdraftField[e.target && e.target.id]; if(k && state.gdraft) state.gdraft[k] = e.target.value; });
 app.addEventListener('input', e => {
   if(e.target.id === 'f-search'){ applyGpick(e.target.value); return; }
