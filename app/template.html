@@ -191,6 +191,29 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .gpicked{display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid var(--basics);border-radius:16px;background:var(--surface)}
 .gsearch{margin:0 0 8px}
 .gsearch input{padding-left:44px!important}
+.cmp-card-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0 4px}
+.cmp-add{padding:9px 14px;border-radius:99px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font-weight:700;font-size:14px}
+.cmp-add.on{border-color:var(--basics);color:var(--basics)}
+.cmp-hint{font-size:13px;color:var(--muted)}
+.cmp-chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.cmp-chip{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 12px;border-radius:99px;background:var(--surface);border:1px solid var(--line);font-weight:700;font-size:14px}
+.cmp-x{width:26px;height:26px;border-radius:50%;border:0;background:var(--bg);color:var(--muted);font-size:17px;line-height:1;padding:0}
+.cmp-dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none}
+.cmp-list{max-height:240px;margin-bottom:14px}
+.cmp-main{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:14px 16px;margin:0 0 12px}
+.cmp-main .gsum-h{margin-top:2px}
+.cmp-vs{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.cmp-v{position:relative;padding:10px 12px 10px 14px;border-radius:14px;background:var(--bg);font-size:14.5px;line-height:1.45;border-left:4px solid var(--line)}
+.cmp-v.cmp-ok{border-left-color:#2E8B57}.cmp-v.cmp-warn{border-left-color:#C0392B}.cmp-v.cmp-star{border-left-color:#E0A100}.cmp-v.cmp-kbr{border-left-color:var(--basics)}.cmp-v.cmp-season,.cmp-v.cmp-keep{border-left-color:#3E7C8C}
+.cmp-row{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin:0 0 8px}
+.cmp-row .q-label{margin-bottom:6px}
+.cmp-val{display:flex;gap:9px;align-items:flex-start;padding:5px 0}
+.cmp-val .cmp-dot{margin-top:6px}
+.cmp-vn{display:block;font-size:12px;color:var(--muted);font-weight:650}
+.cmp-vt{display:block;font-size:15px;line-height:1.35}
+.cmp-vt .unk{color:var(--muted);font-size:14px}
+.cmp-best{color:#2E8B57}
+.cmp-open{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
 .qprog{height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin:-4px 0 10px}
 .qprog span{display:block;height:100%;background:var(--basics);border-radius:99px;transition:width .3s}
 .q-text{font-size:19px;font-weight:650;line-height:1.35;margin:4px 0 16px;letter-spacing:-.01em}
@@ -792,6 +815,9 @@ function home(){
         <button class="tool" data-go="quiz">${svgIcon('bulb')}<span><b>Тренажёр</b><small>проверь знания</small></span></button>
       </div>
       <div class="slim-row">
+        <button class="slim-btn" data-go="compare">${svgIcon('compare')}<span><b>Сравнение сортов</b><small>${cmpList.length ? 'выбрано: ' + cmpList.length : 'чем отличаются 2–3 сорта'}</small></span><i>›</i></button>
+      </div>
+      <div class="slim-row">
         <button class="slim-btn" data-go="cal">${svgIcon('calendar')}<span><b>Сейчас в саду · ${MONTHS[nowMonth-1]}</b><small>${firstTask}</small></span><i>›</i></button>
       </div>
       <p class="note">Справочник — рабочий помощник. Перед применением средств защиты растений сверяйтесь с актуальной инструкцией и региональными рекомендациями.</p>
@@ -815,7 +841,7 @@ function catalogScreen(){
 }
 
 function bottomNav(){
-  const active = state.screen === 'home' ? 'home' : state.screen === 'catalog' || state.screen === 'cat' || state.screen === 'detail' || state.screen === 'pests' || state.screen === 'pest' || state.screen === 'basics' || state.screen === 'topic' || state.screen === 'favs' || state.screen === 'quiz' || state.screen === 'diag' ? 'catalog' : state.screen === 'cal' ? 'cal' : state.screen === 'garden' ? 'garden' : 'home';
+  const active = state.screen === 'home' ? 'home' : state.screen === 'catalog' || state.screen === 'cat' || state.screen === 'detail' || state.screen === 'pests' || state.screen === 'pest' || state.screen === 'basics' || state.screen === 'topic' || state.screen === 'favs' || state.screen === 'compare' || state.screen === 'quiz' || state.screen === 'diag' ? 'catalog' : state.screen === 'cal' ? 'cal' : state.screen === 'garden' ? 'garden' : 'home';
   return `<nav class="bottom-nav" aria-label="Основная навигация">
     <button class="tab-item ${active==='home'?'active':''}" data-tab="home"><span class="tab-icon">${svgIcon('house')}</span><span>Главная</span></button>
     <button class="tab-item ${active==='catalog'?'active':''}" data-tab="catalog"><span class="tab-icon">${svgIcon('book')}</span><span>Справочник</span></button>
@@ -900,6 +926,7 @@ function detail(){
     <h2 class="d-title serif">${v.name}</h2>
     <p class="d-cap">${v.cat === 'orn' ? `<i>${v.latin}</i> · ${v.kind}` : (v.taste ? v.taste : 'Характеристики и особенности сорта')}</p>
     ${v.cat !== 'orn' && v.scab === 'res' ? `<span class="scab-chip">${svgIcon('leaf')} Устойчив к парше</span>` : ''}
+    ${v.cat !== 'orn' ? `<div class="cmp-card-row"><button class="cmp-add ${cmpList.includes(v.id) ? 'on' : ''}" data-cmp-toggle="${v.id}">${cmpList.includes(v.id) ? '✓ В сравнении' : '+ Сравнить'}</button>${cmpList.length >= 2 && cmpList.includes(v.id) ? `<button class="vlink" data-go="compare">Открыть сравнение (${cmpList.length}) ›</button>` : cmpList.length && !cmpList.includes(v.id) ? `<span class="cmp-hint">в сравнении: ${cmpList.length}</span>` : ''}</div>` : ''}
 
     ${v.cat === 'orn' ? `<div class="quickfacts" aria-label="Главные характеристики растения">
       ${quick('ВЫСОТА',v.height)}
@@ -1116,6 +1143,108 @@ function gardenScreen(){
     ${garden.length ? gardenSummary(garden) : ''}
     <button class="add-btn" data-add-tree>+ Добавить дерево</button>
     ${garden.length ? `<div class="my-garden-list">${garden.map(item).join('')}</div>` : `<div class="empty-garden"><h3>Тут пока пусто</h3><p>Добавьте свои деревья: приложение посчитает их возраст, подскажет сроки съёма и работы на этот месяц.</p></div>`}
+  </div>`;
+}
+
+/* ---------- Сравнение сортов: 2–3 сорта рядом и короткие выводы по данным карточек ---------- */
+const CMP_MAX = 3, CMP_COL = ['#2C4A3E', '#B3262E', '#3E7C8C'];
+let cmpList = [];
+try { cmpList = JSON.parse(localStorage.getItem('sad-cmp') || '[]').filter(id => VARIETIES.some(v => v.id === id)).slice(0, CMP_MAX); } catch(e) {}
+const saveCmp = () => { try { localStorage.setItem('sad-cmp', JSON.stringify(cmpList)); } catch(e) {} };
+function cmpToggle(id){
+  if(cmpList.includes(id)) cmpList = cmpList.filter(x => x !== id);
+  else { cmpList.push(id); if(cmpList.length > CMP_MAX) cmpList.shift(); }
+  saveCmp();
+}
+const cmpName = v => String(v.name).replace(/\s*\(.*?\)\s*/g, ' ').trim();
+const cmpKnown = x => x && !/^\s*уточн/i.test(String(x));
+const CMP_MONTHS = [['январ',1],['феврал',2],['март',3],['апрел',4],['ма[яй]',5],['июн',6],['июл',7],['август',8],['сентябр',9],['октябр',10],['ноябр',11],['декабр',12]];
+// до какого месяца хранится: «до февраля» → 2; порядок считаем от августа (начала уборки)
+const cmpKeepMonth = s => { const m = String(s || '').toLowerCase().match(/до\s+(январ|феврал|март|апрел|ма[яй]|июн|июл|август|сентябр|октябр|ноябр|декабр)/); if(!m) return null; const f = CMP_MONTHS.find(([w]) => new RegExp('^' + w).test(m[1])); return f ? f[1] : null; };
+const cmpKeepOrder = m => (m + 12 - 8) % 12;
+const MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const cmpTaste = v => v.tasting ? parseFloat(String(v.tasting.score).replace(',', '.')) : NaN;
+const dot = i => `<i class="cmp-dot" style="background:${CMP_COL[i]}"></i>`;
+const nm = (v, i) => `<b style="color:${CMP_COL[i]}">${cmpName(v)}</b>`;
+
+function cmpVerdicts(vs){
+  const out = [];
+  const idx = v => vs.indexOf(v);
+  const cats = [...new Set(vs.map(v => v.cat))];
+  if(cats.length > 1) out.push(['info', `Сравниваются разные культуры: ${cats.map(c => catById[c].title.toLowerCase()).join(' и ')}.`]);
+  // сроки: созревают по очереди или одновременно
+  const order = {'Летние': 0, 'Осенние': 1, 'Зимние': 2}, word = {'Летние': 'летний', 'Осенние': 'осенний', 'Зимние': 'зимний'};
+  const bySeason = vs.map(v => ({v, k: seasonKey(v.season || '')}));
+  const kinds = [...new Set(bySeason.map(x => x.k))];
+  if(kinds.length === 1) out.push(['season', `Все сорта одного срока (${word[kinds[0]]}): урожай придётся снимать почти одновременно.`]);
+  else {
+    const plw = {'Летние': 'летние', 'Осенние': 'осенние', 'Зимние': 'зимние'};
+    const groups = Object.keys(order).map(k => bySeason.filter(x => x.k === k)).filter(g => g.length);
+    out.push(['season', 'Созревают по очереди: ' + groups.map((g, gi) => (gi === 0 ? 'сначала ' : 'затем ') + g.map(x => nm(x.v, idx(x.v))).join(' и ') + ` (${g.length > 1 ? plw[g[0].k] : word[g[0].k]})`).join(', ') + '. Урожай растянется на сезон.']);
+  }
+  // парша
+  const fruit = vs.filter(v => v.cat !== 'orn'), res = fruit.filter(v => v.scab === 'res');
+  if(res.length === fruit.length) out.push(['ok', 'Все выбранные сорта устойчивы к парше.']);
+  else if(res.length) out.push(['ok', `${res.length > 1 ? 'Устойчивы' : 'Устойчив'} к парше: ${res.map(v => nm(v, idx(v))).join(', ')}. Сортам без устойчивости весной нужны защитные обработки.`]);
+  else out.push(['warn', 'Устойчивых к парше среди них нет: всем нужны защитные обработки.']);
+  // вкус по ВНИИСПК
+  const tasted = vs.filter(v => !isNaN(cmpTaste(v)));
+  if(tasted.length >= 2){
+    const best = tasted.slice().sort((a, b) => cmpTaste(b) - cmpTaste(a));
+    if(cmpTaste(best[0]) - cmpTaste(best[1]) >= 0.1) out.push(['star', `Вкус по дегустации ВНИИСПК выше: ${nm(best[0], idx(best[0]))} — ${best[0].tasting.score} из 5, ${best.slice(1).map(v => cmpName(v) + ' — ' + v.tasting.score).join(', ')}.`]);
+    else out.push(['star', `Дегустационные оценки вкуса почти равны: ${tasted.map(v => cmpName(v) + ' — ' + v.tasting.score).join(', ')}.`]);
+  } else if(tasted.length === 1) out.push(['star', `Дегустационная оценка вкуса есть только для сорта ${nm(tasted[0], idx(tasted[0]))}: ${tasted[0].tasting.score} из 5.`]);
+  // лёжкость
+  const kept = vs.map(v => ({v, m: cmpKeepMonth(v.keep)})).filter(x => x.m);
+  if(kept.length >= 2){
+    const s = kept.slice().sort((a, b) => cmpKeepOrder(b.m) - cmpKeepOrder(a.m));
+    if(s[0].m !== s[1].m) out.push(['keep', `Дольше хранится ${nm(s[0].v, idx(s[0].v))}: до ${MONTHS_GEN[s[0].m - 1]}${s.slice(1).map(x => `, ${cmpName(x.v)} — до ${MONTHS_GEN[x.m - 1]}`).join('')}.`]);
+  }
+  // КБР
+  const kbr = vs.filter(v => v.kbr);
+  if(kbr.length) out.push(['kbr', `Селекция Кабардино-Балкарии: ${kbr.map(v => nm(v, idx(v))).join(', ')}.`]);
+  const trial = vs.filter(v => (v.facts || []).some(f => /Опыт в (КБР|Нальчике)|опытном саду КБГАУ/.test(f)));
+  if(trial.length) out.push(['kbr', `Есть данные из садов КБР: ${trial.map(v => nm(v, idx(v))).join(', ')} — смотрите «Особенности» в карточке.`]);
+  // черновики
+  const drafts = vs.filter(v => v.status === 'draft');
+  if(drafts.length) out.push(['warn', `Не проверено по источникам: ${drafts.map(v => nm(v, idx(v))).join(', ')}. Сравнивайте с осторожностью.`]);
+  return out;
+}
+
+function compareScreen(){
+  const vs = cmpList.map(id => VARIETIES.find(v => v.id === id)).filter(Boolean);
+  const head = `<div class="bar"><button class="back" data-back="home">‹ Назад</button><h2 class="serif">Сравнение</h2></div>`;
+  const chips = vs.map((v, i) => `<div class="cmp-chip">${dot(i)}<span>${cmpName(v)}</span><button class="cmp-x" data-cmp-toggle="${v.id}" aria-label="Убрать ${cmpName(v)} из сравнения">×</button></div>`).join('');
+  const pool = VARIETIES.filter(v => v.cat !== 'orn' && !cmpList.includes(v.id)).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+  const picker = vs.length < CMP_MAX ? `<div class="search gsearch"><input id="cmp-search" type="search" autocomplete="off" placeholder="${vs.length ? 'Добавить сорт: начните вводить…' : 'Выберите 2–3 сорта: начните вводить…'}" aria-label="Поиск сорта для сравнения"></div>
+    <div class="gpick-list cmp-list" id="cmp-list">${pool.map(v => `<button class="gpick" data-cmp-add="${v.id}" data-s="${searchText(v)}">${thumb(v)}<span class="info"><span class="name">${v.name}</span><span class="meta">${catById[v.cat].title}${v.kbr ? ' · КБР' : ''}</span></span></button>`).join('')}<div class="empty" id="cmp-none" hidden>Ничего не найдено.</div></div>` : '';
+  if(vs.length < 2) return `<div class="view">${head}
+    <p class="b-intro">Выберите 2–3 сорта: приложение покажет их рядом и подскажет, чем они отличаются. Добавлять можно и из карточки сорта, кнопкой «Сравнить».</p>
+    ${chips ? `<div class="cmp-chips">${chips}</div>` : ''}${picker}</div>`;
+  const ICO = {season: 'calendar', ok: 'leaf', warn: 'leaf', star: 'star', keep: 'calendar', kbr: 'heart', info: 'search'};
+  const verdicts = cmpVerdicts(vs).map(([k, t]) => `<li class="cmp-v cmp-${k}">${t}</li>`).join('');
+  const val = x => cmpKnown(x) ? x : '<span class="unk">Уточнить</span>';
+  const best = {};
+  const tastes = vs.map(cmpTaste); const tMax = Math.max(...tastes.filter(x => !isNaN(x)));
+  const rows = [
+    ['Срок созревания', v => val(v.season)],
+    ['Лёжкость', v => val(v.keep)],
+    ['Вкус', v => val(v.taste)],
+    ['Оценка вкуса (ВНИИСПК)', (v, i) => v.tasting ? `<b class="${tastes[i] === tMax && vs.filter(x => x.tasting).length > 1 ? 'cmp-best' : ''}">${v.tasting.score} из 5</b>${v.tasting.look ? ` · внешний вид ${v.tasting.look}` : ''}` : '<span class="unk">нет данных</span>'],
+    ['Парша', v => v.scab === 'res' ? '<b class="cmp-best">Устойчив</b>' : 'Без устойчивости'],
+    ['Зимостойкость', v => val(v.hardy)],
+    ['Год', v => val(v.year)],
+    ['Происхождение', v => val(v.origin)],
+    ['Родители', v => val(v.parents)],
+  ];
+  const shownRows = rows.filter(([label]) => label !== 'Оценка вкуса (ВНИИСПК)' || vs.some(v => v.tasting)).filter(([label]) => !({'Лёжкость': 'keep', 'Вкус': 'taste', 'Зимостойкость': 'hardy', 'Год': 'year', 'Родители': 'parents'})[label] || vs.some(v => cmpKnown(v[{'Лёжкость': 'keep', 'Вкус': 'taste', 'Зимостойкость': 'hardy', 'Год': 'year', 'Родители': 'parents'}[label]])));
+  const table = shownRows.map(([label, f]) => `<section class="cmp-row"><p class="q-label">${label}</p>${vs.map((v, i) => `<div class="cmp-val">${dot(i)}<div><span class="cmp-vn">${cmpName(v)}</span><span class="cmp-vt">${f(v, i)}</span></div></div>`).join('')}</section>`).join('');
+  return `<div class="view">${head}
+    <div class="cmp-chips">${chips}</div>
+    ${picker}
+    <section class="cmp-main"><h3 class="gsum-h">Главное</h3><ul class="cmp-vs">${verdicts}</ul></section>
+    ${table}
+    <div class="cmp-open">${vs.map((v, i) => `<button class="vlink" data-id="${v.id}">${dot(i)} ${cmpName(v)} ›</button>`).join('')}</div>
   </div>`;
 }
 
@@ -1454,6 +1583,7 @@ ICONS.graft = '<path d="M10 21.2v-9.4M14 21.2v-9.4M9.2 21.2h5.6"/><path d="M10.8
 ICONS.rootstock = '<path d="M12 2.6c-2.3 0-4.1 1.7-4.1 3.8 0 .4.1.8.2 1.2-1 .6-1.6 1.6-1.6 2.8 0 1.9 1.6 3.3 3.6 3.3h3.8c2 0 3.6-1.4 3.6-3.3 0-1.2-.6-2.2-1.6-2.8.1-.4.2-.8.2-1.2 0-2.1-1.8-3.8-4.1-3.8z"/><path d="M12 13.7v5.5"/><path d="M10.5 16.1c1 .7 2 .7 3 0"/><path d="M5 19.2h14"/><path d="M12 19.2l-3 2.4M12 19.2l3 2.4M12 19.2v2.6"/>';
 ICONS.mountain = '<path d="M2.8 19.5l6.4-11 3.6 6 2.4-3.6 6 8.6z"/><path d="M7.4 11.6l1.8 1.2 1.6-1.4"/>';
 ICONS.scale = '<ellipse cx="12" cy="12" rx="7" ry="6"/><circle cx="12" cy="12" r="1.8"/><path d="M12 6v2.2M12 15.8V18M5 12h2.2M16.8 12H19"/>';
+ICONS.compare = '<path d="M4 20V11M10 20V5M16 20v-6M2 20h20"/>';
 ICONS.chevron = '<path d="M14.5 5.5L8 12l6.5 6.5"/>';
 ICONS.star = '<path d="M12 3.6l2.5 5.2 5.7.8-4.1 4 1 5.7-5.1-2.7-5.1 2.7 1-5.7-4.1-4 5.7-.8z"/>';
 ICONS.heart = '<path d="M12 20s-7.2-4.5-7.2-10.1A4.1 4.1 0 0 1 12 7.4a4.1 4.1 0 0 1 7.2 2.5C19.2 15.5 12 20 12 20z"/>';
@@ -1489,7 +1619,7 @@ function atmoHtml(){
 
 function screenHtml(withSprite){
   const scr = state.screen;
-  return swapEmoji((withSprite ? getSprite() : '') + atmoHtml() + (scr === 'home' ? home() : scr === 'catalog' ? catalogScreen() : scr === 'cat' ? category() : scr === 'favs' ? favsScreen() : scr === 'quiz' ? quizScreen() : scr === 'cal' ? calScreen() : scr === 'basics' ? basicsScreen() : scr === 'topic' ? topicScreen() : scr === 'pests' ? pestsScreen() : scr === 'pest' ? pestScreen() : scr === 'garden' ? gardenScreen() : scr === 'diag' ? diagScreen() : detail()) + bottomNav());
+  return swapEmoji((withSprite ? getSprite() : '') + atmoHtml() + (scr === 'home' ? home() : scr === 'catalog' ? catalogScreen() : scr === 'cat' ? category() : scr === 'favs' ? favsScreen() : scr === 'compare' ? compareScreen() : scr === 'quiz' ? quizScreen() : scr === 'cal' ? calScreen() : scr === 'basics' ? basicsScreen() : scr === 'topic' ? topicScreen() : scr === 'pests' ? pestsScreen() : scr === 'pest' ? pestScreen() : scr === 'garden' ? gardenScreen() : scr === 'diag' ? diagScreen() : detail()) + bottomNav());
 }
 
 let zoomOpen = false;
@@ -1676,6 +1806,8 @@ app.addEventListener('click', e => {
   if(d.themeToggle !== undefined){ toggleTheme(); render(); return; }
   if(d.q !== undefined){ state.query = d.q; render(); return; }
   if(d.editTree !== undefined){ state.editTree = d.editTree; state.formOpen = true; state.formError = ''; state.confirmDel = null; state.gdraft = null; render(); return; }
+  if(d.cmpToggle !== undefined){ cmpToggle(d.cmpToggle); render(); return; }
+  if(d.cmpAdd !== undefined){ if(!cmpList.includes(d.cmpAdd)) cmpToggle(d.cmpAdd); render(); return; }
   if(d.gpick !== undefined){ if(state.gdraft){ state.gdraft.sortId = d.gpick; state.gdraft.customName = ''; } state.formError = ''; render(); return; }
   if(d.gpickClear !== undefined){ if(state.gdraft) state.gdraft.sortId = ''; render(); return; }
   if(d.delTree !== undefined){ state.confirmDel = d.delTree; render(); return; }
@@ -1794,16 +1926,17 @@ function applyCq(){
   box.querySelectorAll('.row').forEach(r => { const ok = !q || String(r.getAttribute('data-s') || '').includes(q); r.hidden = !ok; if(ok) n++; });
   const none = document.getElementById('cq-none'); if(none) none.hidden = !(q && n === 0);
 }
-function applyGpick(q){
-  const box = document.getElementById && document.getElementById('f-list'); if(!box || !box.querySelectorAll) return;
+function applyGpick(q, listId = 'f-list', noneId = 'f-none', sel = '.gpick'){
+  const box = document.getElementById && document.getElementById(listId); if(!box || !box.querySelectorAll) return;
   q = String(q || '').trim().toLowerCase().replace(/ё/g, 'е'); let n = 0;
-  box.querySelectorAll('.gpick').forEach(r => { const ok = !q || String(r.getAttribute('data-s') || '').includes(q); r.hidden = !ok; if(ok) n++; });
-  const none = document.getElementById('f-none'); if(none) none.hidden = n > 0;
+  box.querySelectorAll(sel).forEach(r => { const ok = !q || String(r.getAttribute('data-s') || '').includes(q); r.hidden = !ok; if(ok) n++; });
+  const none = document.getElementById(noneId); if(none) none.hidden = n > 0;
 }
 const gdraftField = {'f-custom': 'customName', 'f-year': 'year', 'f-place': 'place', 'f-root': 'root'};
 app.addEventListener('change', e => { const k = gdraftField[e.target && e.target.id]; if(k && state.gdraft) state.gdraft[k] = e.target.value; });
 app.addEventListener('input', e => {
   if(e.target.id === 'f-search'){ applyGpick(e.target.value); return; }
+  if(e.target.id === 'cmp-search'){ applyGpick(e.target.value, 'cmp-list', 'cmp-none', '[data-cmp-add]'); return; }
   if(gdraftField[e.target.id]){ if(state.gdraft) state.gdraft[gdraftField[e.target.id]] = e.target.value; return; }
   if(e.target.id === 'cq'){ state.cq = e.target.value; applyCq(); return; }
   if(e.target.id === 'q'){ state.query = e.target.value; render(); }
