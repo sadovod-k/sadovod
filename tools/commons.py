@@ -12,21 +12,25 @@ W, H = 1080, 810
 
 def prepare(data, fit=False):
     """Обрезка по центру до 4:3, размер 1080x810, WebP (обычно 60–140 КБ).
-    fit=True — без обрезки: всё растение целиком, длинная сторона до 1080."""
+    fit=True — без обрезки: всё растение целиком, длинная сторона до 1600, качество выше."""
     from PIL import Image, ImageOps
     im = ImageOps.exif_transpose(Image.open(io.BytesIO(data))).convert('RGB')
     w, h = im.size
     if fit:
-        k = min(1, 1080 / max(w, h)); im = im.resize((max(1, round(w * k)), max(1, round(h * k))), Image.LANCZOS)
+        k = min(1, 1600 / max(w, h)); im = im.resize((max(1, round(w * k)), max(1, round(h * k))), Image.LANCZOS)
     elif w * 3 > h * 4:
         nw = round(h * 4 / 3); x0 = (w - nw) // 2; im = im.crop((x0, 0, x0 + nw, h))
     elif w * 3 < h * 4:
         nh = round(w * 3 / 4); y0 = (h - nh) // 2; im = im.crop((0, y0, w, y0 + nh))
     if not fit: im = im.resize((W, H), Image.LANCZOS)
     out = b''
-    for q in (80, 74, 68, 60):
+    qs, limit = ((88, 84, 80, 74), 380 * 1024) if fit else ((80, 74, 68, 60), 140 * 1024)
+    for q in qs:
         buf = io.BytesIO(); im.save(buf, 'WEBP', quality=q, method=6); out = buf.getvalue()
-        if len(out) <= 140 * 1024: break
+        if len(out) <= limit: break
+    if fit and len(out) > limit:                 # очень «шумное» фото: чуть уменьшить, чтобы приложение не тяжелело
+        im = im.resize((round(im.width * .8), round(im.height * .8)), Image.LANCZOS)
+        buf = io.BytesIO(); im.save(buf, 'WEBP', quality=78, method=6); out = buf.getvalue()
     return out
 
 
@@ -189,6 +193,7 @@ def localize(items, site, root):
                 _save(site, rel, data)
                 v['image'] = rel; v['imageCredit'] = _credit(rc, fit or bool(c.get('fit'))); v['imageSource'] = _source(rc)
                 if fit or c.get('fit'): v['imageFit'] = True
+                if c.get('caption'): v['imageCaption'] = c['caption']
                 del v['commons']; done += 1
             elif rc:
                 v['commons'] = rc            # не скачалось: останется ссылка на фото в интернете, уже с автором
@@ -204,7 +209,7 @@ def localize(items, site, root):
                 if data:
                     rel = f"photos/c-{v['id']}-{n}.webp"
                     _save(site, rel, data)
-                    out.append({'src': rel, 'credit': _credit(rc, fit or bool(g.get('fit'))), 'source': _source(rc), 'caption': g.get('caption') or 'Плод', **({'fit': True} if fit or g.get('fit') else {})}); done += 1
+                    out.append({'src': rel, 'credit': _credit(rc, fit or bool(g.get('fit'))), 'source': _source(rc), 'caption': g.get('caption') or ('' if fit else 'Плод'), **({'fit': True} if fit or g.get('fit') else {})}); done += 1
                 elif rc:
                     out.append(dict(g, **{k: rc[k] for k in ('author', 'license')}))
             v['gallery'] = out
