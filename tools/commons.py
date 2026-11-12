@@ -57,6 +57,14 @@ def download(name, local_dir=None):
                 break                       # 403, 404 и т. п. повторять нет смысла
             except Exception as e:
                 problems.append('ширина %d: %s' % (width, e)); time.sleep(2 * (attempt + 1))
+    # маленький исходник (меньше 960 px): уменьшенной копии нет, берём сам файл
+    url = 'https://commons.wikimedia.org/wiki/Special:FilePath/' + urllib.parse.quote(name)
+    try:
+        req = urllib.request.Request(url, headers={'User-Agent': UA})
+        with urllib.request.urlopen(req, timeout=40) as r:
+            return r.read()
+    except Exception as e:
+        problems.append('исходный файл: %s' % e)
     raise OSError('; '.join(problems[-3:]) or 'нет ответа')
 
 
