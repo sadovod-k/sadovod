@@ -62,6 +62,32 @@ def fit_square(im, size):
     bg.paste(fg, ((size - fg.width) // 2, (size - fg.height) // 2))
     return bg
 
+FONT_URLS = {   # шрифт Manrope (лицензия SIL OFL 1.1): кладётся в сайт, чтобы работал без интернета
+    'Manrope.ttf': 'https://github.com/google/fonts/raw/main/ofl/manrope/Manrope%5Bwght%5D.ttf',
+    'OFL.txt': 'https://github.com/google/fonts/raw/main/ofl/manrope/OFL.txt',
+}
+
+def add_fonts(site):
+    """Копирует шрифт из static/fonts, а если его там нет, скачивает с GitHub (Google Fonts).
+    Не скачался — не страшно: приложение возьмёт системный шрифт телефона."""
+    import urllib.request
+    dst = os.path.join(site, 'fonts'); os.makedirs(dst, exist_ok=True)
+    local = os.path.join(ROOT, 'static', 'fonts')
+    for name, url in FONT_URLS.items():
+        src = os.path.join(local, name)
+        if os.path.exists(src):
+            shutil.copy(src, os.path.join(dst, name)); continue
+        if os.environ.get('SADOVOD_OFFLINE') == '1':
+            print('  предупреждение: шрифт %s не скачан (режим без сети), будет системный шрифт' % name); continue
+        try:
+            req = urllib.request.Request(url, headers={'User-Agent': 'sadovod-build/1.0'})
+            with urllib.request.urlopen(req, timeout=40) as r: data = r.read()
+            open(os.path.join(dst, name), 'wb').write(data)
+            print('  шрифт: %s скачан (%d КБ)' % (name, len(data) // 1024))
+        except Exception as e:
+            print('  предупреждение: шрифт %s не скачался (%s), будет системный шрифт' % (name, e))
+    if not os.listdir(dst): os.rmdir(dst)
+
 def add_thumbs(items, site):
     """Маленькая копия главного фото (240x180) для строк списка: телефон рисует её мгновенно, большое фото только в карточке."""
     from PIL import Image, ImageOps
@@ -145,8 +171,9 @@ def main():
     shutil.copy(os.path.join(ROOT, 'static/apple-touch-icon.png'), os.path.join(site, 'apple-touch-icon.png'))
     for f in ('manifest.webmanifest', '_headers'):
         shutil.copy(os.path.join(ROOT, 'static', f), os.path.join(site, f))
+    add_fonts(site)
     app_files = ['./', 'index.html', 'manifest.webmanifest', 'apple-touch-icon.png']
-    for sub in ('icons', 'data', 'photos'):
+    for sub in ('icons', 'data', 'photos', 'fonts'):
         d = os.path.join(site, sub)
         if os.path.isdir(d): app_files += [sub + '/' + f for f in sorted(os.listdir(d))]
     # контрольная сумма каждого фото: телефон перекачивает только новые и изменённые фото
