@@ -693,7 +693,10 @@
   "src": "RHS (Prunus serrulata и сорта); World Plants (Prunus serrulata и сорт «Shimidsu Sakura»)",
   "cat": "orn",
   "status": "verified",
-  "checked": "2026-10"
+  "checked": "2026-10",
+  "commons": {
+   "file": "Prunus serrulata (26575070436).jpg"
+  }
  },
  {
   "cat": "orn",
