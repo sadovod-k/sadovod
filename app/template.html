@@ -630,6 +630,10 @@ body{-webkit-hyphens:manual;hyphens:manual;overflow-wrap:break-word;word-break:n
 .sortbar button[aria-pressed="true"]{background:rgba(44,74,62,.10);color:#2C4A3E}
 :root[data-theme="dark"] .sortbar button[aria-pressed="true"]{background:rgba(140,197,166,.14);color:#8CC5A6}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sortbar button[aria-pressed="true"]{background:rgba(140,197,166,.14);color:#8CC5A6}}
+.quickfact .q-value{font-size:20px;font-weight:650;line-height:1.22}
+.quickfact.q-long .q-value{font-size:17px;font-weight:650;line-height:1.3}
+.quickfact .q-sub{display:block;margin-top:6px;font-size:14px;font-weight:500;line-height:1.42;color:var(--muted)}
+.quickfact .q-sub::first-letter{text-transform:uppercase}
 </style>
 </head>
 <body>
@@ -946,6 +950,26 @@ function sortList(list, mode){
   return arr.sort((a, b) => (b.image ? 1 : 0) - (a.image ? 1 : 0) || base(a, b));   // фото в списке есть у тех, у кого есть image
 }
 
+// главное значение и пояснение: делим по первой скобке в конце, двоеточию, точке с запятой или запятой.
+// Слова не меняются — только раскладка: главное крупно, остальное мельче вторым планом.
+function splitValue(v){
+  const s = String(v).trim();
+  if(/[<>]/.test(s) || s.length < 14) return [s, ''];
+  const cand = [];
+  const p = s.indexOf(' (');
+  if(p > 2 && s.endsWith(')') && s.indexOf(')') === s.length - 1) cand.push([p, s.slice(0, p), s.slice(p + 2, -1)]);
+  for(const sep of [': ', '; ', ', ']){
+    const k = s.indexOf(sep);
+    if(k > 2) cand.push([k, s.slice(0, k), s.slice(k + sep.length)]);
+  }
+  const dm = s.match(/[а-яё]{4,}\. (?=[А-ЯЁ])/);            // конец первого предложения (не сокращение вроде «им.»)
+  if(dm) cand.push([dm.index + dm[0].length - 2, s.slice(0, dm.index + dm[0].length - 2), s.slice(dm.index + dm[0].length)]);
+  const ok = cand.filter(([k, m, r]) => m.length <= (k === s.indexOf(', ') ? 26 : 34) && r.trim().length >= 3 && (m.split('(').length === m.split(')').length));
+  if(!ok.length) return [s, ''];
+  ok.sort((a, b) => a[0] - b[0]);
+  return [ok[0][1].trim(), ok[0][2].trim()];
+}
+
 function category(){
   const c = catById[state.cat];
   const list = VARIETIES.filter(v => v.cat === c.id);
@@ -999,7 +1023,12 @@ function detail(){
   const illus = [];   // чужие фото вместо фото сорта не показываем
   const shown = photos.length ? photos : illus;
   const credits = photoCredits(photos) || (illus.length ? 'Иллюстрация: личный архив автора. На фото не этот сорт.' : '');
-  const quick = (label, value, note='', cls='') => { const L = String(value || '').length; cls = (cls || (L > 64 ? 'wide' : '')) + (L > 16 ? ' q-long' : ''); return `<div class="quickfact ${cls}"><span class="q-label">${label}</span><span class="q-value${!value || /^уточнить$/i.test(String(value).trim()) ? ' unk' : ''}">${value || 'Уточнить'}</span>${note ? `<span class="q-note">${note}</span>` : ''}</div>`; };
+  const quick = (label, value, note='', cls='') => {
+    const unk = !value || /^уточнить$/i.test(String(value).trim());
+    const [main, rest] = unk ? [value || 'Уточнить', ''] : splitValue(value);
+    const L = String(main).length;
+    cls = (cls || (L > 40 ? 'wide' : '')) + (L > 18 ? ' q-long' : '');
+    return `<div class="quickfact ${cls}"><span class="q-label">${label}</span><span class="q-value${unk ? ' unk' : ''}">${main}</span>${rest ? `<span class="q-sub">${rest}</span>` : ''}${note ? `<span class="q-note">${note}</span>` : ''}</div>`; };
   return `<div class="view detail-view">
     <div class="hero-photo" style="--c:${c.color}">
       ${shown.length
