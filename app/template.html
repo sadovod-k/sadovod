@@ -485,6 +485,7 @@ input,select,textarea{font-family:var(--font-sans)}
 .atmo[data-tone="home"]{--ta:rgba(111,163,124,.26);--tb:rgba(180,200,150,.18)}
 .atmo[data-tone="apple"]{--ta:rgba(217,82,63,.20);--tb:rgba(111,163,124,.22)}
 .atmo[data-tone="pear"]{--ta:rgba(185,194,59,.26);--tb:rgba(94,154,107,.20)}
+.atmo[data-tone="grape"]{--ta:rgba(110,84,170,.22);--tb:rgba(94,154,107,.18)}
 .atmo[data-tone="pest"]{--ta:rgba(176,122,75,.24);--tb:rgba(122,90,58,.16)}
 .atmo[data-tone="basics"]{--ta:rgba(79,154,116,.24);--tb:rgba(120,176,127,.16)}
 .atmo[data-tone="plan"]{--ta:rgba(62,124,140,.24);--tb:rgba(111,163,124,.16)}
@@ -609,7 +610,7 @@ const CATEGORIES = [
   {id:'basics', title:'Основы',   emoji:'📖', color:'var(--basics)',go:'basics'},
   {id:'pests',  title:'Болезни и вредители', emoji:'🐛', color:'var(--pest)', go:'pests'},
   {id:'stone',  title:'Косточковые', emoji:'🍒', color:'var(--stone)', soon:true},
-  {id:'grape',  title:'Виноград', emoji:'🍇', color:'var(--grape)', soon:true},
+  {id:'grape',  title:'Виноград', emoji:'🍇', color:'var(--grape)'},
   {id:'berry',  title:'Ягодники', emoji:'🍓', color:'var(--berry)', soon:true},
   {id:'veg',    title:'Овощи',    emoji:'🥕', color:'var(--veg)',   soon:true},
 ];
@@ -721,7 +722,7 @@ let SEARCH_INDEX = null;
 function buildSearchIndex(){
   const idx = [];
   VARIETIES.forEach(v => idx.push({type: v.cat === 'orn' ? 'orn' : 'variety', v, title: normText(v.name + ' ' + (v.latin || '')),
-    text: normText([v.name, v.latin, v.kind, catById[v.cat].title, v.origin, v.parents, v.season, v.taste, v.bloom, v.crown, v.light, v.soil, v.fun, (v.facts || []).join(' ')].join(' '))}));
+    text: normText([v.name, v.latin, v.kind, catById[v.cat].title, v.origin, v.parents, v.season, v.taste, v.use, v.berry, v.disease, v.bloom, v.crown, v.light, v.soil, v.fun, (v.facts || []).join(' ')].join(' '))}));
   PESTS.forEach(p => {
     const sy = DIAGNOSTICS.filter(d => d.pestId === p.id).map(d => d.symptom + ' ' + d.desc).join(' ');
     idx.push({type:'pest', p, title: normText(p.title + ' ' + (p.latin || '')),
@@ -812,7 +813,7 @@ function home(){
         ${dph ? `<img class="dh-img" src="${dph.src}" alt="" decoding="sync" style="${dph.pos ? 'object-position:' + dph.pos : ''}" onerror="this.style.display='none'">${ill ? '<span class="dh-illus">иллюстрация</span>' : ''}` : `<span class="dh-ph" aria-hidden="true">${dc.emoji}</span>`}
         <span class="dh-shade"></span>
         <span class="dh-top">${dc.id === 'orn' ? 'Растение дня' : 'Сорт дня'}</span>
-        <span class="dh-body"><span class="dh-name">${dp.name}</span><span class="dh-sub">${dc.title} · ${dp.season} · ${dp.y}</span></span>
+        <span class="dh-body"><span class="dh-name">${dp.name}</span><span class="dh-sub">${dc.title} · ${dp.season}${/^уточнить/i.test(String(dp.y || '')) ? '' : ' · ' + dp.y}</span></span>
       </button>
 
       <div class="section-heading" style="margin-top:26px"><h2>Каталог</h2><button data-tab="catalog">Весь каталог　›</button></div>
@@ -871,18 +872,22 @@ const searchText = v => [v.name, v.latin, v.parents, v.origin].filter(Boolean).j
 function rowHtml(v){
   return `<button class="row" data-id="${v.id}" data-s="${searchText(v)}">
     ${thumb(v)}
-    <div class="rtext"><div class="name serif">${v.name}</div><div class="meta">${v.season}${v.status === 'draft' ? ' · <span class="draft-tag">черновик</span>' : ''}</div></div>
+    <div class="rtext"><div class="name serif">${v.name}</div><div class="meta">${v.season}${v.cat === 'grape' && v.use ? ' · ' + v.use.split(',')[0].replace(/\s*\(.*\)/, '').toLowerCase() : ''}${v.status === 'draft' ? ' · <span class="draft-tag">черновик</span>' : ''}</div></div>
     <span class="yr">${favs.has(v.id) ? '♥ ' : ''}${/^уточнить/i.test(String(v.y || '')) ? (v.kbr ? 'КБР' : '') : v.y}</span>
   </button>`;
 }
+
+// виноград: группа по сроку созревания («очень ранний» и «среднеранний» идут в ранние)
+function grapeRipe(s){ s = String(s || '').toLowerCase(); return /ранн/.test(s) ? 'Ранние' : /поздн/.test(s) ? 'Поздние' : /средн/.test(s) ? 'Средние' : ''; }
 
 function category(){
   const c = catById[state.cat];
   const list = VARIETIES.filter(v => v.cat === c.id);
   const isOrn = c.id === 'orn';
   const hasKbr = list.some(v => v.kbr);
-  const filters = isOrn ? ['Все','Деревья','Кустарники', ...(list.some(v => v.kind === 'Лиана') ? ['Лианы'] : []),'Проверенные'] : ['Все', ...(hasKbr ? ['Сорта КБР'] : []), 'Проверенные','Летние','Осенние','Зимние','Устойчивые к парше'];
-  const shown = state.filter === 'Все' ? list : state.filter === 'Сорта КБР' ? list.filter(v => v.kbr) : state.filter === 'Проверенные' ? list.filter(v => v.status !== 'draft') : state.filter === 'Деревья' ? list.filter(v => v.kind === 'Дерево') : state.filter === 'Лианы' ? list.filter(v => v.kind === 'Лиана') : state.filter === 'Кустарники' ? list.filter(v => v.kind === 'Кустарник') : state.filter === 'Устойчивые к парше' ? list.filter(v => v.scab === 'res') : list.filter(v => seasonKey(v.season) === state.filter);
+  const isGrape = c.id === 'grape';
+  const filters = isGrape ? ['Все','Проверенные','Столовые','Технические','Ранние','Средние','Поздние'] : isOrn ? ['Все','Деревья','Кустарники', ...(list.some(v => v.kind === 'Лиана') ? ['Лианы'] : []),'Проверенные'] : ['Все', ...(hasKbr ? ['Сорта КБР'] : []), 'Проверенные','Летние','Осенние','Зимние','Устойчивые к парше'];
+  const shown = state.filter === 'Все' ? list : state.filter === 'Сорта КБР' ? list.filter(v => v.kbr) : state.filter === 'Проверенные' ? list.filter(v => v.status !== 'draft') : state.filter === 'Деревья' ? list.filter(v => v.kind === 'Дерево') : state.filter === 'Лианы' ? list.filter(v => v.kind === 'Лиана') : state.filter === 'Кустарники' ? list.filter(v => v.kind === 'Кустарник') : state.filter === 'Устойчивые к парше' ? list.filter(v => v.scab === 'res') : state.filter === 'Столовые' ? list.filter(v => /столов/i.test(v.use || '')) : state.filter === 'Технические' ? list.filter(v => /технич/i.test(v.use || '')) : ['Ранние','Средние','Поздние'].includes(state.filter) ? list.filter(v => grapeRipe(v.season) === state.filter) : list.filter(v => seasonKey(v.season) === state.filter);
   return `<div class="view">
     <div class="bar"><button class="back" data-back="home">Назад</button><h2 class="serif">${c.title}</h2></div>
     ${CAT_PHOTOS[c.id] ? `<div class="cat-hero"><img src="${CAT_PHOTOS[c.id].src}" alt="" decoding="sync" style="object-position:${CAT_PHOTOS[c.id].pos}" onerror="this.style.display='none'"><div class="cat-hero-shade"></div><div class="cat-hero-t"><b>${c.title}</b><span>${list.length} ${plural(list.length)}</span></div></div>` : ''}
@@ -906,7 +911,7 @@ const commonsPhoto = c => {
 };
 const photoList = v => {
   const first = v.commons ? [{...commonsPhoto(v.commons), fit: v.cat === 'orn'}]
-              : v.image ? [{src:v.image, credit:v.imageCredit, source:v.imageSource, caption:v.imageCaption || (v.cat === 'orn' ? '' : 'Плод'), full:!!v.imageFull, fit:!!v.imageFit}] : [];
+              : v.image ? [{src:v.image, credit:v.imageCredit, source:v.imageSource, caption:v.imageCaption || (v.cat === 'orn' ? '' : v.cat === 'grape' ? 'Гроздь' : 'Плод'), full:!!v.imageFull, fit:!!v.imageFit}] : [];
   const more = (v.gallery || []).map(x => typeof x === 'string' ? {src:x} : x.file ? {...commonsPhoto(x), fit: v.cat === 'orn'} : x);
   return [...first, ...more];
 };
@@ -942,7 +947,7 @@ function detail(){
     <h2 class="d-title serif">${v.name}</h2>
     <p class="d-cap">${v.cat === 'orn' ? `<i>${v.latin}</i> · ${v.kind}` : (v.taste ? v.taste : 'Характеристики и особенности сорта')}</p>
     ${v.cat !== 'orn' && v.scab === 'res' ? `<span class="scab-chip">${svgIcon('leaf')} Устойчив к парше</span>` : ''}
-    ${v.cat !== 'orn' ? `<div class="cmp-card-row"><button class="cmp-add ${cmpList.includes(v.id) ? 'on' : ''}" data-cmp-toggle="${v.id}">${cmpList.includes(v.id) ? '✓ В сравнении' : '+ Сравнить'}</button>${cmpList.length >= 2 && cmpList.includes(v.id) ? `<button class="vlink" data-go="compare">Открыть сравнение (${cmpList.length}) ›</button>` : cmpList.length && !cmpList.includes(v.id) ? `<span class="cmp-hint">в сравнении: ${cmpList.length}</span>` : ''}</div>` : ''}
+    ${v.cat !== 'orn' && v.cat !== 'grape' ? `<div class="cmp-card-row"><button class="cmp-add ${cmpList.includes(v.id) ? 'on' : ''}" data-cmp-toggle="${v.id}">${cmpList.includes(v.id) ? '✓ В сравнении' : '+ Сравнить'}</button>${cmpList.length >= 2 && cmpList.includes(v.id) ? `<button class="vlink" data-go="compare">Открыть сравнение (${cmpList.length}) ›</button>` : cmpList.length && !cmpList.includes(v.id) ? `<span class="cmp-hint">в сравнении: ${cmpList.length}</span>` : ''}</div>` : ''}
 
     ${v.cat === 'orn' ? `<div class="quickfacts" aria-label="Главные характеристики растения">
       ${quick('ВЫСОТА',v.height)}
@@ -958,7 +963,17 @@ function detail(){
       ${prow('Зимостойкость', v.hardy)}
       ${prow('Происхождение', v.origin)}
       ${v.autumn ? prow('Осенью', v.autumn) : ''}
-    </dl>` : `<div class="quickfacts" aria-label="Главные характеристики сорта">
+    </dl>` : v.cat === 'grape' ? `<div class="quickfacts" aria-label="Главные характеристики сорта">
+      ${quick('СРОК СОЗРЕВАНИЯ',v.season)}
+      ${quick('НАЗНАЧЕНИЕ',v.use)}
+      ${quick('ЯГОДЫ',v.berry,'','wide')}
+      ${quick('МОРОЗОСТОЙКОСТЬ',v.hardy,'','wide')}
+      ${quick('УСТОЙЧИВОСТЬ К БОЛЕЗНЯМ',v.disease,'','wide')}
+      ${v.keep ? quick('ТРАНСПОРТАБЕЛЬНОСТЬ',v.keep) : ''}
+      ${quick('ГОД ПОЯВЛЕНИЯ',v.year,v.yearNote)}
+      ${quick('ПРОИСХОЖДЕНИЕ',v.origin,v.parents ? 'Родители: '+v.parents : '','wide')}
+    </div>
+    ${rateHtml(v)}` : `<div class="quickfacts" aria-label="Главные характеристики сорта">
       ${quick('СРОК СОЗРЕВАНИЯ',v.season)}
       ${quick('ЛЁЖКОСТЬ',v.keep)}
       ${quick('ЗИМОСТОЙКОСТЬ',v.hardy)}
@@ -1304,7 +1319,7 @@ function compareScreen(){
   const vs = cmpList.map(id => VARIETIES.find(v => v.id === id)).filter(Boolean);
   const head = `<div class="bar"><button class="back" data-back="home">‹ Назад</button><h2 class="serif">Сравнение</h2></div>`;
   const chips = vs.map((v, i) => `<div class="cmp-chip">${dot(i)}<span>${cmpName(v)}</span><button class="cmp-x" data-cmp-toggle="${v.id}" aria-label="Убрать ${cmpName(v)} из сравнения">×</button></div>`).join('');
-  const pool = VARIETIES.filter(v => v.cat !== 'orn' && !cmpList.includes(v.id)).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+  const pool = VARIETIES.filter(v => v.cat !== 'orn' && v.cat !== 'grape' && !cmpList.includes(v.id)).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
   const picker = vs.length < CMP_MAX ? `<div class="search gsearch"><input id="cmp-search" type="search" autocomplete="off" placeholder="${vs.length ? 'Добавить сорт: начните вводить…' : 'Выберите 2–3 сорта: начните вводить…'}" aria-label="Поиск сорта для сравнения"></div>
     <div class="gpick-list cmp-list" id="cmp-list">${pool.map(v => `<button class="gpick" data-cmp-add="${v.id}" data-s="${searchText(v)}">${thumb(v)}<span class="info"><span class="name">${v.name}</span><span class="meta">${catById[v.cat].title}${v.kbr ? ' · КБР' : ''}</span></span></button>`).join('')}<div class="empty" id="cmp-none" hidden>Ничего не найдено.</div></div>` : '';
   if(vs.length < 2) return `<div class="view">${head}
@@ -1350,7 +1365,7 @@ const QUIZ_LEN = 10;
 const qShuffle = a => { a = a.slice(); for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const qPick = a => a[Math.floor(Math.random() * a.length)];
 const qShort = v => String(v.name).replace(/\s*\(.*?\)\s*/g, ' ').trim();
-const qVerified = () => VARIETIES.filter(v => v.status === 'verified' && v.cat !== 'orn');
+const qVerified = () => VARIETIES.filter(v => v.status === 'verified' && (v.cat === 'apple' || v.cat === 'pear'));
 // вопрос: текст, варианты, номер верного, пояснение и ссылка на карточку или статью
 const qMake = (topic, q, right, wrong, ex, link, img) => {
   const opts = qShuffle([right, ...wrong]);
@@ -1689,8 +1704,8 @@ const swapEmoji = html => html.replace(/>([^<>]+)</g, (m, txt) => '>' + txt.repl
 /* ---------- Атмосфера: цветной тон раздела и размытое фото сорта ---------- */
 function toneName(){
   const s = state.screen;
-  if(s === 'cat') return state.cat === 'orn' ? 'orn' : state.cat === 'pear' ? 'pear' : 'apple';
-  if(s === 'detail'){ const v = VARIETIES.find(x => x.id === state.id); return v ? (v.cat === 'orn' ? 'orn' : v.cat === 'pear' ? 'pear' : 'apple') : 'home'; }
+  if(s === 'cat') return state.cat === 'orn' ? 'orn' : state.cat === 'pear' ? 'pear' : state.cat === 'grape' ? 'grape' : 'apple';
+  if(s === 'detail'){ const v = VARIETIES.find(x => x.id === state.id); return v ? (v.cat === 'orn' ? 'orn' : v.cat === 'pear' ? 'pear' : v.cat === 'grape' ? 'grape' : 'apple') : 'home'; }
   if(s === 'pests' || s === 'pest' || s === 'diag') return 'pest';
   if(s === 'basics' || s === 'topic' || s === 'garden') return 'basics';
   if(s === 'cal') return 'plan';
