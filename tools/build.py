@@ -53,6 +53,15 @@ def shrink(path, width, quality):
     buf = io.BytesIO(); im.save(buf, 'WEBP', quality=quality, method=6)
     return _b64(buf.getvalue())
 
+def fit_square(im, size):
+    """Квадратная миниатюра без обрезки: фото целиком по центру, вокруг его же размытая и чуть затемнённая копия."""
+    from PIL import Image, ImageOps, ImageFilter, ImageEnhance
+    bg = ImageOps.fit(im, (size, size), Image.LANCZOS).filter(ImageFilter.GaussianBlur(size // 10))
+    bg = ImageEnhance.Brightness(bg).enhance(0.8)
+    fg = im.copy(); fg.thumbnail((size, size), Image.LANCZOS)
+    bg.paste(fg, ((size - fg.width) // 2, (size - fg.height) // 2))
+    return bg
+
 def add_thumbs(items, site):
     """Маленькая копия главного фото (240x180) для строк списка: телефон рисует её мгновенно, большое фото только в карточке."""
     from PIL import Image, ImageOps
@@ -62,7 +71,10 @@ def add_thumbs(items, site):
         src = os.path.join(site, img)
         if not os.path.exists(src): continue
         rel = 'photos/s-' + os.path.splitext(os.path.basename(img))[0] + '.webp'
-        im = ImageOps.fit(Image.open(src).convert('RGB'), (240, 180), Image.LANCZOS)
+        if v.get('imageFit'):
+            im = fit_square(Image.open(src).convert('RGB'), 240)   # фото «целиком»: в квадрате видно всё, по краям размытый фон
+        else:
+            im = ImageOps.fit(Image.open(src).convert('RGB'), (240, 180), Image.LANCZOS)
         im.save(os.path.join(site, rel), 'WEBP', quality=72, method=6)
         v['thumb'] = rel
 
