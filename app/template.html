@@ -16,7 +16,7 @@
 <style>
 :root{
   --bg:#F2F4F1; --surface:#FFFFFF; --ink:#1A1D1A; --muted:#586159; --line:#E4E8E2;
-  --apple:#B3262E; --pear:#A9B02E; --stone:#7A3E5C; --grape:#4B3B7A; --berry:#C2417A; --veg:#D9822B; --basics:#2C4A3E; --plan:#3E7C8C; --pest:#8C4A2F;
+  --apple:#B3262E; --pear:#A9B02E; --stone:#7A3E5C; --grape:#243B6B; --berry:#C2417A; --veg:#D9822B; --basics:#2C4A3E; --plan:#3E7C8C; --pest:#8C4A2F;
   --on-tile:#FFFFFF; --font-sans: -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif; --font-serif: -apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;
 }
 
@@ -359,7 +359,7 @@ input,select,textarea{font-family:var(--font-sans)}
 .slide::before{content:attr(data-e);position:absolute;inset:0;display:grid;place-items:center;font-size:96px}
 .slide img{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:cover}
 .slide.fit img{object-fit:contain}
-.slide.fit img.fit-bg{position:absolute;inset:0;z-index:0;object-fit:cover;filter:blur(22px) brightness(.8) saturate(1.1);transform:scale(1.15)}
+.slide.fit img.fit-bg{position:absolute;inset:0;z-index:0;object-fit:cover;filter:blur(32px) brightness(.72) saturate(1.05);transform:scale(1.25)}
 .hero-emoji{height:100%;display:grid;place-items:center;font-size:104px}
 .hero-bar{position:absolute;z-index:3;left:14px;right:14px;top:12px;display:flex;align-items:center;justify-content:space-between}
 .hero-actions{display:flex;align-items:center;gap:8px}
@@ -485,7 +485,7 @@ input,select,textarea{font-family:var(--font-sans)}
 .atmo[data-tone="home"]{--ta:rgba(111,163,124,.26);--tb:rgba(180,200,150,.18)}
 .atmo[data-tone="apple"]{--ta:rgba(217,82,63,.20);--tb:rgba(111,163,124,.22)}
 .atmo[data-tone="pear"]{--ta:rgba(185,194,59,.26);--tb:rgba(94,154,107,.20)}
-.atmo[data-tone="grape"]{--ta:rgba(110,84,170,.22);--tb:rgba(94,154,107,.18)}
+.atmo[data-tone="grape"]{--ta:rgba(36,59,107,.20);--tb:rgba(94,154,107,.18)}
 .atmo[data-tone="pest"]{--ta:rgba(176,122,75,.24);--tb:rgba(122,90,58,.16)}
 .atmo[data-tone="basics"]{--ta:rgba(79,154,116,.24);--tb:rgba(120,176,127,.16)}
 .atmo[data-tone="plan"]{--ta:rgba(62,124,140,.24);--tb:rgba(111,163,124,.16)}
@@ -540,8 +540,8 @@ input,select,textarea{font-family:var(--font-sans)}
 .dh-illus{position:absolute;right:16px;top:16px;z-index:2;padding:5px 11px;border-radius:99px;background:rgba(0,0,0,.38);color:#fff;font-size:12px;font-weight:650}
 
 /* декоративные растения */
-:root{--orn:#7A6BA8}
-.atmo[data-tone="orn"]{--ta:rgba(122,107,168,.22);--tb:rgba(111,163,124,.20)}
+:root{--orn:#B85C82}
+.atmo[data-tone="orn"]{--ta:rgba(184,92,130,.20);--tb:rgba(111,163,124,.20)}
 
 .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .checked-note{font-size:13px;font-weight:600;color:#2F6B4F;margin:4px 0 0}
