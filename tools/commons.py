@@ -193,7 +193,7 @@ def localize(items, site, root):
 
     for v in items:
         c = v.get('commons')
-        fit = v.get('cat') == 'orn'              # декоративные растения: фото целиком, без обрезки
+        fit = v.get('cat') in ('orn', 'pear', 'grape')   # декоративные, груши и виноград: фото целиком, без обрезки
         if c and not v.get('image'):
             data, rc = prepare_one(c, v['id'], fit or bool(c.get('fit')))
             if data:
@@ -217,7 +217,7 @@ def localize(items, site, root):
                 if data:
                     rel = f"photos/c-{v['id']}-{n}.webp"
                     _save(site, rel, data)
-                    out.append({'src': rel, 'credit': _credit(rc, fit or bool(g.get('fit'))), 'source': _source(rc), 'caption': g.get('caption') or ('' if fit else 'Плод'), **({'fit': True} if fit or g.get('fit') else {})}); done += 1
+                    out.append({'src': rel, 'credit': _credit(rc, fit or bool(g.get('fit'))), 'source': _source(rc), 'caption': g.get('caption') or ('' if v.get('cat') == 'orn' else 'Гроздь' if v.get('cat') == 'grape' else 'Плод'), **({'fit': True} if fit or g.get('fit') else {})}); done += 1
                 elif rc:
                     out.append(dict(g, **{k: rc[k] for k in ('author', 'license')}))
             v['gallery'] = out
