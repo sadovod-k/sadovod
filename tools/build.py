@@ -155,7 +155,9 @@ def main():
     for d in (site, single): os.makedirs(d)
 
     # 1) сайт: данные отдельными файлами
-    version_label = datetime.date.today().strftime('%d.%m.%Y') + ' · ' + data_hash
+    # номер версии = номер сборки на GitHub (растёт с каждой загрузкой); код в конце нужен для сверки файлов
+    run = os.environ.get('GITHUB_RUN_NUMBER', '')
+    version_label = ('%s от ' % run if run else '') + datetime.date.today().strftime('%d.%m.%Y') + ' · код ' + data_hash
     html = template.replace('@@VERSION_LABEL@@', version_label).replace('/*@@VARIETIES@@*/', LOADER).replace('/*@@START@@*/', START_LOADER)
     open(os.path.join(site, 'index.html'), 'w', encoding='utf-8').write(html)
     if os.path.isdir(os.path.join(ROOT, 'photos')):
