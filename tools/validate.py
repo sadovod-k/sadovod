@@ -54,7 +54,7 @@ def validate(items=None):
         names[key] = True
 
         season = (v.get('season') or '').lower()
-        if season and is_grape and not any(w in season for w in ('ранн', 'средн', 'поздн')):
+        if season and is_grape and not any(w in season for w in ('ранн', 'средн', 'поздн', 'уточн')):
             err('в «season» у винограда должно быть слово «ранний», «средний» или «поздний» (по нему работает фильтр)')
         if season and not is_orn and not is_grape and not any(w in season for w in ('лет', 'осен', 'зим')):
             err('в «season» должно быть слово «лет…», «осен…» или «зим…» (по нему работает фильтр)')
@@ -104,7 +104,7 @@ def validate(items=None):
         for k in ('name', 'y', 'year', 'origin', 'season', 'hardy', 'keep', 'taste', 'src', 'fun', 'yearNote', 'parents'):
             if re.search(r'<\s*script', str(v.get(k, '')), re.I): err(f'в «{k}» запрещён тег script')
 
-        pending = [k for k in (('origin', 'hardy', 'autumn', 'height', 'crown', 'bloom') if is_orn else ('year', 'origin', 'hardy', 'disease', 'taste') if is_grape else ('year', 'origin', 'hardy', 'keep', 'taste')) if 'уточн' in str(v.get(k, '')).lower()]
+        pending = [k for k in (('origin', 'hardy', 'autumn', 'height', 'crown', 'bloom') if is_orn else ('year', 'season', 'origin', 'hardy', 'disease', 'taste') if is_grape else ('year', 'origin', 'hardy', 'keep', 'taste')) if 'уточн' in str(v.get(k, '')).lower()]
         if pending: warn('нужно уточнить: ' + ', '.join(pending))
     return errors, warnings
 
