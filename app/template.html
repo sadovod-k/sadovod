@@ -624,6 +624,12 @@ body{-webkit-hyphens:manual;hyphens:manual;overflow-wrap:break-word;word-break:n
 .cat-hero-t b{font-weight:800}
 .chip{font-weight:600}
 .tab-item{font-weight:600}
+.sortbar{display:flex;align-items:center;gap:4px;margin:-2px 0 10px;font-size:13px;color:var(--muted)}
+.sortbar span{margin-right:2px}
+.sortbar button{padding:5px 10px;border-radius:999px;font-size:13px;font-weight:600;color:var(--muted)}
+.sortbar button[aria-pressed="true"]{background:rgba(44,74,62,.10);color:#2C4A3E}
+:root[data-theme="dark"] .sortbar button[aria-pressed="true"]{background:rgba(140,197,166,.14);color:#8CC5A6}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sortbar button[aria-pressed="true"]{background:rgba(140,197,166,.14);color:#8CC5A6}}
 </style>
 </head>
 <body>
@@ -732,7 +738,7 @@ const doneSet = new Set();
 try { JSON.parse(localStorage.getItem('sad-done') || '[]').forEach(k => doneSet.add(k)); } catch(e) {}
 const saveDone = () => { try { localStorage.setItem('sad-done', JSON.stringify([...doneSet])); } catch(e) {} };
 const doneKey = (m, id) => new Date().getFullYear() + '-' + m + '-' + id;
-const state = {screen:'home', cat:null, id:null, filter:'Все', query:'', back:'home', quiz:null, month:nowMonth, topic:null, pest:null, pestFilter:'Все', formOpen: false, pestBack: 'pests', topicBack: 'basics', editTree: null, confirmDel: null, formError: ''};
+const state = {screen:'home', cat:null, id:null, filter:'Все', sort:'photo', query:'', back:'home', quiz:null, month:nowMonth, topic:null, pest:null, pestFilter:'Все', formOpen: false, pestBack: 'pests', topicBack: 'basics', editTree: null, confirmDel: null, formError: ''};
 const quizStats = {known:0, total:0};
 const favs = new Set();
 try { JSON.parse(localStorage.getItem('sad-favs') || '[]').forEach(id => favs.add(id)); } catch(e) {}
@@ -855,7 +861,7 @@ function home(){
   if(q){
     body = searchResultsHtml(state.query);
   } else {
-    const pool = VARIETIES.filter(v => v.status !== 'draft'); const list = pool.length ? pool : VARIETIES;
+    const pool = VARIETIES.filter(v => v.status !== 'draft'); const withPh = pool.filter(v => v.image); const list = withPh.length ? withPh : pool.length ? pool : VARIETIES;   // сорт дня — только с фото
     const dp = list[Math.floor(Date.now() / 86400000) % list.length];
     const dc = catById[dp.cat]; const own = photoList(dp)[0]; const ill = null; const dph = own || (ill ? {src: ill.src, pos: ill.pos} : null);
     const appleCount = count('apple'), pearCount = count('pear');
@@ -888,7 +894,7 @@ function home(){
         <button class="slim-btn" data-go="cal">${svgIcon('calendar')}<span><b>Сейчас в саду · ${MONTHS[nowMonth-1]}</b><small>${firstTask}</small></span><i>›</i></button>
       </div>
       <p class="note">Справочник — рабочий помощник. Перед применением средств защиты растений сверяйтесь с актуальной инструкцией и региональными рекомендациями.</p>
-      <p class="ver">Версия: ${APP_VERSION}</p>`;
+      <p class="ver">Версия ${APP_VERSION}</p>`;
   }
   return `<div class="view">
     <div class="hero-home"><h1>Крона</h1><p>Справочник садовода Кабардино-Балкарской Республики</p>${themeBtn('home-theme')}</div>
@@ -930,6 +936,16 @@ function rowHtml(v){
 // виноград: группа по сроку созревания («очень ранний» и «среднеранний» идут в ранние)
 function grapeRipe(s){ s = String(s || '').toLowerCase(); return /ранн/.test(s) ? 'Ранние' : /поздн/.test(s) ? 'Поздние' : /средн/.test(s) ? 'Средние' : ''; }
 
+// порядок в разделе: сначала с фото / по алфавиту / по году (сначала новые); при равенстве — исходный порядок
+const yearNum = v => { const m = String(v.year || v.y || '').match(/\b(1[5-9]\d\d|20\d\d)\b/); return m ? +m[1] : null; };
+function sortList(list, mode){
+  const idx = new Map(list.map((v, i) => [v.id, i])), base = (a, b) => idx.get(a.id) - idx.get(b.id);
+  const arr = list.slice();
+  if(mode === 'az') return arr.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+  if(mode === 'year') return arr.sort((a, b) => { const ya = yearNum(a), yb = yearNum(b); return ya === null && yb === null ? base(a, b) : ya === null ? 1 : yb === null ? -1 : yb - ya || base(a, b); });
+  return arr.sort((a, b) => (b.image ? 1 : 0) - (a.image ? 1 : 0) || base(a, b));   // фото в списке есть у тех, у кого есть image
+}
+
 function category(){
   const c = catById[state.cat];
   const list = VARIETIES.filter(v => v.cat === c.id);
@@ -939,6 +955,9 @@ function category(){
   const isGrape = c.id === 'grape';
   const filters = isGrape ? ['Все','Проверенные','Столовые','Технические','Ранние','Средние','Поздние'] : isOrn ? ['Все','Деревья','Кустарники', ...(list.some(v => v.kind === 'Лиана') ? ['Лианы'] : []),'Проверенные'] : ['Все', ...(hasKbr ? ['Сорта КБР'] : []), 'Проверенные','Летние','Осенние','Зимние','Устойчивые к парше'];
   const shown = state.filter === 'Все' ? list : state.filter === 'Сорта КБР' ? list.filter(v => v.kbr) : state.filter === 'Проверенные' ? list.filter(v => v.status !== 'draft') : state.filter === 'Деревья' ? list.filter(v => v.kind === 'Дерево') : state.filter === 'Лианы' ? list.filter(v => v.kind === 'Лиана') : state.filter === 'Кустарники' ? list.filter(v => v.kind === 'Кустарник') : state.filter === 'Устойчивые к парше' ? list.filter(v => v.scab === 'res') : state.filter === 'Столовые' ? list.filter(v => /столов/i.test(v.use || '')) : state.filter === 'Технические' ? list.filter(v => /технич/i.test(v.use || '')) : ['Ранние','Средние','Поздние'].includes(state.filter) ? list.filter(v => grapeRipe(v.season) === state.filter) : list.filter(v => seasonKey(v.season) === state.filter);
+  const sorts = isOrn || isGrape ? [['photo','с фото'],['az','А–Я']] : [['photo','с фото'],['az','А–Я'],['year','новые']];
+  const sortMode = sorts.some(s => s[0] === state.sort) ? state.sort : 'photo';
+  const sorted = sortList(shown, sortMode);
   return `<div class="view">
     <div class="bar"><button class="back" data-back="home">Назад</button><h2 class="serif">${c.title}</h2></div>
     ${cph ? `<div class="cat-hero"><img src="${cph.src}" alt="" decoding="sync" style="object-position:${cph.pos}" onerror="this.style.display='none'"><div class="cat-hero-shade"></div><div class="cat-hero-t"><b>${c.title}</b><span>${list.length} ${isOrn ? plantWord(list.length) : plural(list.length)}</span></div></div>${cph.credit ? `<details class="photo-credit cat-credit"><summary>Источники фото</summary><p>Обложка: ${cph.source ? `<a href="${cph.source}" target="_blank" rel="noopener">${cph.credit}</a>` : cph.credit}</p></details>` : ''}` : ''}
@@ -946,7 +965,8 @@ function category(){
     <div class="filters" role="group" aria-label="Срок созревания">
       ${filters.map(f => `<button class="chip" data-filter="${f}" aria-pressed="${state.filter===f}">${f}</button>`).join('')}
     </div>
-    <div id="cq-list">${shown.length ? shown.map(rowHtml).join('') : `<div class="empty">В этой группе пока нет сортов.</div>`}</div>
+    <div class="sortbar" role="group" aria-label="Порядок в списке"><span>Порядок:</span>${sorts.map(([k, n]) => `<button data-sort="${k}" aria-pressed="${sortMode === k}">${n}</button>`).join('')}</div>
+    <div id="cq-list">${sorted.length ? sorted.map(rowHtml).join('') : `<div class="empty">В этой группе пока нет сортов.</div>`}</div>
     <div class="empty" id="cq-none" hidden>Ничего не найдено. Попробуйте часть названия, например «гала».</div>
   </div>`;
 }
@@ -2026,6 +2046,7 @@ app.addEventListener('click', e => {
     state.back = ['cat','favs','cal','topic','pest','catalog'].includes(state.screen) ? state.screen : 'home';
     if(state.screen === 'home') state.cat = null;
     state.screen='detail'; state.id=d.id; }
+  else if(d.sort){ state.sort = d.sort; }
   else if(d.filter){ state.filter = d.filter; }
   else if(d.back){ 
     if (d.back === 'garden' && state.formOpen) {
