@@ -3,13 +3,14 @@
 import json, re, sys, os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FILES = {'apple': 'data/apple.json', 'pear': 'data/pear.json', 'orn': 'data/ornamental.json'}
-PREFIX = {'a': 'apple', 'p': 'pear', 'o': 'orn'}
+FILES = {'apple': 'data/apple.json', 'pear': 'data/pear.json', 'orn': 'data/ornamental.json', 'grape': 'data/grape.json'}
+PREFIX = {'a': 'apple', 'p': 'pear', 'o': 'orn', 'g': 'grape'}
 REQUIRED_ORN = ['id', 'cat', 'name', 'latin', 'kind', 'y', 'season', 'origin', 'height', 'crown', 'bloom', 'light', 'soil', 'water', 'hardy', 'src', 'status']
+REQUIRED_GRAPE = ['id', 'cat', 'name', 'y', 'year', 'origin', 'season', 'use', 'berry', 'hardy', 'disease', 'taste', 'src']
 REQUIRED_TEXT = ['id', 'cat', 'name', 'y', 'year', 'origin', 'season', 'hardy', 'keep', 'taste', 'src']
 KNOWN = set(REQUIRED_TEXT) | {'tasting', 'kbr', 'yearNote', 'parents', 'facts', 'care', 'fun', 'scab', 'image', 'imageCredit',
                               'imageSource', 'imageFull', 'imageCaption', 'commons', 'gallery', 'photo', 'photoCredit', 'status',
-                              'latin', 'kind', 'height', 'crown', 'bloom', 'light', 'soil', 'water', 'autumn', 'use', 'checked'}
+                              'latin', 'kind', 'height', 'crown', 'bloom', 'light', 'soil', 'water', 'autumn', 'use', 'checked', 'berry', 'disease'}
 
 def load_all():
     out = []
@@ -33,13 +34,14 @@ def validate(items=None):
         warn = lambda m: warnings.append(f'{where}: {m}')
 
         is_orn = v.get('cat') == 'orn'
-        for k in (REQUIRED_ORN if is_orn else REQUIRED_TEXT):
+        is_grape = v.get('cat') == 'grape'
+        for k in (REQUIRED_ORN if is_orn else REQUIRED_GRAPE if is_grape else REQUIRED_TEXT):
             if not isinstance(v.get(k), str) or not v.get(k).strip():
                 err(f'нет обязательного поля «{k}»')
         if is_orn and v.get('kind') not in ('Дерево', 'Кустарник', 'Лиана'):
             err('«kind» должно быть «Дерево», «Кустарник» или «Лиана»')
-        if v.get('id') and not re.fullmatch(r'[apo]\d+', v['id']):
-            err('id должен быть вида a12 (яблоня), p3 (груша) или o2 (декоративные)')
+        if v.get('id') and not re.fullmatch(r'[apog]\d+', v['id']):
+            err('id должен быть вида a12 (яблоня), p3 (груша), o2 (декоративные) или g4 (виноград)')
         elif v.get('id'):
             if PREFIX.get(v['id'][0]) != v.get('cat'):
                 err(f'id «{v["id"]}» не соответствует культуре «{v.get("cat")}»')
@@ -52,7 +54,9 @@ def validate(items=None):
         names[key] = True
 
         season = (v.get('season') or '').lower()
-        if season and not is_orn and not any(w in season for w in ('лет', 'осен', 'зим')):
+        if season and is_grape and not any(w in season for w in ('ранн', 'средн', 'поздн')):
+            err('в «season» у винограда должно быть слово «ранний», «средний» или «поздний» (по нему работает фильтр)')
+        if season and not is_orn and not is_grape and not any(w in season for w in ('лет', 'осен', 'зим')):
             err('в «season» должно быть слово «лет…», «осен…» или «зим…» (по нему работает фильтр)')
 
         facts = v.get('facts')
@@ -100,7 +104,7 @@ def validate(items=None):
         for k in ('name', 'y', 'year', 'origin', 'season', 'hardy', 'keep', 'taste', 'src', 'fun', 'yearNote', 'parents'):
             if re.search(r'<\s*script', str(v.get(k, '')), re.I): err(f'в «{k}» запрещён тег script')
 
-        pending = [k for k in (('origin', 'hardy', 'autumn', 'height', 'crown', 'bloom') if is_orn else ('year', 'origin', 'hardy', 'keep', 'taste')) if 'уточн' in str(v.get(k, '')).lower()]
+        pending = [k for k in (('origin', 'hardy', 'autumn', 'height', 'crown', 'bloom') if is_orn else ('year', 'origin', 'hardy', 'disease', 'taste') if is_grape else ('year', 'origin', 'hardy', 'keep', 'taste')) if 'уточн' in str(v.get(k, '')).lower()]
         if pending: warn('нужно уточнить: ' + ', '.join(pending))
     return errors, warnings
 

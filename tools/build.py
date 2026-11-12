@@ -6,7 +6,7 @@ from validate import validate, load_all, ROOT
 import commons
 
 LOADER = """let VARIETIES = [];
-const DATA_FILES = ['data/apple.json', 'data/pear.json', 'data/ornamental.json'];
+const DATA_FILES = ['data/apple.json', 'data/pear.json', 'data/ornamental.json', 'data/grape.json'];
 async function loadVarieties(){
   try {
     const parts = await Promise.all(DATA_FILES.map(f => fetch(f, {cache:'no-cache'}).then(r => { if(!r.ok) throw new Error(f); return r.json(); })));
