@@ -27,12 +27,21 @@ def _b64(data, mime='image/webp'):
     import base64
     return 'data:' + mime + ';base64,' + base64.b64encode(data).decode()
 
-def tiny_blur(path):
-    """Крошечная картинка (24 пикселя): растянутая на экран, она даёт мягкий размытый фон без тяжёлого фильтра."""
-    from PIL import Image
+def tiny_blur(path, soft=False):
+    """Крошечная картинка (24 пикселя): растянутая на экран, она даёт мягкий размытый фон без тяжёлого фильтра.
+    soft=True — для фото «целиком» (виноград, декоративные): узкое вертикальное фото иначе даёт на фоне полосы,
+    поэтому его сильнее размываем и чуть приглушаем контраст."""
+    from PIL import Image, ImageFilter, ImageEnhance
     import io
     im = Image.open(path).convert('RGB'); w = 24; h = max(1, round(im.size[1] * w / im.size[0]))
-    buf = io.BytesIO(); im.resize((w, h), Image.LANCZOS).save(buf, 'WEBP', quality=40, method=6)
+    if soft:
+        sw, sh = 72, max(1, round(im.size[1] * 72 / im.size[0]))
+        small = im.resize((sw, sh), Image.LANCZOS).filter(ImageFilter.GaussianBlur(14))
+        small = ImageEnhance.Contrast(small).enhance(0.75)
+        out = small.resize((w, h), Image.LANCZOS)
+    else:
+        out = im.resize((w, h), Image.LANCZOS)
+    buf = io.BytesIO(); out.save(buf, 'WEBP', quality=40, method=6)
     return _b64(buf.getvalue())
 
 def shrink(path, width, quality):
@@ -63,7 +72,7 @@ def add_blur(items, base=None):
         img = v.get('image', '')
         if v.get('imageFull'): continue            # документальное фото (стол, цветовая шкала): фон из него не делаем
         path = os.path.join(base, img) if img and not img.startswith(('http', 'data:')) else ''
-        if path and os.path.exists(path): v['imageBlur'] = tiny_blur(path)
+        if path and os.path.exists(path): v['imageBlur'] = tiny_blur(path, soft=bool(v.get('imageFit')))
 
 def main():
     errors, warnings = validate()
