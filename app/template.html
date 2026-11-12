@@ -602,6 +602,7 @@ const themeBtn = (cls = '') => {
 };
 try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if(!document.documentElement.getAttribute('data-theme')) render(); }); } catch(e) {}
 /* ---------- Данные ---------- */
+const FIT_CATS = ['orn', 'pear', 'grape'];   // фото показываются целиком, без обрезки
 const CATEGORIES = [
   {id:'apple',  title:'Яблоня',   emoji:'🍎', color:'var(--apple)'},
   {id:'pear',   title:'Груша',    emoji:'🍐', color:'var(--pear)'},
@@ -910,9 +911,9 @@ const commonsPhoto = c => {
           caption:c.caption || ''};
 };
 const photoList = v => {
-  const first = v.commons ? [{...commonsPhoto(v.commons), fit: v.cat === 'orn'}]
+  const first = v.commons ? [{...commonsPhoto(v.commons), fit: FIT_CATS.includes(v.cat)}]
               : v.image ? [{src:v.image, credit:v.imageCredit, source:v.imageSource, caption:v.imageCaption || (v.cat === 'orn' ? '' : v.cat === 'grape' ? 'Гроздь' : 'Плод'), full:!!v.imageFull, fit:!!v.imageFit}] : [];
-  const more = (v.gallery || []).map(x => typeof x === 'string' ? {src:x} : x.file ? {...commonsPhoto(x), fit: v.cat === 'orn'} : x);
+  const more = (v.gallery || []).map(x => typeof x === 'string' ? {src:x} : x.file ? {...commonsPhoto(x), fit: FIT_CATS.includes(v.cat)} : x);
   return [...first, ...more];
 };
 const photoCredits = ps => ps.filter(p => p.credit || p.source).map((p,i) =>
