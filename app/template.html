@@ -674,6 +674,9 @@ body{-webkit-hyphens:manual;hyphens:manual;overflow-wrap:break-word;word-break:n
 .dayhero .dh-top{color:#fff;background:rgba(20,26,22,.42);z-index:1}
 .dayhero .dh-name{font-size:24px;line-height:1.12;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .dayhero .dh-sub{font-size:14px;line-height:1.4;color:var(--muted);opacity:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* жест «назад»: нижняя панель стоит на месте (как в iOS), страницы едут под ней */
+.nav-layer .bottom-nav{display:none!important}
+body:has(.nav-layer) .bottom-nav{z-index:10001}
 </style>
 </head>
 <body>
@@ -2307,7 +2310,7 @@ function buildSlideLayer(delta){
   const sn = H.snapAt(delta); if(!sn) return null;
   let prev; try { prev = htmlForSnap(sn); } catch(e) { return null; }
   const mk = (cls, html) => { const d = document.createElement('div'); d.className = cls; if(html !== undefined) d.innerHTML = html; return d; };
-  const clone = (html, y) => '<div class="app-clone" style="position:absolute;left:0;right:0;top:' + (-y) + 'px">' + html + '</div>';
+  const clone = (html, y) => '<div class="app-clone" style="position:absolute;left:0;right:0;top:' + (-y) + 'px">' + html + '<div class="top-fade"></div></div>';   // ровный верх и в копиях экранов — ничего не «прыгает» после жеста
   const el = mk('nav-layer'); el.setAttribute('aria-hidden', 'true');
   const under = mk('nav-pane nav-under', clone(prev.html, prev.y));
   const shade = mk('nav-shade');
