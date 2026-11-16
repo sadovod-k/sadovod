@@ -664,6 +664,16 @@ body{-webkit-hyphens:manual;hyphens:manual;overflow-wrap:break-word;word-break:n
 @media (max-width:360px){.hs-c{display:none}}
 /* бесшовный верх: самый верх фона ровно цвета полоски с часами (theme-color), оттенок фона начинается ниже */
 .top-fade{position:fixed;top:0;left:0;right:0;height:96px;z-index:0;pointer-events:none;background:linear-gradient(var(--bg) 0,var(--bg) 14px,transparent)}
+/* «Сорт дня»: фото сверху целиком открыто, текст под фото на карточке */
+.dayhero{height:auto;display:flex;flex-direction:column;background:var(--surface);color:var(--ink)}
+.dayhero::before{display:none}
+.dayhero .dh-img{position:relative;inset:auto;display:block;width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;background:var(--c)}
+.dayhero .dh-ph{position:relative;right:auto;top:auto;display:grid;place-items:center;width:100%;aspect-ratio:16/10;font-size:120px;opacity:1;background:var(--c)}
+.dayhero .dh-ph .ico{opacity:.45}
+.dayhero .dh-body{position:static;padding:14px 18px 17px;gap:5px}
+.dayhero .dh-top{color:#fff;background:rgba(20,26,22,.42);z-index:1}
+.dayhero .dh-name{font-size:24px;line-height:1.12;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.dayhero .dh-sub{font-size:14px;line-height:1.4;color:var(--muted);opacity:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 </style>
 </head>
 <body>
@@ -913,7 +923,6 @@ function home(){
     const appleCount = count('apple'), pearCount = count('pear');
     body = `<button class="dayhero" data-id="${dp.id}" style="--c:${dc.color}" aria-label="Сорт дня: ${dp.name}">
         ${dph ? `<img class="dh-img" src="${dph.src}" alt="" decoding="sync" style="${dph.pos ? 'object-position:' + dph.pos : ''}" onerror="this.style.display='none'">${ill ? '<span class="dh-illus">иллюстрация</span>' : ''}` : `<span class="dh-ph" aria-hidden="true">${dc.emoji}</span>`}
-        <span class="dh-shade"></span>
         <span class="dh-top">${dc.id === 'orn' ? 'Растение дня' : 'Сорт дня'}</span>
         <span class="dh-body"><span class="dh-name">${dp.name}</span><span class="dh-sub">${dc.title} · ${dp.season}${/^уточнить/i.test(String(dp.y || '')) ? '' : ' · ' + dp.y}</span></span>
       </button>
